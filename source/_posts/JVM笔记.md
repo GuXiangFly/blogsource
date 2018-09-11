@@ -64,6 +64,27 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
 - fina|（一旦初始化完成，其他线程就可见） 
 
 
+## 内存图
+![JVM 内存图](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1534694453&di=a372c6fc205d8da43a39e6cb5dfd6f9d&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.kuqin.com%2Fupimg%2Fallimg%2F160518%2F20521a109-0.png)
+- 线程共享区
+    - 老年代 (Tenured Gen)
+    - 新生代
+       - Eden
+       - Survivor*2  
+- 线程独占区
+    - 虚拟机栈
+        ```
+            
+        ```
+    - 本地方法栈
+        - 本地方法栈和虚拟机栈的不同
+         ```
+            本地方法栈   为虚拟机执行native方法服务
+            JVM虚拟机栈  为虚拟机执行Java方法服务
+            （Hotspot 虚拟机中是将他们合二为一的）
+         ```
+    - 程序计数器 （程序执行到哪一行）
+
 ## GC算法
 
 ### 引用计数法
@@ -88,6 +109,8 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
 - 标记-清除  （在老年代被使用）
 - 标记-压缩  （在老年代被使用）
 - 复制算法   （新生代被使用）
+
+- 分代收集算法
 
 ### 对象的类型
 - 可触及的 
@@ -117,3 +140,15 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
   - 设置两个Survivor区和eden的比
   - 8表示 两个Survivor :eden=2:8，即一个Survivor占年轻代的1/10
 
+## debug时候的参数
+-verbose:gc -XX:+PrintGCDetails  
+默认是使用的 parallel 收集器
+更换GC收集器使用的参数的是  -XX:+UseSerialGC
+
+## 内存分配策略有如下
+- 内存优先分配到Eden （）
+- 内存担保策略（即 新生代不够 会向老年代借 将内存分配到老年代）
+- 大对象直接进入老年代
+    ```
+        之所安会有这个策略， 主要是新生代使用了复制算法，大对象进行复制时候 会消耗内存
+    ```

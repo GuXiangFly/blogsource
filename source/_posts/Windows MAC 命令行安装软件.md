@@ -63,3 +63,40 @@ cnpm i -g angular-cli
 ```
 npm install -g @angular/cli@latest
 ```
+
+#### 安装 nrm   （管理npm使用的源）
+```
+##  安装 nrm
+sudo  npm  install -g nrm
+
+##  查看nrm 的版本
+nrm ls 
+
+##  切换nrm的镜像
+nrm use taobao
+
+
+```
+
+#### 安装webpack
+```
+npm install webpack -g // 全局安装
+
+npm install webpack --save-dev  //局部项目内安装
+```
+
+#### 安装 n   （管理npm的版本）
+```
+sudo npm install -g n
+
+## 安装npm v8 的最新版
+n 8 latest
+```
+
+#### 安装 yarn 
+```
+
+
+## 安装 yo
+yarn global add yo
+```

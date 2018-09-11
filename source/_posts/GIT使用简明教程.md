@@ -28,6 +28,7 @@ tags: [git]
 
 用户名: git config --global user.name "wukong"
 邮箱信息: git config --global user.email "wukong.huaguoshan.com"
+
 注意:
 
 如果没有配置过账号信息, 那么git会有一个默认的账号信息
