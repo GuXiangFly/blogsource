@@ -1,3 +1,8 @@
+---
+title: Java interview 基础面试
+date: 2017-3-21 23:39:04
+tags: [java,面试]
+---
 # 《JAVA面试突破专题》
 
 1. 一、Java基础

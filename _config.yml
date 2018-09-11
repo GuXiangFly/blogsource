@@ -69,5 +69,5 @@ theme: next-guxiangfly
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: https://github.com/GuXiangFly/blog.git
-  branch: gh-pages
+  repository: https://github.com/GuXiangFly/guxiangfly.github.io.git
+  branch: master
