@@ -95,6 +95,8 @@ n 8 latest
 
 #### 安装 yarn 
 ```
+npm install -g yarn 
+```
 
 
 ## 安装 yo
