@@ -100,5 +100,6 @@ npm install -g yarn
 
 
 ## 安装 yo
+```
 yarn global add yo
 ```
