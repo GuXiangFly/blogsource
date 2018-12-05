@@ -201,9 +201,10 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
 ```
 白话说： 如果对象A 中有被 final 修饰的成员变量 
     那么在操作 A a = new A（）；的时候，
-    一定是
+    一定是在构造方法之后的 
 ```
  - 读重排序： 初次读一个包含 final 域的对象的引用，与随后初次读这个 final 域，这两个操作之间不能重排序。
+        就是说
 
 # 内存泄漏
         Java中的内存泄露，广义并通俗的说，就是：不再会被使用的对象的内存不能被回收，就是内存泄露。
@@ -232,11 +233,133 @@ G1 在 java9中被设置为默认的垃圾收集器
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181112030202.png)
 G1 中 不太看重 老年代 或者 新生代 
 G1采用了分区(Region)的思路，将整个堆空间分成若干个大小相等的内存区域，
-每个region有一个
+有一个global card 管理它。
 
 
-## JVM 类加载机制
 
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181121141121.png)
+ public static  int  binary_to_integer(String binary) {
+        if (binary == null || binary.length() == 0) return 0;
+        binary = binary.trim();
+        char firstChar = binary.charAt(0);
+        int sign = 1;
+        int start = 0;
+        long res = 0;
+        if (firstChar == '+') {
+            sign = 1;
+            start++;
+        } else if (firstChar == '-') {
+            sign = -1;
+            start++;
+        }
+        for (int i = start; i < binary.length(); i++) {
+            if (!Character.isDigit(binary.charAt(i))) {
+                return (int) res * sign;
+            }
+            res = res * 2 + binary.charAt(i) - '0';
+            if (sign == 1 && res > Integer.MAX_VALUE) return  Integer.MAX_VALUE;
+            if (sign == -1 && res > Integer.MAX_VALUE) return Integer.MIN_VALUE;
+        }
+        return (int) res * sign;
+    }
 
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181121141042.png)
+
+      if (head == null || head.next == null) return head;
+        ListNode pre = null;
+        while (head != null) {
+            ListNode temp = head.next;
+            head.next = pre;
+            pre = head;
+            head = temp;
+        }
+        return pre;
+
+
+
+    Node reverse(Node head) {
+        if (head == null || head.next == null) return head;
+        Node pre = null;
+        while (head != null) {
+            Node temp = head.next;
+            head.next = pre;
+            pre = head;
+            head = temp;
+        }
+        return pre;
+    }
+
+    double entropy(int[] xs) {
+        int  res =0;
+        int size = xs.length;
+
+        for (int x : xs) {
+            double p = x/size;
+            res -=p*Math.log(p)*Math.log(2);
+        }
+        return res;
+    }
+
+
+     int diff(int[] elems) {
+
+
+        int max = elems[0];
+        int min = elems[0];
+
+        for (int elem : elems) {
+            if (min < elem)
+                min = elem;
+            if (max > elem)
+                max = elem;
+        }
+
+        return max - min;
+    }
+
+
+     ArrayList<Integer> merge(ArrayList<ArrayList<Integer>> seqs) {
+        PriorityQueue priorityQueue = new PriorityQueue();
+        for (ArrayList<Integer> seq : seqs) {
+            for (Integer integer : seq) {
+                boolean add = priorityQueue.add(integer);
+
+            }
+        }
+        ArrayList<Integer> res= new ArrayList<Integer>();
+
+        while (priorityQueue.size()!=0){
+            res.add(priorityQueue.size());
+        }
+
+        return res;
+    };
+
+
+     ArrayList<Integer> merge(ArrayList<ArrayList<Integer>> seqs) {
+
+        ArrayList<Integer> res = new ArrayList<>();
+        for (ArrayList<Integer> seq : seqs) {
+            res = merge2List(res, seq);
+        }
+        
+        return res;
+    }
+
+    public static ArrayList<Integer> merge2List(ArrayList<Integer> arrayList1, ArrayList<Integer> arrayList2) {
+       ArrayList<Integer> result = new ArrayList<>();
+
+
+        int i = 0, j = 0, k = 0;
+
+        while (i < arrayList1.size() && j < arrayList2.size())
+            if (arrayList1.get(i) <= arrayList2.get(i)) {
+               result.add(arrayList1.get(i++));
+            } else {
+                result.add(arrayList2.get(i++));
+            }
+    
+        while (i < arrayList1.size())
+         result.add(arrayList1.get(i++));
+        while (j < arrayList2.size())
+            result.add(arrayList2.get(i++));
+        return result;
+    }

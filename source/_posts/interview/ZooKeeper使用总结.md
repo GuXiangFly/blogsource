@@ -72,34 +72,3 @@ ls /app1 watch
 ls 是监听子节点
 这样 如果是子节点发生变化，那么也会响应事件
 ```
-
-
-## Zookeeper面试
-
-Zookeeeper = 文件系统+监听通知机制
-
-客户端注册监听它所关心的节点，当目录节点发生变化的时候（数据改变，被删除，增加）zookeeper会通知所有注册了监听它的客户端。
-
-但是值得注意的是 zookeeper不会把节点改变的数据传回给客户端
-1.一方面是节约资源，
-2.另一方面是不一定需要。
-3. Zookeeper有着非常多的连接，担任非常重要的工作 绝对不能挂掉
-
-
-
-### zookeeper的集群
- zookeeper集群选举后， 只有leader能执行 write命令， 其他 leader follower 都能执行 read 操作
-  但是 如果 follower接受到一个 write 操作 write操作发给 leader 
-   leader 会生成一个 唯一的 全局的 顺序的 zxid（zookeeper transaction id） 
-   带着这个zxid 和 write操作 向 所有follower都发一份，然后让其他follower都发一个确认 有半数以上都ack后 就 leader会执行 commit操作 并且通知其他follower也进行 commit操作。  主要是为了保证数据一致性
-zookeeper功能
-
-### zookeeper 集群leader选举原理
- 如果 原有leader挂了  每个follower都会 投出自己的（myid，zxid） 给其他的节点。 zookeeper底层没有用 paxOS算法  使用的 ZAB原子广播协议
- 首先比较 zxid 哪个大 如果B zxid大 那么 A 会跟新自己的zxid 并且把票投给 B ，如果zxid一样大 那么选 myid大的那个投
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181121010846.png)
-1. 分布式配置中心
-2. 实现服务的注册与发现
-
-
-如果遇到缓存雪崩

@@ -198,3 +198,24 @@ kill -9  进程号
 如果无法启动mongod，就将data目录下的 mongod.lock 文件删除 这个lock文件是将进程锁住了
 ```
 
+### MongoDB的查询
+```
+db.collection.find();  
+```
+find 是查询所有符合条件的文档  没条件就是查询所有的
+
+```
+db.collection.find(trackFileRow:"stagingdata.xlsx##00000000")
+```
+
+find 返回的是一个数组， findOne 返回的是一个对象
+
+使用count 查询个数
+```
+db.collection.find().count();
+```
+
+查询 一对多的关系
+```
+
+```

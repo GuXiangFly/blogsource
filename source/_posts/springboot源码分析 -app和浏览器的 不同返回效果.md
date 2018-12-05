@@ -1,7 +1,7 @@
 ---
 title: Springboot源码分析 -app和浏览器的 不同返回效果
-date: 2017-3-11 23:09:04
-tags: [Angular,前端]
+date: 2018-3-11 23:09:04
+tags: [SpringBoot,前端]
 
 ---
 为何springboot app访问不存在页面的时候返回的是 json字符串

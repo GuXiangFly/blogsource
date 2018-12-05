@@ -1,6 +1,6 @@
 ---
 title: ES6新特性
-date: 2017-8-27 20:09:04
+date: 2018-06-27 20:09:04
 tags: [前端]
 
 ---
@@ -402,3 +402,6 @@ fs.readFile('app.js', function (error, data) {
     import $ from 'jquery'
     $('body').css('background', 'red')
     ```
+
+
+    
