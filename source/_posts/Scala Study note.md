@@ -54,7 +54,6 @@ var 可以改变
 懒值在声明时候不会初始化 会在使用到的时候 才初始化
 
 ```scala
-    
 def init(): String = {
   println("call init()")
   return ""
@@ -154,3 +153,189 @@ Scala中的函数可以根据函数体最后一行代码自行推断函数返回
 
 因为Scala可以自行推断，所以在省略return关键字的场合，返回值类型也可以省略
 如果函数明确使用return关键字，那么函数返回就不能使用自行推断了,这时要明确写成 : 返回类型 =  ，当然如果你什么都不写，即使有return 
+
+### 构造器
+```scala
+写法1
+class A() {
+}
+写法2
+class A {
+}
+
+val a = new A
+val a2 = new A()
+
+//构造器的快速入门
+//创建Person对象的同时初始化对象的age属性值和name属性值
+class Person(inName:String,inAge:Int) {
+  var name: String = inName
+  var age: Int = inAge
+  age += 10
+  println("~~~~~~~~~~")
+
+  //重写了toString，便于输出对象的信息
+  override def toString: String = {
+    "name=" + this.name + "\t age" + this.age
+  }
+
+  println("ok~~~~~")
+  println("age=" + age)
+
+  def this(name:String) {
+    //辅助构造器，必须在第一行显式调用主构造器(可以是直接，也可以是间接)
+    this("jack", 10)
+    //this
+    this.name = name //重新赋值
+  }
+}
+object ConDemo02 {
+
+  def main(args: Array[String]): Unit = {
+    val a = new AA("jack")
+    //输出的顺序是
+    //1. b~~~ 父类
+    //2. AA() 主构造器
+    //3. A this(name:String) 辅助构造器
+  }
+}
+
+## 辅助构造器
+class BB(){
+  println("b~~~")
+}
+
+class AA() extends BB() {
+  println("AA()")
+  def this(name:String) {
+    this
+    println("A this(name:String)")
+  }
+}
+
+
+```
+
+### Scala 的包
+scala 会自动引入常用的包
+
+java.lang.*
+scala.* 包
+Predef 包
+
+### scala 半生对象
+当一个文件中出现了 class Clerk 和 object Clerk
+1. class Clerk 称为伴生类
+2. object Clerk 的伴生对象
+3. 因为scala设计者将static拿掉, 他就是设计了 伴生类和伴生对象的概念
+4. 伴生类 写非静态的内容 伴生对象 就是静态内容
+
+### apply方法
+伴生对象-apply方法.
+在伴生对象中定义apply方法，可以实现： 类名(参数) 方式来创建对象实例. 
+
+
+### 特质 trait
+一个类具有某种特质（特征），就意味着这个类满足了这个特质（特征）的所有要素，所以在使用时，也采用了extends关键字，如果有多个特质或存在父类，那么需要采用with关键字连接
+
+没有父类class  类名   extends   特质1   with    特质2   with   特质3 ..
+
+有父类class  类名   extends   父类   with  特质1   with   特质2   with 特质3
+
+
+### scala 的 implicit
+```scala
+
+//小结
+//1. 当在程序中，同时有 隐式值，默认值，传值
+//2. 编译器的优先级为 传值 > 隐式值 > 默认值
+//3. 在隐式值匹配时，不能有二义性
+//4. 如果三个 （隐式值，默认值，传值） 一个都没有，就会报错
+
+object ImplicitVal02 {
+  def main(args: Array[String]): Unit = {
+    // 隐式变量（值）
+//    implicit val name: String = "Scala"
+    //implicit val name1: String = "World"
+
+    //隐式参数
+    def hello(implicit content: String = "jack"): Unit = {
+      println("Hello " + content)
+    } //调用hello
+    hello
+
+    //当同时有implicit 值和默认值，implicit 优先级高
+    def hello2(implicit content: String = "jack"): Unit = {
+      println("Hello2 " + content)
+    } //调用hello
+    hello2
+
+
+    //说明
+    //1. 当一个隐式参数匹配不到隐式值，仍然会使用默认值
+
+    implicit val name: Int = 10
+    def hello3(implicit content: String = "jack"): Unit = {
+      println("Hello3 " + content)
+    } //调用hello
+    hello3 //  hello3 jack
+
+//    //当没有隐式值，没有默认值，又没有传值，就会报错
+//    def hello4(implicit content: String ): Unit = {
+//      println("Hello4 " + content)
+//    } //调用hello
+//    hello4 //  hello3 jack
+  }
+}
+```
+
+### 隐式类
+```scala
+object ImplicitClassDemo {
+
+  def main(args: Array[String]): Unit = {
+    //DB1会对应生成隐式类
+    //DB1是一个隐式类, 当我们在该隐式类的作用域范围，创建MySQL1实例
+    //该隐式类就会生效, 这个工作仍然编译器完成
+    //看底层..
+    implicit class DB1(val m: MySQL1) { //ImplicitClassDemo$DB1$2
+      def addSuffix(): String = {
+        m + " scala"
+      }
+    }
+
+
+    //创建一个MySQL1实例
+    val mySQL = new MySQL1
+    mySQL.sayOk()
+    mySQL.addSuffix() //研究 如何关联到 DB1$1(mySQL).addSuffix();
+
+    implicit def f1(d:Double): Int = {
+      d.toInt
+    }
+
+    def test1(n1:Int): Unit = {
+      println("ok")
+    }
+    test1(10.1)
+
+  }
+}
+class DB1 {}
+class MySQL1 {
+  def sayOk(): Unit = {
+    println("sayOk")
+  }
+}
+```
+
+### Scala集合类
+
+![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190128203945.png)
+
+
+### scala的遍历
+三种方式 
+```scala
+
+```
