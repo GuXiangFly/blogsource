@@ -334,8 +334,317 @@ class MySQL1 {
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190128203945.png)
 
 
-### scala的遍历
-三种方式 
+### Scala数组与Java的List的互转
+```scala
+// Scala集合和Java集合互相转换
+val arr = ArrayBuffer("1", "2", "3")
+import scala.collection.JavaConversions.bufferAsJavaList
+val javaArr = new ProcessBuilder(arr) //为什么可以这样使用?
+val arrList = javaArr.command()
+println(arrList) //输出 [1, 2, 3]
+
+
+import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable
+// java.util.List ==> Buffer
+val scalaArr: mutable.Buffer[String] = arrList
+scalaArr.append("jack")
+println(scalaArr)
+//案例演示+说明
+```
+
+## 元组Tuple
+元组也是可以理解为一个容器，可以存放各种相同或不同类型的数据。
+说的简单点，就是将多个无关的数据封装为一个整体，称为元组, 最多的特点灵活,对数据没有过多的约束。
+注意：元组中最大只能有22个元素
+
+
+```scala
+object TupleDemo01 {
+  def main(args: Array[String]): Unit = {
+    //创建
+    //说明 1. tuple1 就是一个Tuple 类型是Tuple5
+    //简单说明: 为了高效的操作元组 ， 编译器根据元素的个数不同，对应不同的元组类型
+    // 分别 Tuple1----Tuple22
+
+    val tuple1 = (1, 2, 3, "hello", 4)
+    println(tuple1)
+
+    println("==================访问元组=========================")
+    //访问元组
+    val t1 = (1, "a", "b", true, 2)
+    println(t1._1) // 1 //访问元组的第一个元素 ，从1开始
+    /*
+     override def productElement(n: Int) = n match {
+    case 0 => _1
+    case 1 => _2
+    case 2 => _3
+    case 3 => _4
+    case 4 => _5
+    case _ => throw new IndexOutOfBoundsException(n.toString())
+ }
+     */
+    println(t1.productElement(0)) // 0 // 访问元组的第一个元素，从0开始
+
+
+    println("==================遍历元组=========================")
+    //遍历元组, 元组的遍历需要使用到迭代器
+    for (item <- t1.productIterator) {
+      println("item=" + item)
+    }
+  }
+}
+```
+
+
+###  List 的 追加元素  
+说明:
+符号::表示向集合中  新建集合添加元素。
+运算时，集合对象一定要放置在最右边，
+运算规则，从右向左。
+::: 运算符是将集合中的每一个元素加入到空集合中去
+
 ```scala
 
+object ListDemo01 {
+  def main(args: Array[String]): Unit = {
+    //说明
+    //1. 在默认情况下 List 是scala.collection.immutable.List,即不可变
+    //2. 在scala中,List就是不可变的，如需要使用可变的List,则使用ListBuffer
+    //3. List 在 package object scala 做了 val List = scala.collection.immutable.List
+    //4. val Nil = scala.collection.immutable.Nil // List()
+
+    val list01 = List(1, 2, 3, "Hello") //创建时，直接分配元素
+    println(list01)
+
+    val list02 = Nil  //空集合
+    println(list02)
+
+    //访问List的元素
+    val value1 = list01(1) // 1是索引，表示取出第2个元素.
+    println("value1=" + value1) // 2
+
+
+    println("-------------list追加元素后的效果-----------------")
+    //通过 :+ 和 +: 给list追加元素(本身的集合并没有变化)
+    var list1 = List(1, 2, 3, "abc")
+    // :+运算符表示在列表的最后增加数据
+    val list2 = list1 :+ 4 // (1,2,3,"abc", 4)
+    println(list1) //list1没有变化 (1, 2, 3, "abc"),说明list1还是不可变
+    println(list2) //新的列表结果是 [1, 2, 3, "abc", 4]
+
+    val list3 = 10 +: list1 // (10,1, 2, 3, "abc")
+    println("list3=" + list3)
+
+
+    //:: 符号的使用
+
+    val list4 = List(1, 2, 3, "abc")
+    //说明 val list5 = 4 :: 5 :: 6 :: list4 :: Nil 步骤
+    //1. List()
+    //2. List(List(1, 2, 3, "abc"))
+    //3. List(6,List(1, 2, 3, "abc"))
+    //4. List(5,6,List(1, 2, 3, "abc"))
+    //5. List(4,5,6,List(1, 2, 3, "abc"))
+    val list5 = 4 :: 5 :: 6 :: list4 :: Nil
+    println("list5=" + list5)
+
+    //说明 val list6 = 4 :: 5 :: 6 :: list4 ::: Nil 步骤
+    //1. List()
+    //2. List(1, 2, 3, "abc")
+    //3. List(6,1, 2, 3, "abc")
+    //4. List(5,6,1, 2, 3, "abc")
+    //5. List(4,5,6,1, 2, 3, "abc")
+    val list6 = 4 :: 5 :: 6 :: list4 ::: Nil
+    println("list6=" + list6)
+  }
+}
+```
+
+
+### Map 的构建方式
+```scala
+
+object MapDemo01 {
+  def main(args: Array[String]): Unit = {
+
+    //方式1-构造不可变映射
+    //1.默认Map是 immutable.Map
+    //2.key-value 类型支持Any
+    //3.在Map的底层，每对key-value是Tuple2
+    //4.从输出的结果看到，输出顺序和声明顺序一致
+    val map1 = Map("Alice" -> 10, "Bob" -> 20, "Kotlin" -> "北京")
+    println(map1)
+    //方式2-构造可变映射
+    //1.从输出的结果看到，可变的map输出顺序和声明顺序不一致
+    val map2 = mutable.Map("Alice" -> 10, "Bob" -> 20, "Kotlin" -> "北京")
+    println(map2)
+    //方式3-创建空的映射
+    val map3 = new scala.collection.mutable.HashMap[String, Int]
+    println("map3=" + map3)
+    //方式4-对偶元组
+    val map4 = mutable.Map(("Alice", 10), ("Bob", 20), ("Kotlin", "北京"))
+    println("map4=" + map4)
+    
+    
+    
+    
+    
+    
+    //方式1-使用map(key)
+    println(map4("Alice")) // 10
+    //抛出异常（java.util.NoSuchElementException: key not found:）
+    //println(map4("Alice~"))
+
+    //方式2-使用contains方法检查是否存在key
+    if (map4.contains("Alice")) {
+      println("key存在，值=" + map4("Alice"))
+    } else {
+      println("key不存在:)")
+    }
+
+    //方式3 方式3-使用map.get(key).get取值
+    //1. 如果key存在 map.get(key) 就会返回Some(值)  ,然后Some(值).get就可以取出
+    //2. 如果key不存在 map.get(key) 就会返回None
+
+    println(map4.get("Alice").get)
+    //println(map4.get("Alice~").get)  // 抛出异常
+
+    //方式4-使用map4.getOrElse()取值
+    println(map4.getOrElse("Alice~~~", "默认的值 鱼 <・)))><<"))
+
+
+    val map5 = mutable.Map(("A", 1), ("B", "北京"), ("C", 3))
+    map5("A") = 20 //增加
+    println("map5=" + map5)
+
+    map5 += ("A" -> 100)
+    println("map5=" + map5)
+
+    map5 -= ("A", "B", "AAA") //
+    println("map5=" + map5)
+
+    //map的遍历
+    val map6 = mutable.Map(("A", 1), ("B", "北京"), ("C", 3))
+    println("----(k, v) <- map6--------")
+    for ((k, v) <- map6) println(k + " is mapped to " + v)
+
+    println("----v <- map6.keys--------")
+    for (v <- map6.keys) println(v)
+    println("----v <- map6.values--------")
+    for (v <- map6.values) println(v)
+
+    //这样取出方式 v 类型是 Tuple2
+    println("----v <- map6--------")
+    for (v <- map6) println(v + " key =" + v._1 + " val=" + v._2) //v是Tuple?
+  }
+}
+
+```
+
+### Map 的遍历
+```scala
+    //map的遍历
+    val map6 = mutable.Map(("A", 1), ("B", "北京"), ("C", 3))
+    println("----(k, v) <- map6--------")
+    for ((k, v) <- map6) println(k + " is mapped to " + v)
+
+    println("----v <- map6.keys--------")
+    for (v <- map6.keys) println(v)
+    println("----v <- map6.values--------")
+    for (v <- map6.values) println(v)
+    
+     //这样取出方式 v 类型是 Tuple2
+     println("----v <- map6--------")
+     
+     
+     for (v <- map6) println(v + " key =" + v._1 + " val=" + v._2) //v是Tuple?
+    
+```
+
+### 高阶函数部分
+假设有个方法
+```scala
+  def myPrint(): Unit = {
+    println("hello,world!")
+  }
+  
+      //在scala中，可以把一个函数直接赋给一个变量,但是不执行函数
+      val f1 = myPrint _    这个不会执行这个函数
+      val  f2 = myPrint     这个会执行这个函数
+```
+
+
+### flatmap 操作
+```scala
+flatmap映射：flat即压扁，压平，扁平化映射
+flatmap：flat即压扁，压平，扁平化，效果就是将集合中的每个元素的子元素映射到某个函数并返回新的集合。
+看一个案例：
+
+就是 函数中每个元素 如果是个 list  那么将元素中的list 也进行一次遍历
+val names = List("Alice", "Bob", "Nick")
+def upper( s : String ) : String = {
+    s. toUpperCase
+}
+//注意：每个字符串也是char集合
+println(names.flatMap(upper)) 
+```
+
+### Reduce 化简  流程
+化简：将二元函数引用于集合中的函数,。
+reduceLeft 就是从左边开始 每次讲前一次的返回结果 作为后一次的 第一个输入结果
+//说明
+1. def reduceLeft[B >: A](@deprecatedName('f) op: (B, A) => B): B
+2. reduceLeft(f) 接收的函数需要的形式为 op: (B, A) => B): B
+3. reduceleft(f) 的运行规则是 从左边开始执行将得到的结果返回给第一个参数
+4. 然后继续和下一个元素运行，将得到的结果继续返回给第一个参数，继续..
+5. 即: //((((1 + 2)  + 3) + 4) + 5) = 15
+
+### Flod 折叠
+fold函数将上一步返回的值作为函数的第一个参数继续传递参与运算，直到list中的所有元素被遍历。
+如何理解:def reduceLeft[B >: A](@deprecatedName('f) op: (B, A) => B): B =  if (isEmpty) throw new UnsupportedOperationException("empty.reduceLeft")  else tail.foldLeft[B](head)(op)大家可以看到. reduceLeft就是调用的foldLeft[B](head)，并且是默认从集合的head元素开始操作的。
+相关函数：fold，foldLeft，foldRight，可以参考reduce的相关方法理解
+
+```scala
+
+object FoldDemo01 {
+  def main(args: Array[String]): Unit = {
+
+    val list = List(1, 2, 3, 4)
+    def minus( num1 : Int, num2 : Int ): Int = {
+      num1 - num2
+    }
+
+    //说明
+    //1. 折叠的理解和化简的运行机制几乎一样.
+    //理解 list.foldLeft(5)(minus) 理解成 list(5,1, 2, 3, 4) list.reduceLeft(minus)
+    //步骤  (5-1)
+    //步骤  ((5-1) - 2)
+    //步骤  (((5-1) - 2) - 3)
+    //步骤  ((((5-1) - 2) - 3)) - 4 = - 5
+    println(list.foldLeft(5)(minus)) // 函数的柯里化
+    ////理解 list.foldRight(5)(minus) 理解成 list(1, 2, 3, 4, 5) list.reduceRight(minus)
+    // 步骤 (4 - 5)
+    // 步骤 (3- (4 - 5))
+    // 步骤 (2 -(3- (4 - 5)))
+    // 步骤 1- (2 -(3- (4 - 5))) = 3
+    println(list.foldRight(5)(minus)) //
+  }
+}
+```
+折叠的简写方法 /:
+/: 左折叠
+：\ 右折叠
+var i6 = (1 /: list4) (minus) // =等价=> list4.foldLeft(1)(minus)
+```scala
+val list4 = List(1, 9, 2, 8)
+def minus(num1: Int, num2: Int): Int = {
+num1 - num2
+}
+var i6 = (1 /: list4) (minus) // =等价=> list4.foldLeft(1)(minus)
+println(i6) // 输出?
+i6 = (100 /: list4) (minus)
+println(i6) // 输出?
+i6 = (list4 :\ 10) (minus) // list4.foldRight(10)(minus)
+println(i6) // 输出?
 ```

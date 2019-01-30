@@ -107,7 +107,7 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
 
 
 - 线程独占区
-    - 虚拟机栈
+    - JVM虚拟机栈
         ```
             
         ```
