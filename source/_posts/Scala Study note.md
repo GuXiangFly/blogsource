@@ -648,3 +648,193 @@ println(i6) // 输出?
 i6 = (list4 :\ 10) (minus) // list4.foldRight(10)(minus)
 println(i6) // 输出?
 ```
+
+
+###  scala 中 _ 的含义
+1. 将方法转为函数  fun1() 方法 可以  val f1 = fun1 _ 通过这个来转为函数
+2. 将元素赋值 int a =_   表示给 a 赋值一个默认值
+3. match case _ 如果有守卫表示忽略传入的 ch
+4. match case _ 如果没有守卫表示 默认的匹配
+5. 集合遍历的每个元素
+### scala 的Match
+match的细节和注意事项
+
+如果所有case都不匹配，那么会执行case _ 分支，类似于Java中default语句
+如果所有case都不匹配，又没有写case _ 分支，那么会抛出MatchError
+每个case中，不用break语句，自动中断case
+可以在match中使用其它类型，而不仅仅是字符
+
+=> 等价于 java swtich 的 :
+=> 后面的代码块到下一个 case， 是作为一个整体执行，可以使用{} 扩起来，也可以不扩。 
+
+```scala
+val oper = '#'
+val n1 = 20
+val n2 = 10
+var res = 0
+oper match {
+case '+' => res = n1 + n2
+case '-' => res = n1 - n2
+case '*' => res = n1 * n2
+case '/' => res = n1 / n2
+case _ => println("oper error")
+}
+println("res=" + res)
+```
+
+模式匹配范围
+```scala
+for (ch <- "+-3!") {
+var sign = 0
+var digit = 0
+ch match {
+case '+' => sign = 1
+case '-' => sign = -1
+// 说明..
+case _ if ch.toString.equals("3") => digit = 3
+case _ => sign = 2
+}
+println(ch + " " + sign + " " + digit)
+}
+
+```
+
+### match case 的 表达式和 返回值
+```scala
+object MatchVar {
+  def main(args: Array[String]): Unit = {
+    val ch = 'U'
+    ch match {
+      case '+' => println("ok~")
+      // 下面 case mychar 含义是 mychar = ch
+      case mychar => println("ok~" + mychar)
+      case _ => println ("ok~~")
+    }
+
+    val ch1 = '+'
+    //match是一个表达式，因此可以有返回值
+    //返回值就是匹配到的代码块的最后一句话的值
+    val res = ch1 match {
+      case '+' => ch1 + " hello "
+      // 下面 case mychar 含义是 mychar = ch
+      case _ => println ("ok~~")
+    }
+    println("res=" + res)
+  }
+}
+```
+
+
+### 偏函数的简写
+```scala
+object PartialFun03 {
+  def main(args: Array[String]): Unit = {
+
+    //可以将前面的案例的偏函数简写
+    def partialFun2: PartialFunction[Any,Int] = {
+      //简写成case 语句
+      case i:Int => i + 1
+      case j:Double => (j * 2).toInt
+    }
+
+    val list = List(1, 2, 3, 4, 1.2, 2.4, 1.9f, "hello")
+    val list2 = list.collect(partialFun2)
+    println("list2=" + list2)
+
+    //第二种简写形式
+    val list3 = list.collect{
+      case i:Int => i + 1
+      case j:Double => (j * 2).toInt
+      case k:Float => (k * 3).toInt
+    }
+    println("list3=" + list3) // (2,3,4,5)
+  }
+}
+```
+
+### 高阶函数
+能够接受函数作为参数的函数，叫做高阶函数 (higher-order function)。可使应用程序更加健壮。
+```scala
+//test 就是一个高阶函数，它可以接收f: Double => Double 
+def test(f: Double => Double, n1: Double) = {
+f(n1)
+}
+//sum 是接收一个Double,返回一个Double
+def sum(d: Double): Double = {
+d + d
+}
+val res = test(sum, 6.0)
+println("res=" + res)
+```
+
+```scala
+说明: def minusxy(x: Int) = (y: Int) => x - y
+函数名为 minusxy
+该函数返回一个匿名函数
+        (y: Int) = > x -y
+     
+说明val result3 = minusxy(3)(5)
+
+minusxy(3)执行minusxy(x: Int)得到 (y: Int) => 3 - y 这个匿名函
+minusxy(3)(5)执行 (y: Int) => x - y 这个匿名函数
+也可以分步执行: val f1 = minusxy(3);   val res = f1(90)
+
+```
+
+### 参数类型推断
+- 参数类型是可以推断时，可以省略参数类型
+- 当传入的函数，只有单个参数时，可以省去括号
+- 如果变量只在=>右边只出现一次，可以用_来代替
+```scala
+//分别说明
+val list = List(1, 2, 3, 4)
+println(list.map((x:Int)=>x + 1)) //(2,3,4,5)
+println(list.map((x)=>x + 1))
+println(list.map(x=>x + 1))
+println(list.map(_ + 1))
+val res = list.reduce(_+_)
+
+map是一个高阶函数，因此也可以直接传入一个匿名函数，完成map
+当遍历list时，参数类型是可以推断出来的，可以省略数据类型
+Int println(list.map((x)=>x + 1))
+当传入的函数，只有单个参数时，可以省去括号
+println(list.map(x=>x + 1))
+如果变量只在=>右边只出现一次，可以用_来代替
+println(list.map(_ + 1))
+```
+
+### scala 的闭包
+闭包就是通过一个函数
+```scala
+object ClosureDemo {
+  def main(args: Array[String]): Unit = {
+
+    /*
+    请编写一个程序，具体要求如下
+    1.编写一个函数 makeSuffix(suffix: String)  可以接收一个文件后缀名(比如.jpg)，     并返回一个闭包
+     2.调用闭包，可以传入一个文件名，如果该文件名没有指定的后缀(比如.jpg) ,则返回 文件名.jpg , 如果已经有.jpg后缀，则返回原文件名。
+     比如 文件名 是 dog =>dog.jpg
+     比如  文件名 是 cat.jpg => cat.jpg
+    3.要求使用闭包的方式完成
+      提示：String.endsWith(xx)
+
+     */
+    //使用并测试
+    val f = makeSuffix(".jpg")
+    println(f("dog.jpg")) // dog.jpg
+    println(f("cat")) // cat.jpg
+
+  }
+  def makeSuffix(suffix: String) = {
+    //返回一个匿名函数，回使用到suffix
+    (filename:String) => {
+      if (filename.endsWith(suffix)) {
+        filename
+      } else {
+        filename + suffix
+      }
+    }
+  }
+}
+
+```
