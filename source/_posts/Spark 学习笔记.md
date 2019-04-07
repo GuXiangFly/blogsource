@@ -479,3 +479,22 @@ object SortWordCount {
 }
 
 ```
+
+### 宽依赖和窄依赖
+- 窄依赖： 英文全名 narrow dependency。 什么情况叫做窄依赖呢？
+一个RDD ，对他的父RDD，只有简单的一对一的依赖关系，也就是说，RDD 的每个partition，
+仅仅依赖于父RDD的一个partition，父RDD 和子 RDD 之间的是一一对应的关系
+- 宽依赖：英文全名 shuffle dependency。 本质就是shuffle
+每一个父
+![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190206200039.png)
+
+
+### parquet 存储格式
+有以下优点
+- 列存储： 一般来说我们来分析东西 都是select age from students  这种。如果使用行存储，会将students 的其他类似学号等信息也读出然后
+过滤，这个其实还是增加了磁盘的io，使用列存储 更加适合分析问题
+= 对存储添加了压缩
+- 支持向量运算
+
+
+###  
