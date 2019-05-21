@@ -29,6 +29,19 @@ choco install nodejs
 choco install python2
 ```
 
+#### 使用 nvm-windows
+首先 在这个地址中下载 nvm-setup版 https://github.com/coreybutler/nvm-windows/releases
+
+使用 setup版安装 会让你选两个路径 
+-  通过 nvm 安装 nodejs
+
+继续输入命令：`nvm install latest` 如果网络畅通，我们会看到正在下载的提示，下载完成后 会让你use那个最新的node版本。
+
+用nvm install node版本号来安装node，如 
+```
+nvm install 8.0.0
+```
+
 #### Java
 
 
