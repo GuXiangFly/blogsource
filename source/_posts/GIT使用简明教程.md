@@ -44,10 +44,10 @@ tags: [git]
 版本号 : 40位, 哈希值 . 哈希值是唯一的, 只要服务器看见版本不一样就可以提交到远程服务器
 增强版log : 配置带颜色的log别名 提供版本号的前七位
 ```
-$ git config --global alias.lg "log --color --graph  
+git config --global alias.lg "log --color --graph  
 --pretty=format:'%Cred%h%Creset   
 -%C(yellow)%d%Creset %s %Cgreen(%cr)   
-%C(bold blue)<%an>%Creset' --abbrev-commit"`
+%C(bold blue)<%an>%Creset' --abbrev-commit"
 ```
 粘贴上面那段后:输入 git lg 回车
 
