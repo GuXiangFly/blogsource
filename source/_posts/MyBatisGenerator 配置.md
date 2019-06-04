@@ -1,3 +1,9 @@
+---
+title: MyBatis Generator配置
+date: 2017-11-1 13:22:54
+tags: [java]
+
+---
 ## MyBatis Generator 是什么
 MyBatis Generator是一个可以用来生成Mybatis dao,entity,Mapper文件的一个工具,在项目的过程中可以省去很多重复的工作,我们只要在MyBatis Generator的配置文件中配置好要生成的表名与包名，然后运行一条命令就会生成一堆文件。
 ## 如何配置依赖

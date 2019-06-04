@@ -34,4 +34,6 @@ java -cp  xxx.jar;bbb.jar   com.guxiangfly.Maina
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20181224023721.png)
 
 
-是的是的ssdf
+## 数据倾斜
+数据倾斜，就是在进行MapReduce 时候 ，某一个 reducer过大 导致整个 MR 程序执行过慢
+在hive中 我们会将空key 给一个随机数 让它 执行 “空” 这个字段reducer 的时候  不要过多
