@@ -1,3 +1,8 @@
+---
+title: Gradle学习
+date: 2018-11-27 21:09:04
+tags: [java]
+---
 ## 常用命令
 
 Gradle 生成的 build文件夹 类似于 Maven的  target 
