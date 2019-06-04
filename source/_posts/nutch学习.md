@@ -1,4 +1,9 @@
+---
+title: nutch 学习
+date: 2018-9-5 23:00:04
+tags: [大数据]
 
+---
 首先我们需要对 nutch-site.xml 的添加 agent
 ```xml
  <property>
