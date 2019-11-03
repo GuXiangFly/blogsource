@@ -243,8 +243,21 @@ JMM用处是定义程序中变量的返回规则
 - Volatile 关键词 强制变量的读取会从主内存刷新，变量的write也会从工作区刷新到主内存
 线程A修改完变量后是先修改工作内存的值，再讲
 
+
+
+
 ## ZGC 
 
+
+# 类加载策略
+- 1. 当虚拟机遇到new getstatic putstatic 或者 invokestatic的时候，如果类没有进行过初始化，需要先触发它的初始化（读取类的final修饰的静态字段除外）
+- 2. 当reflect包的方法对类进行反射调用的时候，需要
+
+
+### 不被初始化的例子
+- 通过子类引用父类的静态字段，子类不会被初始化
+- 通过数组定义引用类 不会被初始化
+- 调用类的final修饰的常量
 ``` 
  public static  int  binary_to_integer(String binary) {
         if (binary == null || binary.length() == 0) return 0;
@@ -373,3 +386,4 @@ JMM用处是定义程序中变量的返回规则
         return result;
     }
 ```
+
