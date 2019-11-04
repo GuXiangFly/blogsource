@@ -72,3 +72,27 @@ ls /app1 watch
 ls 是监听子节点
 这样 如果是子节点发生变化，那么也会响应事件
 ```
+
+#### zookeeper的节点类
+- 持久（persistent）：客户端与服务器断开连接后，创建的节点不删除  
+    持久中又有两种类型节点
+    - 持久化目录节点
+    -出九华顺序编号牡蛎节点
+- 短暂（ephemeral）：客户端与服务器断开连接后，创建的节点自己删除
+
+
+## 面试题
+- zookeeper的部署方式有哪几种
+    - （1）单机 集群
+- 集群的角色有哪些
+    - leader follower
+- 集群中最少需要多少台机器
+    - 3台
+ 
+## zookeeper监听原理
+1. 首先 有个main线程
+2. 创建zkClient  在创建Zookeeper Client 的时候会有创建两个线程，一个负责网络连接（connet）
+一个负责监听（listener）
+3. 通过 connct线程将注册的监听事件发给zookeeper
+4. zookeeper监听到数据或者路径有变化后，就会将消息发给 listener线程，线程内部会调用 process（）方法
+![](https://i.loli.net/2019/11/03/1QhdgYV3KlrNLyS.png)

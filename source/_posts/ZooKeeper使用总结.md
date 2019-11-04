@@ -95,7 +95,7 @@ Zookeeeper = 文件系统+监听通知机制
 zookeeper功能
 
 ### zookeeper 集群leader选举原理
- 如果 原有leader挂了  每个follower都会 投出自己的（myid，zxid） 给其他的节点。 zookeeper底层没有用 paxOS算法  使用的 ZAB原子广播协议
+ 如果 原有leader挂了  每个follower都会 投出自己的（myid，zxid） 给其他的节点。 zookeeper底层没有用 paxOS算法使用的ZAB原子广播协议
  首先比较 zxid 哪个大 如果B zxid大 那么 A 会跟新自己的zxid 并且把票投给 B ，如果zxid一样大 那么选 myid大的那个投
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181121010846.png)
 1. 分布式配置中心
