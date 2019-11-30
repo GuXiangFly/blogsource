@@ -34,4 +34,11 @@ java -cp  xxx.jar;bbb.jar   com.guxiangfly.Maina
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20181224023721.png)
 
 
-是的是的ssdf
+```
+hbase(main)> put 'student','1001','info:name','Thomas'
+hbase(main)> put 'student','1001','info:sex','male'
+hbase(main)> put 'student','1001','info:age','18'
+hbase(main)> put 'student','1002','info:name','Janna'
+hbase(main)> put 'student','1002','info:sex','female'
+hbase(main)> put 'student','1002','info:age','20'
+```

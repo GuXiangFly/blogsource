@@ -96,3 +96,32 @@ ls 是监听子节点
 3. 通过 connct线程将注册的监听事件发给zookeeper
 4. zookeeper监听到数据或者路径有变化后，就会将消息发给 listener线程，线程内部会调用 process（）方法
 ![](https://i.loli.net/2019/11/03/1QhdgYV3KlrNLyS.png)
+
+
+## zookeeper ZAB原子广播协议
+- ZAB原子广播协议主要有两块
+    - 广播模式（二阶段提交）
+    - 恢复模式
+    
+ 假设有1,2,3三个服务器
+![zookeeper集群示意图](https://i.loli.net/2019/11/11/Yq57jkirITHSEtd.png)
+
+- 假设有客户端对 follower1 进行了写请求  
+follower1是不能直接进行写请求的，它会内部把写请求发送给leader节点进行写处理  
+leader节点进行write，要进行二阶段提交
+
+### zookeeper write请求的处理过程
+- 1. write请求（事务请求）进入leader节点的时候，会生成一个zxid（zookeeper事务Id），（唯一的,全局的,顺序的 ZXID）
+- 2. leader节点会将这个 write请求 带着他的  zxid  通知给它的follower节点
+- 3. follower节点被通知到这个 write请求后 会发送一个ack确认给leader节点
+- 4. leader节点收到这个ack请求，会统计一下这个ack请求的数量。
+- 5. 只要有半数以上的follower返回了ack确认，那么leader就会进行一下commit，并且通知他的follower也进行commit。
+
+
+### leader节点挂了怎么办
+
+
+
+## zookeeper假死和脑裂
+- 什么是脑裂问题
+- 

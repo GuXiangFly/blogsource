@@ -53,3 +53,12 @@ class PBPlayer{
 	private List<Integer> skills = new ArrayList<>();
 }
 ```
+
+
+### 解释一下 playerId = 1; age = 2; 里面1 2 的含义
+```
+原来序列化需要这样
+{"playerId":"basketball";"age":"18"}
+现在只需要这样
+{"1":"basketball";"2":"18"}
+```
