@@ -52,7 +52,7 @@ docker run -it --rm stress --cpu 1 (占用一个cpu)
 
 ## docker 安装 mysql 
 ```
-sudo docker run --name first-mysql -p 3306:3306 -e MYSQL\_ROOT\_PASSWORD=root -d mysql
+sudo docker run --name first-mysql -p 3306:3306 -e MYSQL\_ROOT\_PASSWORD=root -d mysql:5.7
 ```
 
 ## docker 安装 oracle 

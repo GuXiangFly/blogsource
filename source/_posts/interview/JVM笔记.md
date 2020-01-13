@@ -110,6 +110,7 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
         ```
            
         ```
+        
     - 本地方法栈
         - 本地方法栈和虚拟机栈的不同
          ```
@@ -117,7 +118,14 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
             JVM虚拟机栈  为虚拟机执行Java方法服务
             （Hotspot 虚拟机中是将他们合二为一的）
          ```
+        
     - 程序计数器 （程序执行到哪一行）
+
+## JVM 参数调优
+
+![](https://i.loli.net/2019/12/11/vbguOsk4XEyFZRw.png)
+
+-XX:NewSize 
 
 ## GC算法
 
@@ -171,11 +179,12 @@ SoftReference<String> softRef = new SoftReference<String>(str)
 ```
 
 有哪些可以作为 GC root
-- 根
+- **GC root**
+  -  **由系统类加载器(system class loader)加载的对象** （不带有自定义类加载器），这些类是不能够被回收的，他们可以以静态字段的方式保存持有其它对象。我们需要注意的一点就是，通过用户自定义的类加载器加载的类，除非相应的java.lang.Class实例以其它的某种（或多种）方式成为roots，否则它们并不是roots。
   - 栈中引用的对象
   - 方法区中静态成员或者常量引用的对象（全局对象） （引出JDK1.7之后JVM常量池不存在方法区，1.8后没有了方法区）
   - JNI方法栈中引用对象
-  - 活跃线程的引用对象
+  - **活的Thread**
 
 ### 触发Full GC的条件
 full GC 也叫 major GC
@@ -267,6 +276,8 @@ JMM用处是定义程序中变量的返回规则
 
 
 
+
+
 ## ZGC 
 
 
@@ -279,132 +290,82 @@ JMM用处是定义程序中变量的返回规则
 - 通过子类引用父类的静态字段，子类不会被初始化
 - 通过数组定义引用类 不会被初始化
 - 调用类的final修饰的常量
-``` 
- public static  int  binary_to_integer(String binary) {
-        if (binary == null || binary.length() == 0) return 0;
-        binary = binary.trim();
-        char firstChar = binary.charAt(0);
-        int sign = 1;
-        int start = 0;
-        long res = 0;
-        if (firstChar == '+') {
-            sign = 1;
-            start++;
-        } else if (firstChar == '-') {
-            sign = -1;
-            start++;
-        }
-        for (int i = start; i < binary.length(); i++) {
-            if (!Character.isDigit(binary.charAt(i))) {
-                return (int) res * sign;
-            }
-            res = res * 2 + binary.charAt(i) - '0';
-            if (sign == 1 && res > Integer.MAX_VALUE) return  Integer.MAX_VALUE;
-            if (sign == -1 && res > Integer.MAX_VALUE) return Integer.MIN_VALUE;
-        }
-        return (int) res * sign;
-    }
-
-
-      if (head == null || head.next == null) return head;
-        ListNode pre = null;
-        while (head != null) {
-            ListNode temp = head.next;
-            head.next = pre;
-            pre = head;
-            head = temp;
-        }
-        return pre;
 
 
 
-    Node reverse(Node head) {
-        if (head == null || head.next == null) return head;
-        Node pre = null;
-        while (head != null) {
-            Node temp = head.next;
-            head.next = pre;
-            pre = head;
-            head = temp;
-        }
-        return pre;
-    }
-
-    double entropy(int[] xs) {
-        int  res =0;
-        int size = xs.length;
-
-        for (int x : xs) {
-            double p = x/size;
-            res -=p*Math.log(p)*Math.log(2);
-        }
-        return res;
-    }
 
 
-     int diff(int[] elems) {
+## JVM 排查问题方法
+
+###  OutOfMemoryError排查与解决实战
+
+- 第一步想办法拿到Heap dump
+
+  - ```BASH
+    启动的时候,加JVM参数 -XX 代表是 Hotspot虚拟机 私有的
+    -XX:+HeapDumpOnOutOfMemoryError
+    ```
+
+  - ```bash
+    jmap -dump:live,format=b,file=<filepath> <pid>   用这种方法能拿到运行的java程序的heap dump
+    ```
+
+  -  绝大多数OOM 不能通过加内存解决， 加内存只能延缓OOM出现的时间
 
 
-        int max = elems[0];
-        int min = elems[0];
-
-        for (int elem : elems) {
-            if (min < elem)
-                min = elem;
-            if (max > elem)
-                max = elem;
-        }
-
-        return max - min;
-    }
+  使用上述的命令后 会拿到一个   .hprof 的文件
 
 
-     ArrayList<Integer> merge(ArrayList<ArrayList<Integer>> seqs) {
-        PriorityQueue priorityQueue = new PriorityQueue();
-        for (ArrayList<Integer> seq : seqs) {
-            for (Integer integer : seq) {
-                boolean add = priorityQueue.add(integer);
+​    
 
-            }
-        }
-        ArrayList<Integer> res= new ArrayList<Integer>();
+- 使用工具分析 hprof
 
-        while (priorityQueue.size()!=0){
-            res.add(priorityQueue.size());
-        }
+     以 VisualVM 为例
 
-        return res;
-    };
+  ![](https://i.loli.net/2019/12/25/wATbBS7NkChXzty.png)
+
+  
+
+  打开 hprof 后，会看到当时的   对象类型， 对象个数， 对象总占用大小  还有一个 **retained**
+  
+  ```
+  解释一下 Retained Size
+  Retained Size=当前对象大小+当前对象可直接或间接引用到的对象的大小总和。(间接引用的含义：A->B->C, C就是间接引用)
+  
+  换句话说，Retained Size就是当前对象被GC后，从Heap上总共能释放掉的内存。
+  
+  下图中，GC Roots直接引用了A和B两个对象。
+  A对象的Retained Size=A对象的Shallow Size
+  B对象的Retained Size=B对象的Shallow Size + C对象的Shallow Size
+  
+  ```
+  
+  ![](https://i.loli.net/2019/12/25/RyritlsPGdKLJ9I.png)
+
+ ## Heap Dump 分析
+
+- Metaspace/PermGen
+  - 主要观察 Class 对象
+- Heap Space
+  - 主要看占用内存大的 object
+- Path to GC root
+  - 分析java的内存占用
 
 
-     ArrayList<Integer> merge(ArrayList<ArrayList<Integer>> seqs) {
+##  eclipse MAT 分析的步骤
 
-        ArrayList<Integer> res = new ArrayList<>();
-        for (ArrayList<Integer> seq : seqs) {
-            res = merge2List(res, seq);
-        }
-        
-        return res;
-    }
+- 通过MAT 打开 .hprof 文件 （heap profile）（分析的比较慢）
 
-    public static ArrayList<Integer> merge2List(ArrayList<Integer> arrayList1, ArrayList<Integer> arrayList2) {
-       ArrayList<Integer> result = new ArrayList<>();
+  ![image-20191227153645410](/Users/mtdp/Library/Application Support/typora-user-images/image-20191227153645410.png)
+
+- 关注两个图标
+  - Histogram 直方图，会给出java的
+  - Leak Suspects   泄露嫌疑   （点一下 会给出出现问题可能的可能原因）
 
 
-        int i = 0, j = 0, k = 0;
 
-        while (i < arrayList1.size() && j < arrayList2.size())
-            if (arrayList1.get(i) <= arrayList2.get(i)) {
-               result.add(arrayList1.get(i++));
-            } else {
-                result.add(arrayList2.get(i++));
-            }
-    
-        while (i < arrayList1.size())
-         result.add(arrayList1.get(i++));
-        while (j < arrayList2.size())
-            result.add(arrayList2.get(i++));
-        return result;
-    }
-```
 
+
+点击Leak Suspects  圈出的为内存分析
+
+![](https://i.loli.net/2019/12/27/j1Sk8cYRul6OqJf.png)

@@ -23,11 +23,11 @@ tags: [git]
 配置局部信息
 
 用户名 : git config user.name "guxiangfly" (区分谁开发的)
-邮箱信息 : user.email "964999133@qq.com" (用于联系开发者)
+邮箱信息 :  git config user.email "964999133@qq.com" (用于联系开发者)
 配置全局信息
 
-用户名: git config --global user.name "wukong"
-邮箱信息: git config --global user.email "wukong.huaguoshan.com"
+用户名: git config --global user.name "guxiangfly"
+邮箱信息: git config --global user.email "964999133@qq.com"
 
 注意:
 
@@ -83,7 +83,6 @@ git reflog
 Git本地目录分为 **工作区**和**版本库**
 
 版本库包含3个东西:
-暂存区 --> 文件只要发生了改动, 就会在暂存区
 master --> 相当于svn的trunk目录, master是git创建的第一个分支
 HEAD指针 --> 隐藏看不见的, 默认指向master分支
 
@@ -94,7 +93,12 @@ push : 将master分支代码提交给服务器
 
 ![image.png](http://upload-images.jianshu.io/upload_images/6406935-bf1205e5f941e5a0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
+![](https://i.loli.net/2019/12/05/c9GtCvRVSFXiBYe.png)
+
+
+
 ## tag 打标记
+
 使用tag，就能够将项目快速切换到某一个中间状态，例如产品开发线上的某一个稳定版本
 
 查看当前标签: git tag
@@ -102,4 +106,158 @@ push : 将master分支代码提交给服务器
 - 将标签添推送到远程代码库中:` git push origin v1.0`
 - 签出v1.0标签: `git checkout v1.0`
 - 从签出状态创建v1.0bugfix分支:` git checkout -b bugfix1.0`
+
+
+
+## git 撤销改动的方式
+
+- 丢弃工作区中没有git add 的改动
+
+  ```
+  git checkout -- code.txt
+  ```
+
+- 丢弃工作区中已经git add 的改动
+
+   git reset HEAD file  是将暂存区的修改撤销掉 回到工作区
+
+  ```
+  git reset HEAD code.txt
+  git checkout -- code.txt
+  ```
+
+  
+
+## git 数据diff
+
+```
+git diff 版本1 版本2  file
+	版本1 这个必须有参数
+	版本2 如果不填的话 默认是当前的工作区
+	
+常用方法
+git diff HEAD -- Readme.md
+
+git diff HEAD HEAD^ --Readme.md
+```
+
+```
+--- 代表是 版本1的数据
++++ 代表是 版本2的数据
+
+举例： git diff HEAD HEAD^ --Readme.md
+---代表是 HEAD 的数据
++++代表是 HEAD^ 的数据
+```
+
+
+
+![](https://i.loli.net/2019/12/05/RIf5WxYXhub6sy7.png)
+
+
+
+## git删除文件
+
+-  删除文件后想把删除的文件恢复
+
+  ```bash
+  rm -rf Readme.md
+  git checkout -- Readme.md
+  ```
+
+- 删除文件后 从git中也把文件删除
+
+  ```bash
+  rm -rf Readme.md
+  git rm Readme.md
+  git commit -m 'xxx'
+  ```
+
+
+
+# git的分支管理
+
+```
+当前分支在master 从master分支创建一个 dev分支
+
+git checkout -b dev
+```
+
+
+
+HEAD 和  分支 和 提交点的关系
+
+HEAD 指向分支  分支指向各个版本
+
+![image-20191205203748399](/Users/mtdp/Library/Application Support/typora-user-images/image-20191205203748399.png)
+
+- 最初的样子 
+
+  一开始master分支是一条线 git 使用 master指向最新的 提交点 再用HEAD指向master 。就确定了当前分支 以及当前分支的提交点了
+
+  ![](https://i.loli.net/2019/12/05/vIcKp7GEBWJ8fLP.png)
+
+- 创建一个新的分支
+
+  
+
+![](https://i.loli.net/2019/12/05/1Nr89mWE26TOCZw.png)
+
+
+
+创建一个新的分支 只是创建了一个新的dev指针  然后让HEAD也指向这个指针
+
+
+
+
+
+- 对dev分支进行开发
+
+  多一个 提交点  就是 dev指针向前移位
+
+![](https://i.loli.net/2019/12/05/1Nr89mWE26TOCZw.png)
+
+
+
+- 对假设我对 dev有了修改  并且切换回master 也进行了修改 就会变成这种样子
+
+  ![](https://i.loli.net/2019/12/05/aQiN7W1Strl5hCR.png)
+
+- 现在我们需要合并代码
+
+  - git当前处在master分支上，master需要合并dev的代码
+
+  ```
+  git merge dev 
+  ```
+
+  - 如果没有冲突的话 git会采用快速合并的方式进行合，并且自动给你创建一个新的提交点
+
+  - 如果有冲突的话   merge dev的时候会修改当前文件，再commit一下 就会新创建一个提交点
+
+  - 总的来说，合并有三种
+
+     - 快速合并    （dev是从master checkout出来   dev分支有新内容  master没有新内容  直接快速合并，不会创建新的提交）
+
+     - 无冲突合并 （会多一次提交记录）
+
+     - 有冲突合并 （会多一次提交记录）
+
+## git 删除分支
+
+```
+git branch -d dev    (删除dev分支)
+```
+
+
+
+
+
+## git 代码追踪
+
+```
+git branch --set-upstream-to=origin/远程分支名称   本地分支名称
+
+
+```
 

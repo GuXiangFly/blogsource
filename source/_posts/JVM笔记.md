@@ -240,3 +240,4 @@ G1采用了分区(Region)的思路，将整个堆空间分成若干个大小相�
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181121141121.png)
 
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181121141042.png)
+

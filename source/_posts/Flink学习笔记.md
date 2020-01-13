@@ -4,7 +4,12 @@ date: 2019-03-27 20:09:04
 tags: [大数据]
 
 ---
-##Flink计算模型
+## Flink 与 spark 的对比
+
+- Flink 
+
+## Flink计算模型
+
 - 标准  流处理的计算模型 应该如此
 有一条数据进入第一个节点，节点1处理后立马放入缓存中，节点2看见缓存中有数据，立马执行节点2的操作
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190324201333.png)
@@ -298,6 +303,7 @@ Broadcasting：在后面单独详解
 - window：在后面单独详解
 
 ####不普通的几个
+
 - Union：合并多个流，新的流会包含所有流中的数据，但是union是一个限制，就是所有合并的流类型必须是一致的。
 - Connect：和union类似，但是只能连接两个流，两个流的数据类型可以不同，会对两个流中的数据应用不同的处理方法。
 - CoMap, CoFlatMap：在ConnectedStreams中需要使用这种函数，类似于map和flatmap
