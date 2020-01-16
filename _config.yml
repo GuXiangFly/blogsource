@@ -70,4 +70,4 @@ theme: next-guxiangfly
 deploy:
   type: git
   repository: https://github.com/GuXiangFly/guxiangfly.github.io.git
-  branch: master在hive 中的总结数据
+  branch: master
