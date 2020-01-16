@@ -9,7 +9,7 @@ tags: [MySQL]
 
 
 
-## innoDB 数据读取
+## InnoDB 数据读取
 
 在InnoDB中, 数据会存储到磁盘上, 使用时候先将数据加载到内存`select * from table1 where  id=100`读取某些记录时, InnoDB存储引擎不需要一条一条的把记录从磁盘上读出来.   
 
@@ -30,8 +30,6 @@ tags: [MySQL]
   为了尽量减少磁盘I/O，磁盘往往不是严格按需读取，而是每次都会预读，即使只需要一个字节，磁盘也会从这个位置开始，顺序向后读取一定长度的数据放入内存。   注：磁盘顺序读取的效率很高（不需要寻道时间，只需很少的旋转时间）
 
   预读的长度一般为页（page）的整倍数（在许多操作系统中，页的大小通常为4k）。一般设置为16KB（这个16KB 可以自定义）
-
-14
 
 ```sql
 show global variables like '%datadir%';  --查看mysql存储数据的位置
@@ -92,14 +90,20 @@ ALTER TABLE table_name  ROW_FORMAT=行格式名称
 - **变长字段长度列表**  (按顺序存储每一行 varchar字符实际使用的长度) 
 
    注：varchar(M)，M代表最大能存多少个字符。( MySQL5.0.3以前是字节，以后就是字符)
-	 注：如果没有varchar字段，这个 变长字段长度列表可以去掉
+	注：如果没有varchar字段，这个 变长字段长度列表可以去掉
 
 
 - **NULL值列表**
 	compact行格式管理 可以为null的列表统一管理起来，如果表中没有允许存储null的列，null值列表就不存在。  
 	二进制列表为1时代表null，二进制列表为0时代表这一列不是null
 	
-	注：**MySQL建议列属性尽量为NOT NULL** 这样就没有null值列表了 (高性能mysql 4.1节里面有讲到。
+	注：**MySQL建议列属性尽量为NOT NULL** 这样就没有null值列表了 
+	
+	```
+	NULL columns require additional space in the rowto record whether their values are NULL. For MyISAM tables, each NULL columntakes one bit extra, rounded up to the nearest byte.  ---来自mysql的官方文档
+	```
+	
+	( 高性能mysql 4.1节里面有讲到。
 	
 	但是，通常把可为NULL的列改为NOT NULL带来的性能提升比较小，所 
 	
@@ -109,7 +113,7 @@ ALTER TABLE table_name  ROW_FORMAT=行格式名称
 	
 	```sql
 	create table sizetest(
-	    test varchar(65535)
+	    test char(65535) not null,
 	) charset ='ascii' row_format=compact;  
 	
 	mysql一行最多是存 65535个字节
@@ -120,16 +124,35 @@ ALTER TABLE table_name  ROW_FORMAT=行格式名称
 
 ![image.png](https://i.loli.net/2020/01/08/eoK6ZA57gRWphVP.png)
 
+
+
+
+
+
+
+![image-20200114164422934](/Users/mtdp/Library/Application Support/typora-user-images/image-20200114164422934.png)
+
+
+
 - **记录头信息**
 
-  头记录里面有个 next_record  是指向下一个行格式
+  |      名称      | 大小（单位：bit） |                             描述                             |
+  | :------------: | :---------------: | :----------------------------------------------------------: |
+  |   `预留位1`    |        `1`        |                           没有使用                           |
+  |   `预留位2`    |        `1`        |                           没有使用                           |
+  | `delete_mask`  |        `1`        |                     标记该记录是否被删除                     |
+  | `min_rec_mask` |        `1`        |         标记该记录是否为B+树的非叶子节点中的最小记录         |
+  |   `n_owned`    |        `4`        |                    表示当前槽管理的记录数                    |
+  |   `heap_no`    |       `13`        |                表示当前记录在记录堆的位置信息                |
+  | `record_type`  |        `3`        | 表示当前记录的类型，`0`表示普通记录，`1`表示B+树非叶节点记录，`2`表示最小记录，`3`表示最大记录 |
+  | `next_record`  |       `16`        |                   表示下一条记录的相对位置                   |
 
 - **记录的真实数据 于其中的隐藏列**
 
   ​	隐藏列归类于记录的真实数据
 
   - row_id                  行id
-  - Transcation_id    6个字节  事务id
+  - Transcation_id    6个字节  事务id  (最近一次修改的事务id是哪个)
   - roll_pointer         7个字节  回滚指针
 
 
@@ -197,7 +220,7 @@ INSERT INTO mysql_study.s2 (id, username, money) VALUES (5, '小刘', 1235);
 
 
 
-上图数据发现，innodb的数据是会默认按id主键排序的。  这是由于mysql聚集索引的特性。
+上数据发现，innodb的数据是会默认按id主键排序的。  这是由于mysql聚集索引的特性。
 
 
 
@@ -223,7 +246,18 @@ INSERT INTO mysql_study.s2 (id, username, money) VALUES (5, '小刘', 1235);
 
 
 
-这就引出一个面试题，为何不用UUID 作为分布式ID的主键。
+- **对于聚集索引而言:**
+  - 如果主键被定义了，那么主键为聚集索引的id
+  - 如果没有主键，那么选取第一个唯一非空索引作为密集索引
+  - 如果不满足以上条件，innodb中有一个隐藏列叫做 row_id 它是索引
+
+
+
+
+
+
+
+这就引出一个面试题， 为何不用UUID 作为分布式ID的主键。
 
 ```
 1. MySQL官方有明确的建议主键要尽量越短越好[4]，36个字符长度的UUID不符合要求。
@@ -236,11 +270,7 @@ https://tech.meituan.com/2017/04/21/mt-leaf.html
 
 假设 主键占
 
-B+ 树  高度为2的时候 可以存储  两万多条数据  高度为3  可以存储 两千万多万条数据。
-
-
-
-
+B+ 树  高度为2的时候 可以存储  两万多条数据  高度为3  可以存储 两千万多条数据。
 
 
 
@@ -252,7 +282,7 @@ B+ 树  高度为2的时候 可以存储  两万多条数据  高度为3  可以
   非叶子节点存储 主键+页号指针
   
   假设 一行数据 1kb   一个叶子节点16kb    主键bigint占8个字节，页号指针6个字节  
-  非叶子节点可以存储的kv对为（16*1024/(8+6)）=1170 个
+  非叶子节点可以存储的kv对为 （16*1024/(8+6)）=1170 个
   一个叶子节点  16kb/1kb = 16 
   高度为2的B+树  存储  16*1170 =18720 个
   高度为3的B+树可存储   16*1170*1170 = 21902400 个
@@ -277,3 +307,86 @@ B+ 树  高度为2的时候 可以存储  两万多条数据  高度为3  可以
 - 这样如果更新了一个值就只需要更新 聚集索引 其他索引不用动
 
   
+
+
+
+## 
+
+
+
+
+
+## mysql事务实现原理
+
+Innodb行格式中，存在有
+
+- 三个隐藏列
+  - row_id                  行id
+  - Transcation_id    每次对某条记录进行改动时，都会把对应的事务id赋值给trx_id隐藏列。
+  - roll_pointer        每次对某条记录进行改动时，这个隐藏列会存一个指针，可以通过这个指针找到该记 录修改前的信息。
+
+- 脏读、幻读、不可重复读的概念
+
+  - 脏读 ：所谓脏读是指一个事务中访问到了另外一个事务未提交的数据
+  - 幻读： 一个事务读取2次，得到的记录条数不一致（第一次读取起来有3条数据 第二次读取起来有4条数据） 
+  - 不可重复读：一个事务读取同一条记录2次，得到的结果不一致
+  - 幻读针对的是多行，不可重复读针对的是1行
+
+- ReadView
+
+  ​	对于使用Read uncommitted隔离级别的事务来说，直接读取记录的最新版本就好了，对于使用 SERIALIZABLE隔离级别的事务来说，使用加锁的方式来访问记录。对于使用READ COMMITTED和 REPEATABLE READ隔离级别的事务来说，就需要用到我们上边所说的版本链了，核心问题就是:需要判断一下 版本链中的哪个版本是当前事务可见的。
+
+  
+
+  - m_ids   ReadView 里面有一个 m_ids 里面记录着活跃的还没有提交的活跃事务id   m_ids:[200,199,198]
+
+    ```
+    按照下图而言，
+    在Read Committed隔离级别下： 
+    1. 现在有一个事务A事务id为202，它来查询一条sql， m_ids里面有[200，199，198]。那么就会顺着版本链找下去，一直找到 197 这条事务，A事务就会将 tx_id为 197的事务给找出来。
+    2. 现在假设 200这条事务已经commit了，那么200这条事务就不在m_ids里面了  m_ids变成[199，198], 按版本链直接读取到 tx_id 为200的事务，就好了
+    
+    read commit：
+    A		B
+    1		1改为2
+    1   2
+    		commit
+    2
+    
+    
+    
+    可重复读：
+    A		B	
+    1		1改为2
+    		commit;
+    1
+    A事务第一次读取出来是 1  
+B事务把1改为2，并且B提交了
+    A再去读 还是 1
+
+    在 Repeatable Read （可重复读）的隔离级别下：
+    A事务会缓存第一次加载到的 m_ids 列表。直接读取第一次缓存的m_ids列表，进行读取。
+    
+    以上就是MVCC
+    ```
+    
+    
+    
+    ![image.png](https://i.loli.net/2020/01/14/Q43oZfCMwdRSkXt.png)
+
+
+
+### undoLog与redoLog
+
+#### undo log
+
+undo log有两个作用：提供回滚和多个行版本控制(MVCC)。
+
+在数据修改的时候，不仅记录了redo，还记录了相对应的undo，如果因为某些原因导致事务失败或回滚了，可以借助该undo进行回滚。
+
+
+
+### 当前读和快照读
+
+- 当前读：select ... lock in share mode；  select ... for update ； 加锁的增删改语句 update；delete；insert
+- 快照读：不加锁的非阻塞读，select

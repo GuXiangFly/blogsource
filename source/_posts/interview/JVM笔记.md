@@ -354,6 +354,8 @@ JMM用处是定义程序中变量的返回规则
 
 ##  eclipse MAT 分析的步骤
 
+### 方式1 （通过直接的分析）
+
 - 通过MAT 打开 .hprof 文件 （heap profile）（分析的比较慢）
 
   ![image-20191227153645410](/Users/mtdp/Library/Application Support/typora-user-images/image-20191227153645410.png)
@@ -369,3 +371,47 @@ JMM用处是定义程序中变量的返回规则
 点击Leak Suspects  圈出的为内存分析
 
 ![](https://i.loli.net/2019/12/27/j1Sk8cYRul6OqJf.png)
+
+然后通过点击  See stacktrace  能看到分配这个对象的线程栈 
+
+![image.png](https://i.loli.net/2020/01/16/aExbhdk9BiySW31.png)
+
+这样可以找到具体产生这个对象的 object 
+
+
+
+### 通过直方图看线程栈
+
+在上一种方法的首页  我们选取点击直方图 Histogram
+
+可见下图，然后选取 retained Heap 最大的那个object  点击上面的 双齿轮，能看到线程调用栈。
+
+![image.png](https://i.loli.net/2020/01/16/KJjbqPVS61HdR4G.png)
+
+  点击上面的 双齿轮，能看到线程调用栈。
+
+![image.png](https://i.loli.net/2020/01/16/KeHQrT5YJZiWPl6.png)
+
+选取Retained Heap 最大的那个线程。
+
+到这一层就可以不用点下去了。  寻找自己写的package的名字。 然后定位到有问题的代码。
+
+![image.png](https://i.loli.net/2020/01/16/yf6XrEwAam8WQ4B.png)
+
+
+
+###  MAT使用的注意点
+
+- 注：  MAT 默认xmx为1g 可能不够用  MAC环境修改如下 
+
+  ```
+  /Users/mtdp/Downloads/mat.app/Contents/Eclipse/MemoryAnalyzer.ini  
+  将 -Xmx 改为  -Xmx10g
+  ```
+
+ 在弹出
+
+![image.png](https://i.loli.net/2020/01/16/RMYiEmK5s89cCet.png)
+
+选一个 Leak Suspects Report 就可以，不用管下面的 loading
+

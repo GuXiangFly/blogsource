@@ -84,9 +84,30 @@ registry=https://registry.npm.taobao.org/
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
-#### 安装node 和 npm  执行这个 两个都安装好了
+####  安装nvm
+
 ```
-brew install node
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+
+是zsh用    source ~/.zshrc  
+
+如果非zsh  source ~/.bash_profile
+
+使用nvm 命令 查看是否安装好nvm
+```
+
+
+
+
+
+#### 安装node 和 npm  执行这个 两个都安装好了
+
+```
+nvm ls   (查看已有的node版本)
+
+nvm install 8.17.0  （nvm 安装node版本）
+
+安装完node 后   node和npm都安装好了
 ```
 
 #### 安装 cnpm
@@ -115,6 +136,9 @@ sudo  npm  install -g nrm
 
 ##  查看nrm 的版本
 nrm ls 
+
+## 添加npm源
+nrm add sankuai  http://npm.sankuai.com
 
 ##  切换nrm的镜像
 nrm use taobao
