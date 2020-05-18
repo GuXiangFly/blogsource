@@ -1,4 +1,6 @@
 ---
+
+
 title: Kafka学习笔记
 date: 2019-7-11 13:09:04
 tags: [Kafka]
@@ -6,6 +8,51 @@ tags: [Kafka]
 ---
 
 ## Kafka的基础概念
+
+
+### kafka工作流程
+
+![image-20200518155036500](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518155036500.png)
+
+kafka单独一个topic内，也会进行分区，kafka只能保证单独分区内，消息是有序的.
+
+
+
+
+
+#### kafka的文件存储
+
+视频连接 [https://www.bilibili.com/video/BV1a4411B7V9?p=12]
+
+![image-20200518174054937](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518174054937.png)
+
+.log文件存储的是kafka队列里面的数据
+
+.index 记录的是kafka的某个consumer的
+
+![image-20200518173852677](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518173852677.png)
+
+![image-20200518174400952](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518174400952.png)
+
+**.log 和 .index 都是以当前segment的第一条消息的offset命名的**。下图为 index和log文件的结构示意图
+
+> .index 文件存储大量的索引信息，  .log文件存储大量的数据信息
+
+![image-20200518191544556](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518191544556.png)
+
+
+
+##### kafka分区的原因
+
+- **方便在集群中拓展**，每个partition可以通过调整适应它所在的机器，而一个topic又可以有多个partition组成，因此可以适应任意大小的数据。
+- **可以提高并发**， 因为可以以partation为单位读写。
+
+
+
+
+
+
+
 ![](https://i.loli.net/2019/11/05/WpMfsVAKSUR4Hij.png)
 
 - 1、Producer ：消息生产者，就是向kafka broker发消息的客户端；
