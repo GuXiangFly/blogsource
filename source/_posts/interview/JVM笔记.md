@@ -13,6 +13,7 @@ tags: [JVM,java]
 -用来加载Java的扩展库(JAVAHOME/jre/ext/*jar，üjava.ext.dirs路径下的内容）。
 Java虚拟机的实现会提供一个扩展库目录。该类加载器在此目录里面找并加载Java
 sun.misc.Launcher$ExtClassLoader实现
+
 ### 应用程序类加载器（applicationclassloader）
 它根据Java应用的类路径（classpath，java.class.path路
 一般来说，Java应用的类都是由它来完成加载的。asun.misc.Launcher$AppClassLoader实壬见
@@ -39,6 +40,111 @@ null
 Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
 
 ```
+
+### 字节码加载流程
+
+![image-20200518010403696](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518010403696.png)
+
+- 类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：加载（Loading）、验证（Verification）、准备(Preparation)、解析(Resolution)、初始化(Initialization)、使用(Using)和卸载(Unloading)7个阶段。其中准备、验证、解析3个部分统称为连接（Linking）
+- 加载、验证、准备、初始化和卸载这5个阶段的顺序是确定的，类的加载过程必须按照这种顺序按部就班地开始，而解析阶段则不一定：它在某些情况下可以在初始化阶段之后再开始，这是为了支持Java语言的运行时绑定（也称为动态绑定或晚期绑定）。以下陈述的内容都已HotSpot为基准。
+
+--------
+
+##### 初始化时机
+
+虚拟机规范中明确规定**只有五种情况必须立即进行‘初始化’（加载，验证，准备）需要在初始化之前**
+
+1. 遇到new指令、getstatic指令、putstatic指令或invokestatic指令这4条字节码指令时，如果类没有进行过初始化，则需要先触发其初始化。生成这4条指令的最常见的Java代码场景是：**a.使用new关键字实例化对象的时候**、**b.读取或设置一个类的静态字段（被final修饰、已在编译期把结果放入常量池的静态字段除外）的时候**，以及**c.调用一个类的静态方法的时候**。
+2. 使用java.lang.reflect包的方法对类进行**反射**调用的时候，如果类没有进行过初始化，则需要先触发其初始化。
+3. 当初始化一个类的时候，如果**发现其父类还没有进行过初始化**，则需要先触发其父类的初始化。
+4. 当虚拟机启动时，用户需要指定一个要**执行的主类**（包含main（）方法的那个类），虚拟机会先初始化这个主类。
+5. **当使用JDK1.7的动态语言支持时**，如果一个java.lang.invoke.MethodHandle实例最后的解析结果REF_getStatic、REF_putStatic、REF_invokeStatic的方法句柄，并且这个方法句柄所对应的类没有进行过初始化，则需要先触发其初始化。
+
+####  引入一个面试题
+
+```java
+public class ClassLoaderTest{
+
+    @Test
+    public void testLoad() throws Exception{
+        SingleTonTest singleTonTest = SingleTonTest.getSingleTonTest();
+        System.out.println(SingleTonTest.count1);
+        System.out.println(SingleTonTest.count2);
+    }
+}
+```
+
+
+
+#####  一个SingleTonTest如下(singleTonTest在上)
+
+```java
+public class SingleTonTest {
+    public static SingleTonTest singleTonTest = new SingleTonTest();
+    public static int count1;
+    public static int count2 = 0;
+
+
+    private SingleTonTest(){
+        count1++;
+        count2++;
+    }
+
+    public static SingleTonTest getSingleTonTest(){
+        return singleTonTest;
+    }
+}
+```
+
+######  结果
+
+```
+1
+0
+```
+
+
+
+#####  一个SingleTonTest如下 (singleTonTest在下)
+
+```java
+public class SingleTonTest {
+
+    public static int count1;
+    public static int count2 = 0;
+    public static SingleTonTest singleTonTest = new SingleTonTest();
+
+    private SingleTonTest(){
+        count1++;
+        count2++;
+    }
+
+    public static SingleTonTest getSingleTonTest(){
+        return singleTonTest;
+    }
+}
+```
+
+######  结果
+
+```
+1
+1
+```
+
+
+
+面试题：
+
+1. 通过子类引用父类的静态字段，不会导致子类的初始化（此时的静态资源不是属于子类父类的）
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518111255286.png" alt="image-20200518111255286" style="zoom: 50%;" />
+
+2. 
+
+
+
+
 
 ## java的堆栈区别
 

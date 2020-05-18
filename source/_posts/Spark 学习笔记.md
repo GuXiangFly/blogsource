@@ -8,8 +8,62 @@ tags: [大数据]
 
 ## Spark 学习
 
+Spark 是一个引擎，类似JVM（可能不太恰当，但是spark 和 spring 框架层是完全不同的）
 
-Spark 相当于是一个虚拟机  Spark 
+### 进入spark
+
+通过下面命令进入spark页面
+
+```bash
+/opt/module/spark-2.1.1-bin-hadoop2.7/bin/spark-shell
+```
+
+
+进入后有一个app id  这个id是这个应用的全局唯一id
+
+```bash
+[guxiang@hadoop101 spark-2.1.1-bin-hadoop2.7]$ cd bin/
+[guxiang@hadoop101 bin]$ ls
+beeline             load-spark-env.sh  run-example       spark-class.cmd  spark-shell       spark-submit
+beeline.cmd         pyspark            run-example.cmd   sparkR           spark-shell2.cmd  spark-submit2.cmd
+find-spark-home     pyspark2.cmd       spark-class       sparkR2.cmd      spark-shell.cmd   spark-submit.cmd
+load-spark-env.cmd  pyspark.cmd        spark-class2.cmd  sparkR.cmd       spark-sql
+[guxiang@hadoop101 bin]$ ./spark-s
+spark-shell   spark-sql     spark-submit
+[guxiang@hadoop101 bin]$ ./spark-s
+spark-shell   spark-sql     spark-submit
+[guxiang@hadoop101 bin]$ ./spark-shell
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+20/04/11 07:10:51 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+20/04/11 07:10:58 WARN ObjectStore: Version information not found in metastore. hive.metastore.schema.verification is not enabled so recording the schema version 1.2.0
+20/04/11 07:10:58 WARN ObjectStore: Failed to get database default, returning NoSuchObjectException
+20/04/11 07:10:59 WARN ObjectStore: Failed to get database global_temp, returning NoSuchObjectException
+Spark context Web UI available at http://192.168.25.101:4040
+Spark context available as 'sc' (master = local[*], app id = local-1586614252322).
+Spark session available as 'spark'.
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 2.1.1
+      /_/
+
+Using Scala version 2.11.8 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_144)
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala>
+```
+
+如果在yarn中 可以通过
+
+```bash
+yarn application -list 
+```
+
+
 
 ### RDD  Resilient Distributed Dataset
 RDD 是一个类
@@ -23,8 +77,7 @@ RDD 的弹性
 RDD是一块数据 它可以从 HDFS中读取  从 scala中读取
 RDD 的转换 并不是把它原来的的对象完全变成为另一个对象而是 将 原来的A对象任然保留  创造一个新的A' 对象
 
-
-//*************  什么是RDD【弹性分布式数据集】 ****************
+#### 什么是RDD【弹性分布式数据集】
 
   1、RDD是整个Spark的计算基石。是分布式数据的抽象，为用户屏蔽了底层复杂的计算和映射环境
   		1、RDD是不可变的，如果需要在一个RDD上进行转换操作，则会生成一个新的RDD
@@ -62,7 +115,7 @@ Spark 操作分为两大类  转换 transformations  行动action
 #### client模式
 在master这个机器上新建一个JVM 里面跑一个driver
 然后再 worker上生成 另一个JVM进程 executer 
- 
+
 ####  cluster模式
 在worker上随便一个机器上新建一个JVM 里面跑一个driver
 ### spark 的架构
@@ -304,10 +357,19 @@ public class ActionOperation {
 ```
 
 
+
+### Driver 和 Executor的区别
+
+
+
+
+
 ### RDD 的持久化
+
 这个是持久化之后的RDD 数据
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190205205118.png)
 RDD 持久化的策略有以下几种
+
 - MEMORY_ONLY   
 以非序列化的Java对象的方式持久化在JVM内存中。如果内存无法完全存储RDD所有的partition，那么那些没有持久化的partition就会在下一次需要使用它的时候，重新被计算。
 - MEMORY_AND_DISK
@@ -496,5 +558,99 @@ object SortWordCount {
 = 对存储添加了压缩
 - 支持向量运算
 
+ 
 
-###  
+-----------
+
+
+
+
+
+
+
+## Spark SQL
+
+### 简介
+
+```
+Spark 的RDD操作本来就是用于替换hadoop的MR的  因为RDD计算比MR快
+```
+
+- Hive 是将   SQL转换成 hadoop的MapReduce操作
+- SparkSQL 是将 SQL转换为 Spark RDD操作。
+  - Spark 的RDD操作本来就是用于替换hadoop的MR的, HIVE转成MR SparkSQL 就转成 RDD操作
+  - SparkSQL 比 hive快，因为RDD比MR快
+
+
+
+#### DataFrame和DataSet 
+
+- DataFrame
+
+  ```
+  DataFrame 类似于我们关系数据库中的二维表格  只有第一行记录了 id，Name，age。  第二第三第N行 通过查询id在第1列，就getInt（0）   name在第二列就 getString（1） age在第三列就getInt（2）
+  ```
+
+- DataSet
+
+  ```
+  DataSet 类似于我们一个list 里面存了多个person对象  （类似一个list的json,对象有结构和类型）.   获取直接通过 getAge  getName getId 获取数据
+  ```
+
+  
+
+- RDD  DataSet  DataFrame转变关系
+
+  ```
+  RDD --(增加结构)--> 变成DataFrame   ----(增加类型)---> 变成DataSet 
+  
+  （在后期，DataSet会逐步取代 DataFrame和RDD 成为唯一的 Spark SQL的API）
+  ```
+
+- RDD  DataSet  DataFrame三者区别
+
+  - 1. **RDD**:
+
+    - 1）RDD一般和spark mlib同时使用
+    - 2）RDD不支持sparksql操作
+
+  - 2. **DataFrame**:
+
+    1）与RDD和Dataset不同，DataFrame每一行的类型固定为Row，每一列的值没法直接访问，只有通过解析才能获取各个字段的值，如：
+
+    ```scala
+    testDF.foreach{
+      line =>
+        val col1=line.getAs[String]("col1")
+        val col2=line.getAs[String]("col2")
+    ```
+
+  - 3. Dataset:
+
+    1）Dataset和DataFrame拥有完全相同的成员函数，区别只是每一行的数据类型不同。
+
+    2）DataFrame也可以叫Dataset[Row],每一行的类型是Row，不解析，每一行究竟有哪些字段，各个字段又是什么类型都无从得知，只能用上面提到的getAS方法或者共性中的第七条提到的模式匹配拿出特定字段。而Dataset中，每一行是什么类型是不一定的，在自定义了case class之后可以很自由的获得每一行的信息
+
+    ```scala
+    case class Coltest(col1:String,col2:Int)extends Serializable //定义字段名和类型
+    /**
+     rdd
+     ("a", 1)
+     ("b", 1)
+     ("a", 1)
+    **/
+    val test: Dataset[Coltest]=rdd.map{line=>
+          Coltest(line._1,line._2)
+        }.toDS
+    test.map{
+          line=>
+            println(line.col1)
+            println(line.col2)
+        }
+    ```
+
+    
+
+
+
+ 

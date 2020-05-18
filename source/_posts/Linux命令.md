@@ -5,6 +5,102 @@ tags: [Linux]
 
 ---
 
+
+
+####  查询磁盘空间
+
+ **df**    (display free disk space) 
+
+```
+df -lh  
+```
+
+#### 查询文件以及文件
+
+**du**   (display disk usage statistics)
+
+```
+du -h
+```
+
+#### 查询磁盘IO性能
+
+**iostat -xdk 2 3** 
+
+```
+iostat -xdk 2 3     iostat 每2秒刷新一次，刷新3次
+```
+
+- r/s   w/s 越大，代表读写比较高
+
+- %util   越大代表读写高 
+
+![](https://i.loli.net/2020/03/01/8QX4mOHfecVvMiK.png)
+
+一般来说如果磁盘IO比较高， 多数是SQL需要调优了。
+
+
+
+#### CPU性能
+
+**top**
+
+
+
+**pidstat**
+
+```
+pidstat -u 1 -p 进程号 （这个一般配合 ps -ef|grep java  来查看进程号来使用）
+```
+
+
+
+
+
+
+
+#### Top 使用
+
+- **CPU查看**    
+
+  - 按1   （看CPU 具体哪个比较慢）
+
+  - 看 id  (idle)   空闲率  CPU 的id越高，性能越好
+  - 查看 load average （分别代表系统，1分钟，5分钟，15分钟 的系统平均负载率）
+    - （0.04 + 0.08 + 0.03）/3 * 100%      如果 大于60% 代表负载过高，  如果大于80% 代表系统快挂了
+  - top 退出 q
+  - uptime (低配版 top命令)
+
+  ![](https://i.loli.net/2020/03/01/Djz5KhxnguqaLCe.png)
+
+- **交互命令**
+  
+  - P    - 按cpu使用的效率来排序
+  - M   - 以内存使用率排序
+  - N   - 按PID排序
+  - q    - 退出top
+
+#### free使用
+
+查看内存信息使用free 
+
+- free -h （较好的使用方式）
+- 
+
+
+
+
+
+如何查看整机性能：
+
+首行会有机器cpu和内存的百分比占用率。
+
+
+
+
+
+
+
 sort
 sort 命令对 File 参数指定的文件中的行排序，并将结果写到标准输出。如果 File 参数指定多个文件，那么 sort 命令将这些文件连接起来，并当作一个文件进行排序。
 
@@ -238,4 +334,4 @@ wc的命令比较简单使用，每个参数使用如下：
 参考 http://vbird.dic.ksu.edu.tw/linux_basic/0320bash_6.php#pipe_2
 
       http://www.cnblogs.com/stephen-liu74/archive/2011/11/10/2240461.html
-```
+ ```

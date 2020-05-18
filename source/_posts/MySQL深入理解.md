@@ -1,6 +1,7 @@
 ---
 
 
+
 title: MySQL深入理解
 date: 2019-12-24 20:11:44
 tags: [MySQL]
@@ -390,3 +391,58 @@ undo log有两个作用：提供回滚和多个行版本控制(MVCC)。
 
 - 当前读：select ... lock in share mode；  select ... for update ； 加锁的增删改语句 update；delete；insert
 - 快照读：不加锁的非阻塞读，select
+
+
+
+
+
+#### GAP锁 间隙锁
+
+```sql
+============== session1
+begin;
+select * from s1 where money =1000 for update ;
+commit;
+
+============== session2
+begin;
+INSERT INTO mysql_study.s1 ( username, money) VALUES ( 'Tom3', 1001);  
+commit;
+```
+
+- read committed ： 只会对查询出的数据进行加锁。 对于上条数据，由于read committed没有对 money为 1001的进行加锁
+
+- repeatable read： 
+
+   read committed级别下，这个不会被锁住。
+
+  但是在 repeatable read 隔离级别下，这个insert会被锁住
+
+###### 再举个例子
+
+```sql
+select * from test_innodb_lock
+```
+
+![image-20200518115642259](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518115642259.png)
+
+
+
+```sql
+session1:  update test_innodb_lock set b='0629' where a >1 and a <6   
+
+session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 session1阻塞，session1执行完成后，才会之心session2
+```
+
+结果如下：
+
+![image-20200518115406957](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518115406957.png)
+
+######  什么是间隙锁
+
+> 当我们使用范围条件而不是相等条件检索数据时，并且请求共享或者排它锁 类似update操作， innoDB会给符合条件的已有数据记录的索引项加锁，对于剑指在条件氛围内胆并不存在的记录，叫做“间隙（GAP）”
+>
+> InnoDB也会对这个间隙加锁，这种锁机制就是所谓的间隙锁 （Next-key锁）
+
+###### 危害
+

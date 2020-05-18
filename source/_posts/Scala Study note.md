@@ -242,8 +242,66 @@ Predef 包
 
 有父类class  类名   extends   父类   with  特质1   with   特质2   with 特质3
 
-
 ### scala 的 implicit
+
+##### 隐式函数
+
+- 简单的基本类型的隐式函数
+
+    > 下面函数的 `var a:Int = 3.5`  等于  ` var a:Int = f1$1(3.5)`
+    
+    ```scala
+    object ImplicitConvertTest {
+    
+      def main(args: Array[String]): Unit = {
+    
+        implicit def f1(b:Double): Int ={
+          return b.toInt
+        }
+    
+        var a:Int = 3.5  
+      //和  var a:Int = f1$1(3.5)相等
+        // 隐式函数与函数的输入类型和输出类型强关联
+      }
+    }
+    ```
+    
+- 对象的隐式函数
+
+  >      mySQL这个对象符合addDelete这个隐式函数的形参类型MySQL, 于是包装了一个 addDelete$1(mySQL)
+  >      这个函数的返回值DB类型符合delete
+  >      于是做了以下的包装
+  >      addDelete$1(mySQL).delete()
+
+  ```scala
+  
+    def main(args: Array[String]): Unit = {
+      implicit def addDelete(msql:MySQL): DB = {
+        new DB
+      }
+      val mySQL = new MySQL
+      mySQL.insert();
+      mySQL.delete();
+      // addDelete$1(mySQL).delete()
+    }
+  
+    class MySQL {
+      def insert(): Unit = {
+        println("insert")
+      }
+    }
+  
+    class DB {
+      def delete(): Unit = {
+        println("delete")
+      }
+    }
+  ```
+
+##### 隐式值
+
+隐式值也叫隐式变量，将某个形参变量标记为 implicit，所以编译器会在方法省略隐式参数的情况 下去搜索作用域内的隐式值作为缺省参数
+
 ```scala
 
 //小结

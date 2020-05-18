@@ -73,7 +73,6 @@ registry=https://registry.npm.taobao.org/
 
 
 
-#### Java
 
 
 ## MAC 中的软件安装
@@ -100,12 +99,14 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | b
 
 
 
-#### 安装node 和 npm  执行这个 两个都安装好了
+#### 安装mvn  （ node 和 npm  执行这个 两个都安装好了）
 
 ```
 nvm ls   (查看已有的node版本)
 
 nvm install 8.17.0  （nvm 安装node版本）
+
+nvm install 
 
 安装完node 后   node和npm都安装好了
 ```
@@ -141,7 +142,7 @@ nrm ls
 nrm add sankuai  http://npm.sankuai.com
 
 ##  切换nrm的镜像
-nrm use taobao
+nrm use sankuai
 
 
 ```
@@ -159,6 +160,8 @@ sudo npm install -g n
 
 ## 安装npm v8 的最新版
 n 8 latest
+
+
 ```
 
 #### 安装 yarn 
