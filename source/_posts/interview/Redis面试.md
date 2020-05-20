@@ -107,4 +107,6 @@ redis通过 multi命令开启事务
 通过  discard命令 不执行事务
 
 redis事务的特点
+
 - redis的事务 
+

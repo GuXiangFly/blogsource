@@ -1,4 +1,5 @@
 ---
+
 title: JVM笔记
 date: 2017-11-11 13:09:04
 tags: [JVM,java]
@@ -293,8 +294,9 @@ SoftReference<String> softRef = new SoftReference<String>(str)
   - **活的Thread**
 
 ### 触发Full GC的条件
-full GC 也叫 major GC
+full GC 和 major GC
 与 minor GC 不同 
+
 - 老年代空间不足（如果新生代一次分配了太多的对象，就会挤进老年代，导致老年代空间不足发生full GC）
 - 永久代空间不足（永久代如果加载了特别多的class类，也会导致full GC）
 - 调用System.gc()
@@ -520,4 +522,40 @@ JMM用处是定义程序中变量的返回规则
 ![image.png](https://i.loli.net/2020/01/16/RMYiEmK5s89cCet.png)
 
 选一个 Leak Suspects Report 就可以，不用管下面的 loading
+
+
+
+
+
+##### 通过MAT查看 GCRoot：
+
+![image-20200519163443352](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519163443352.png)
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519163622464.png" alt="image-20200519163622464" style="zoom:50%;" />
+
+
+
+
+
+
+
+### 使用jprofile进行内存分析
+
+###### jprofile打开后如下
+
+![image-20200519164911923](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519164911923.png)
+
+###### 双加最大的对象 char[] 选中 incoming references  （来源引用， 这个incoming reference可以帮助分析来源） 
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165055346.png" alt="image-20200519165055346" style="zoom:50%;" />
+
+###### 进入这个页面后点击 show paths to GC root 选择 single Root
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165347342.png" alt="image-20200519165347342" style="zoom:50%;" />
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165452640.png" alt="image-20200519165452640" style="zoom:50%;" />
+
+###### 下图代表这个char 来自于 控制台 PrintStream
+
+![image-20200519165518802](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165518802.png)
 

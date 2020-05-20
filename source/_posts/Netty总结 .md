@@ -74,8 +74,8 @@ NIO是面向buffer编程的   （也有的叫面向块编程）
 1. 一个channel 对应一个buffer
 2. Selector 对应一个线程， 一个selector对应多个 channel(连接)
 3. 上图有3个 channel注册到了 selector上
-4. 程序切换到哪个channel， 是由Event(事件)决定的
-5. Buffer 就是一个内存块 ， 底层是有一个数组
+4. selector切换到**哪个channel， 是由Event(事件)决定的**
+5. Buffer 就是一个内存块， 底层是有一个数组
 6. Buffer是双向的，NIO中数据的读取写入是通过Buffer。  BIO中要么是inputstream，要么是outputstream, 不能双向。但是 NIO 的 Buffer 是可以读也可以写, 需要 flip 方法切换 
 7. channel 也是双向的, 可以返回底层操作系统的情况, 比如 Linux ， 底层的操作系统通道就是双向的.。
 8. channel能提供从网络或则文件读取数据的渠道，但是读写数据必须通过buffer
