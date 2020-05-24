@@ -293,7 +293,23 @@ SoftReference<String> softRef = new SoftReference<String>(str)
   - JNI方法栈中引用对象
   - **活的Thread**
 
+
+
+#### Minor GC ， Major GC  与 Full GC的区别
+
+> JVM 在进行垃圾回收的时候，并非每次都对三个内存区域（新生代，老年代，方法区）区域一起回收的
+>
+> 针对Hotspot VM的实现，它的GC按照回收区域分为两大类，一种是 Partial GC （ 部分收集），一种是 Full GC整堆收集
+>
+> - 部分收集，不完整的收集整个Java堆的垃圾收集。其中又分为：
+>   - 新生代收集（Minor GC/ Young GC）： 只是 新生代（eden，s0，s1）的垃圾收集
+>   - 老年代（Major GC/ Old GC）：只是老年代
+>     - 目前只有 CMS GC 会单独进行老年代收集，只有CMS会进行 Major GC
+>     - 注意，很多时候 Major GC 和 Full GC 会被搞混。具体分辨是老年代回收还是整堆回收
+> - 整堆收集（Full GC）：收集整个新生代以及部分的老年代的垃圾收集。
+
 ### 触发Full GC的条件
+
 full GC 和 major GC
 与 minor GC 不同 
 
