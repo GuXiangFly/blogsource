@@ -458,3 +458,93 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 -  间隙锁（Gap Lock）:锁定索引记录间隙，确保索引记录的间隙不变。间隙锁是针对事务隔离级别为可重复读或以上级别而已的。
 
 -  Next-Key Lock ：行锁和间隙锁组合起来就叫Next-Key Lock。
+
+
+
+
+
+
+
+会使用MDP建立的新组件
+
+
+
+
+
+如果BD  
+
+
+
+
+
+
+
+![image-20200720143003260](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200720143003260.png)
+
+
+
+
+
+
+
+##### innodb架构图
+
+![image-20200720143138180](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200720143138180.png)
+
+
+
+##### 左边： 内存结构
+
+- Buffer Pool: 缓冲池几乎占mysql服务器内存的 80%
+  
+  - buffer pool 是以每个页为单位去管理的，每个页的大小为16K
+  - 里面有
+    - 1.数据页
+    - 2.索引页
+    - 3.lock信息
+    - 4.自适应hash索引 （用于对热点数据页进行索引）
+    - 5.字典信息
+  
+  - buffer  Pool 里面的page分为三类
+    - 1. Free Page （空闲页）
+      2. Clean Page （已经存储到内存中数据的页）
+      3. Dirty Page （脏页，已经存储到内存中数据的页，因为发生了修改或者删除操作，数据在内存和磁盘中产生了不一致）
+  - buffer Pool 通过三个链表来管理page：
+    - 1. Free List ： 管理 free page ， insert语句就是从 Free List中选择其中一个数据Page进行数据的写入
+      2. LRU List：管理 Clean Page  和 Dirty Page，也就是说，只要使用了的Page都在这里进行管理
+  - page使用步骤：
+    - 1. 先使用free page
+- Change Buffer：优化增删改的操作性能
+- 测试
+- 
+##### 右边： 磁盘结构
+- System Tablespace (系统表空间)
+  - 所有表共享一个表空间存储表数据和其他数据
+  - ibdataN   这个文件只会变大，不会变小
+    - 
+- File-Per-Table  独占表空间 （mysql 5.6之后，数据默认存储在独占表空间）
+  - 表现为 ` /var/lib/mysql/数据库DB名字/表名字.ibd`    的文件
+  - ibd文件内部：数据内容和索引内容
+  - （注： 另一个  ` /var/lib/mysql/数据库DB名字/表名字.frm`文件，这个是表示表结构的文件   ）
+- Undo TableSpace（Undo表空间）
+  - Undo log用于保证事务特性中的一致性，原子性，隔离性
+- Redo Log
+  - ib_logfile0 
+  - Ib_logfile1 
+  - Redo Log 默认是两个文件，可以配置多个
+  - 每个文件大小相同
+  - 作用：保证事务的持久化
+
+![image-20200722164429879](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200722164429879.png)
+
+
+
+
+
+
+
+#### 
+
+
+
+![image-20200809213409775](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200809213409775.png)

@@ -261,3 +261,11 @@ git branch --set-upstream-to=origin/远程分支名称   本地分支名称
 
 ```
 
+
+
+
+
+## git rebase 和 merge 的区别
+
+![image-20200720155253443](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200720155253443.png)
+

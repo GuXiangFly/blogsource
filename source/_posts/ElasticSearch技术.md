@@ -21,7 +21,7 @@ Fields  对应   一个字段
 
 ## ES 如何使用
 ### 使用ES创建索引
-```json5
+```json
 
  //请求为：http://localhost:9200/people  这个可以创建一个名字为 people的 index  类似创建一个people的数据库
 curl -put  http://localhost:9200/people 
@@ -357,3 +357,9 @@ ik_max_word 为最细粒度切分
  List<Article> articleList = template.queryForList(query, Article.class);
  articleList.forEach(System.out::println);
 ```
+
+
+
+
+
+![image-20200628235211995](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200628235211995.png)
