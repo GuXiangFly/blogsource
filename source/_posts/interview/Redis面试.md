@@ -76,10 +76,115 @@ srandmember activity:10001  2
     - 异步更新
     - 定时更新
     - 失效更新
+
+
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200927191957310.png" alt="image-20200927191957310" style="zoom:43%;" />
+
+```java
+    @GetMapping("/getUserById")
+    public User getUserById(Integer id){
+        //1.查询缓存中是否有数据,如果有数据就返回数据。
+        User user = cacheHelper.get(String.valueOf(id));
+        if (user!=null){
+            return user;
+        }
+
+        //2.缓存中没有数据，就去db中查询
+        User userInDdById = getUserInDdById(id);
+        if (userInDdById!=null){
+           //3.查询到数据并且存入DB，并且设置过期时间
+            cacheHelper.setUserToCache(String.valueOf(id), user,30);
+            return userInDdById;
+        }
+        return null;
+    }
+
+```
+
 - 缓存穿透
-    - 恶意攻击（可以使用布隆过滤器进行过滤）
-    
-    
+  - 描述：  缓存中没有，数据库中也没有
+    - 类似上述代码，如果 id查询为 111，但是数据库里面没有 id为111的，那么就产生了缓存穿透
+  - 解决方法：  
+    - 缓存空对象 (缺点：1.会占用大量内存,  2.数据过期后也会  )
+    - 布隆过滤器
+- 缓存击穿
+  - 描述： 缓存中没有，但是数据库中有。   （假设所有子弹都打在墙上同一个点，那么这堵墙很可能被击穿）
+    - 热点数据
+    - 假设刚上新一个商品（热点数据）， 突然有10000个请求同时访问此产品， 第1个请求还没往redis缓存中存储进去， 第2到第10000个请求已经打到机器， 这样也会导致数据库宕机
+  - 解决方法:
+    - 热点数据不过期 或 错开时间过期
+    - 加互斥锁：使用分布式锁，保证每个key只有一个线程去查询后端服务
+- 缓存雪崩
+  - 描述： 大量缓存数据过期不可用， 或者甚至缓存挂掉。
+  - 解决办法：
+    - 主从模式  集群模式
+    - 双11停掉部分服务，保证主要的服务可用（比如双11停止退款服务）
+    -  数据预热
+
+##### 三个问题的解决代码
+
+```java
+
+
+    @Autowired
+    CacheHelper cacheHelper;
+
+    @Autowired
+    RedisLock redisLock;
+
+
+    private static int size = 1000000;
+
+    private static BloomFilter<Integer> bloomFilter = BloomFilter.create(Funnels.integerFunnel(), size, 0.0001);
+
+
+    @GetMapping("/getUserById")
+    public Result getUserById(Integer id) {
+
+        // 布隆过滤器过滤 解决缓存穿透问题
+        if (!bloomFilter.mightContain(id)) {
+            return Result.error("无数据");
+        }
+
+        //查询缓存中是否有数据,如果有数据就返回数据。
+        User user = cacheHelper.get(String.valueOf(id));
+        if (user != null) {
+            return Result.success(user);
+        }
+
+        // 使用分布式锁解决 缓存击穿问题
+        redisLock.lock(String.valueOf(id));
+        try {
+
+            //查询缓存中是否有数据,如果有数据就返回数据。
+            User user2 = cacheHelper.get(String.valueOf(id));
+            if (user2 != null) {
+                return Result.success(user2);
+            }
+            //2.缓存中没有数据，就去db中查询
+            User userInDdById = getUserInDdById(id);
+            if (userInDdById != null) {
+                cacheHelper.setUserToCache(String.valueOf(id), user, 30);
+                return Result.success(userInDdById);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            redisLock.unLock(String.valueOf(id));
+        }
+
+
+        return Result.error("无数据");
+    }
+```
+
+
+
+
+
 ### Redis缓存穿透布隆过滤器
 为了应对缓存穿透的问题，我们可以采用布隆过滤器
 布隆过滤器的原则: 如果这些点有任何一个0，则被检元素一定不在；如果都是1，则被检元素很可能在。

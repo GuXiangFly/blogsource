@@ -18,7 +18,7 @@ kafka单独一个topic内，也会进行分区，kafka只能保证单独分区�
 
 
 
-
+ ![image-20200914164905228](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200914164905228.png)
 
 #### kafka的文件存储
 

@@ -7,8 +7,8 @@ tags: [redis,分布式技术]
 # CAP原理和BASE思想
 ## 分布式领域CAP理论
 Consistency(一致性), 数据一致更新，所有数据变动都是同步的
-Availability(可用性), 好的响应性能
-Partition tolerance(分区容错性) 可靠性
+Availability(可用性)
+Partition tolerance(分区容错性) 
 
 **定理**：任何分布式系统只可同时满足二点，没法三者兼顾。
 **忠告**：架构师不要将精力浪费在如何设计能满足三者的完美分布式系统，而是应该进行取舍。

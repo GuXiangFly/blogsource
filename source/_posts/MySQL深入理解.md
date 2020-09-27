@@ -520,24 +520,55 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 ##### 右边： 磁盘结构
 - System Tablespace (系统表空间)
   - 所有表共享一个表空间存储表数据和其他数据
-  - ibdataN   这个文件只会变大，不会变小
+  - ibdataN   这个文件只会变大，不会变小   undo log就存在此表中
     - 
+  
 - File-Per-Table  独占表空间 （mysql 5.6之后，数据默认存储在独占表空间）
   - 表现为 ` /var/lib/mysql/数据库DB名字/表名字.ibd`    的文件
   - ibd文件内部：数据内容和索引内容
   - （注： 另一个  ` /var/lib/mysql/数据库DB名字/表名字.frm`文件，这个是表示表结构的文件   ）
-- Undo TableSpace（Undo表空间）
-  - Undo log用于保证事务特性中的一致性，原子性，隔离性
-- Redo Log
+  
+- Undo TableSpace（Undo表空间    Undo:取消/撤销）
+  -    可以查看此表
+  - Undo记录默认被记录到系统表空间(ibdata)
+  - Undo log用于保证事务特性中的一致性，原子性，隔离性 （undo log也是数据页）
+    - Undo Log 分为 insert  undo log  和  update undo log
+      - insert  undo log     **INSERT**操作在事务提交前只对当前事务可见，因此产生的**Undo日志可以在事务提交后直接删除**
+      - Update undo log   **UPDATE/DELETE**则需要维护多版本信息，在InnoDB里，**UPDATE和DELETE操作产生的Undo日志被归成一类，即update_undo**。
+        - 在update 一条行记录之前，需要将之前的数据进行备份（方便回滚使用）  这个备份的数据就是记录在update undo log 中
+        - 
+  
+- Redo Log   (Redo:重做) 
+
+  > redo Log  有点类似于 WAL 预写入日志顺序写
+
   - ib_logfile0 
   - Ib_logfile1 
   - Redo Log 默认是两个文件，可以配置多个
   - 每个文件大小相同
   - 作用：保证事务的持久化
 
-![image-20200722164429879](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200722164429879.png)
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200722164429879.png" alt="image-20200722164429879" style="zoom: 25%;" />
 
 
+
+
+
+> mysql 的持久化有两种机制来保证
+>
+> 1. WAL预写入日志（redo Log）
+>
+> 2. 脏页落盘   当脏页产生后，会将该数据页的物理修改操作，记录到redo log buffer中
+>
+>    数据提交或者每秒钟将 redo log buffer 进行落盘操作
+>
+>    
+>
+>    只有脏页落盘失败的时候，redo log 才有用，否则该文件其实一直就是起到一个保险的作用，没有真正被数据加载
+>
+>    当脏页落盘成功后，对应的redo log buffer 会进行进行清理，所以redo log buffer可以循环使用
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200914152313367.png" alt="image-20200914152313367" style="zoom:50%;" />
 
 
 
