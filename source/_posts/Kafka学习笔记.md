@@ -238,4 +238,25 @@ ISR 是和leader保持同步的follower
 bin/kafka-manager
 ```
 
-- 
+
+
+
+
+
+
+
+
+# 面试题专区
+
+## Kafka生产者写数据流程
+
+![image-20201121162444033](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201121162444033.png)
+
+注：broker是kafka集群    ，生产者是程序员自己写的java代码
+
+1. java代码中发出消息，先进行封装
+2. 封装后进行代码的序列化
+3. 第三步对消息进行分区，分区器会先到集群上获取集群的元数据，然后分区器决定将消息发送到对应topic的哪个分区。 （kafka 0.8版本会直接在这时候将消息发出）
+4. kafka先将要发送的消息进行缓存（在kafka 0.10后的一个动作）
+5. 有一个sender线程会将 recordaccumulator的缓存数据封装为一个个16k的batch，然后进行发送。 （如果消息一直达不到16k，那么100ms后就会进行发送）
+

@@ -163,3 +163,24 @@ NIO中,  Channel 主要有以下的几种
 
 <img src="https://i.loli.net/2020/01/21/q9DSgVLWf7Zax5U.png"/>
 
+
+
+
+
+
+
+Selector 开发
+
+![image-20201012143439322](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201012143439322.png)
+
+```
+1.当客户端连接时，会通过ServerSocketChannel 得到 SocketChannel
+2.Selector 进行监听  select 方法, 返回有事件发生的通道的个数.
+3.将socketChannel注册到Selector上, register(Selector sel, int ops), 一个selector上可以注册多个SocketChannel
+4.注册后返回一个 SelectionKey, 会和该Selector 关联(集合)
+5.进一步得到各个 SelectionKey (有事件发生)
+6.在通过 SelectionKey  反向获取 SocketChannel , 方法 channel()
+7.可以通过  得到的 channel  , 完成业务处理
+代码撑腰
+```
+

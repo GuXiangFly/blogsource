@@ -468,6 +468,17 @@ Spring AOP 和 AspectJ
 
 
 
+
+### Bean生命周期
+
+
+
+
+
+
+
+
+
 ## spring事务传播
 propagation_request     request（必须）（默认的）
 支持当前事务，A如果有事务，B将使用该事务

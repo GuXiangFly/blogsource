@@ -200,7 +200,8 @@ srandmember activity:10001  2
 
 ### Redis多路I/O复用模型
 
-
+- Redis. worker    的id
+- 
 
 ### Redis大量Key同时过期的注意事项
 - 在设置key过期时间的时候，给每个时间加上随机值，同时删除大量key会产生卡顿
@@ -235,4 +236,16 @@ getbit bits  10
 
 setbit bits 10000000  1 
 ```
+
+
+
+
+
+
+
+### Redis线程模型
+
+![image-20201207221959145](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201207221959145.png)
+
+Redis 内部使用文件事件处理器 `file event handler`
 
