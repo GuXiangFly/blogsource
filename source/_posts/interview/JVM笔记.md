@@ -10,6 +10,7 @@ tags: [JVM,java]
 
 ### 引导类加载器（bootstrapclassloader）
 -它用来加载Java的核心库(JAVAHOME/jre/lib/rt.jar,üsun.boot.class.path路径下的内容）是用原生代码来实现的，并不继承自java」ang.ClassLoadero加载扩展类和应用程序类加载器。荆旨定他们的父类加载器。
+
 ### 扩展类加载器（extensionsclassloader）
 -用来加载Java的扩展库(JAVAHOME/jre/ext/*jar，üjava.ext.dirs路径下的内容）。
 Java虚拟机的实现会提供一个扩展库目录。该类加载器在此目录里面找并加载Java
@@ -44,10 +45,18 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
 
 ### 字节码加载流程
 
+![image-20201212194527279](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201212194527279.png)
+
+
+
 ![image-20200518010403696](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518010403696.png)
 
 - 类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：加载（Loading）、验证（Verification）、准备(Preparation)、解析(Resolution)、初始化(Initialization)、使用(Using)和卸载(Unloading)7个阶段。其中准备、验证、解析3个部分统称为连接（Linking）
 - 加载、验证、准备、初始化和卸载这5个阶段的顺序是确定的，类的加载过程必须按照这种顺序按部就班地开始，而解析阶段则不一定：它在某些情况下可以在初始化阶段之后再开始，这是为了支持Java语言的运行时绑定（也称为动态绑定或晚期绑定）。以下陈述的内容都已HotSpot为基准。
+
+![image-20201212195325459](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201212195325459.png)
+
+对于一段代码，走如上的流程图，先看程序有没有相应的class对象，如果没有就先加载，有就不加载，然后链接，后初始化，然后执行main方法
 
 --------
 
@@ -147,6 +156,8 @@ public class SingleTonTest {
 
 
 
+
+
 ## java的堆栈区别
 
 ### Java堆
@@ -173,6 +184,8 @@ public class SingleTonTest {
 
 ## 内存图
 ![JVM 内存图](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1534694453&di=a372c6fc205d8da43a39e6cb5dfd6f9d&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.kuqin.com%2Fupimg%2Fallimg%2F160518%2F20521a109-0.png)
+
+![image-20201213003257956](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201213003257956.png)
 
 
 ###  JDK 1.6 和 1.7 1.8 有所区别
@@ -285,13 +298,17 @@ String str= new String("abc")
 SoftReference<String> softRef = new SoftReference<String>(str)
 ```
 
-有哪些可以作为 GC root
+有哪些可以作为 GC root  （GCroot）
 - **GC root**
   -  **由系统类加载器(system class loader)加载的对象** （不带有自定义类加载器），这些类是不能够被回收的，他们可以以静态字段的方式保存持有其它对象。我们需要注意的一点就是，通过用户自定义的类加载器加载的类，除非相应的java.lang.Class实例以其它的某种（或多种）方式成为roots，否则它们并不是roots。
-  - 栈中引用的对象
-  - 方法区中静态成员或者常量引用的对象（全局对象） （引出JDK1.7之后JVM常量池不存在方法区，1.8后没有了方法区）
+  -  虚拟机栈中引用的对象
+     - 比如各个线程被调用的方法中使用的参数，局部变量
+  - 方法区中静态成员或者常量引用的对象（全局对象） （引出JDK1.7之后JVM常量池不存在方法区，1.8后没有了方法区） （方法区中常量的）
   - JNI方法栈中引用对象
   - **活的Thread**
+  - 被synchronized 持有的对象
+
+> 小技巧：由于root采用栈的方式存放变量和指针，所以如果一个指针，他保存了堆内存里面的对象，但是自己又不存放在堆内存里面，那么它就是个root
 
 
 
@@ -302,7 +319,7 @@ SoftReference<String> softRef = new SoftReference<String>(str)
 > 针对Hotspot VM的实现，它的GC按照回收区域分为两大类，一种是 Partial GC （ 部分收集），一种是 Full GC整堆收集
 >
 > - 部分收集，不完整的收集整个Java堆的垃圾收集。其中又分为：
->   - 新生代收集（Minor GC/ Young GC）： 只是 新生代（eden，s0，s1）的垃圾收集
+>   - 新生代收集（Minor GC/ Young GC）： 只是 新生代（eden，s0，s1）的垃圾收集，eden满了才会触发 Minor GC 
 >   - 老年代（Major GC/ Old GC）：只是老年代
 >     - 目前只有 CMS GC 会单独进行老年代收集，只有CMS会进行 Major GC
 >     - 注意，很多时候 Major GC 和 Full GC 会被搞混。具体分辨是老年代回收还是整堆回收
@@ -317,6 +334,76 @@ full GC 和 major GC
 - 永久代空间不足（永久代如果加载了特别多的class类，也会导致full GC）
 - 调用System.gc()
 - CMS GC 出现了promotion failed
+
+
+
+### 双亲委派机制
+
+![image-20201212234316719](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201212234316719.png)
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201213012452190.png" alt="image-20201213012452190" style="zoom: 67%;" />
+
+- 双亲委派的优势
+  - 避免类的重复加载
+  - 保护程序的安全，防止核心的API被随意篡改
+- 双亲委派的劣势
+  - 当应用类访问系统类自然是没有问题的，但是系统类访问应用类会出现问题。
+  - Tomcat 中类加载机制就和双亲委派模型有些区别。
+
+
+
+### 打破双亲委派模型
+
+在像一些Tomcat的源码中，WebappClassLoader会打破双亲委派机制。这里我们也来简单模拟一下。
+
+打破双亲委派机制则不仅要继承ClassLoader类，还要重写loadClass和findClass方法，如下例子：
+
+- 重新定义一个继承ClassLoader的TestClassLoaderN类，这个类与前面的TestClassLoader类很相似，但它除了重写findClass方法外还重写了loadClass方法，默认的loadClass方法是实现了双亲委派机制的逻辑，即会先让父类加载器加载，当无法加载时才由自己加载。这里为了破坏双亲委派机制必须重写loadClass方法，即这里先尝试交由System类加载器加载，加载失败才会由自己加载。它并没有优先交给父类加载器，这就打破了双亲委派机制。
+
+
+
+
+
+### 线程
+
+- 守护线程： 如果虚拟机中只有守护线程了，那么虚拟机就可以退出了
+- 普通线程： 普通线程结束后，jvm才会退出
+
+
+
+##### 常见的守护线程
+
+- 虚拟机线程：这种线程执行“stop the world” 的垃圾收集，线程栈收集，偏向锁撤销等。
+
+- 周期任务线程：这种线程是时间周期事件的体现，比如中断。
+
+  
+
+
+
+### 创建一个对象的步骤
+
+1. 判断对象对应的类是否被加载、链接、初始化过
+
+   > 虚拟机遇到条new指令，现在metaspace中。判断类的元信息是否存在。如果没有。通过双亲委派模式使用classloader进行加载，如果没有找到就会抛出classnotfoundexception。找到了就进行类加载
+
+2. 为对象分配内存。
+
+   1. 如果内存规整-- 使用指针碰撞
+   2. 如果内存不规整-- 虚拟机需要维护一个列表
+   3. 内存是否规整，取决于垃圾收集器
+
+3. 处理并发安全问题
+
+4. 初始化分配到的空间
+
+   1. 给属性进行默认初始化， integer 为null ， int 为0
+
+5. 设置对象的对象头
+
+6. 执行init方法
+
+
 
 
 ## JVM参数调优

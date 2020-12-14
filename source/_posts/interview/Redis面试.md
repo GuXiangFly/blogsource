@@ -247,5 +247,32 @@ setbit bits 10000000  1
 
 ![image-20201207221959145](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201207221959145.png)
 
+
+
+![image-20201210201333070](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201210201333070.png)
+
+
+
 Redis 内部使用文件事件处理器 `file event handler`
+
+
+
+1. 当一个 Socket01 客户端发起一个请求和redis server 的连接，我们产生后
+
+2. 测试
+
+
+
+
+
+
+
+
+
+
+
+## Redis是单线程还是多线程
+
+- redis 在 5.x 及其之前
+  - redis 处理网络请求的主worker线程，是单线程的
 
