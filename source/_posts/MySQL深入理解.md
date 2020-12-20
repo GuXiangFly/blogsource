@@ -579,3 +579,27 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 
 
 ![image-20200809213409775](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200809213409775.png)
+
+
+
+
+
+1.Kafka 中的 ISR(InSyncRepli)、OSR(OutSyncRepli)、AR(AllRepli)代表什么？
+
+2.Kafka 中的 HW、LEO 等分别代表什么？
+
+3.Kafka 中是怎么体现消息顺序性的？
+
+4.Kafka 中的分区器、序列化器、拦截器是否了解？它们之间的处理顺序是什么？
+
+5.Kafka 生产者客户端的整体结构是什么样子的？使用了几个线程来处理？分别是什么？
+
+6.“消费组中的消费者个数如果超过 topic 的分区，那么就会有消费者消费不到数据”这句
+
+话是否正确？
+
+7.消费者提交消费位移时提交的是当前消费到的最新消息的 offset 还是 offset+1？
+
+8.有哪些情形会造成重复消费？
+
+9.那些情景会造成消息漏消费？

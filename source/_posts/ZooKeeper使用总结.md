@@ -103,3 +103,11 @@ zookeeper功能
 
 
 如果遇到缓存雪崩
+
+
+
+
+
+zookeeper的角色
+
+![image-20201215155702091](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215155702091.png)

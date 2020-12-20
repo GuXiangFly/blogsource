@@ -1,5 +1,5 @@
 ---
-EyewearEyeweartitle: Kylin学习
+title: Kylin学习
 date: 2019-11-3 13:22:54
 tags: [大数据]
 

@@ -65,8 +65,52 @@ java8 的hashmap由 数组 和链表+红黑树组成
 ```
 
 
+
+hashmap 是线程不安全的
+
+```
+并发情况下  可能在 transfer 时候出现成环现象，导致get的死循环。
+
+并发问题：
+若当前线程此时获得ertry节点，但是被线程中断无法继续执行，此时线程二进入transfer函数，并把函数顺利执行，此时新表中的某个位置有了节点，之后线程一获得执行权继续执行，因为并发transfer，所以两者都是扩容的同一个链表，当线程一执行到e.next = new table[i] 的时候，由于线程二之前数据迁移的原因导致此时new table[i] 上就有ertry存在，所以线程一执行的时候，会将next节点，设置为自己，导致自己互相使用next引用对方，因此产生链表，导致死循环。
+
+解决问题：
+
+使用synchronize ，或者使用collection.synchronizeXXX方法。或者使用concurrentHashmap来解决。
+```
+
+
+
 # ConcurrentHashMap 面试
+
  视频教程地址 [https://www.bilibili.com/video/av69066235?from=search&seid=9719965469283553311]
 ## ConcurrentHashMap默认长度为16  默认的并发等级是16 可以自己指定
 
 ## segment是一个 可重入锁 ReentrantLock
+
+
+
+
+
+
+
+## ArrayList 和 LinkedList的区别
+
+ LinkedList每次增加的时候，会new 一个Node对象来存新增加的元素，所以当数据量小的时候，这个时间并不明显，而ArrayList需要扩容，所以LinkedList的效率就会比较高，其中如果ArrayList出现不需要扩容的时候，那么ArrayList的效率应该是比LinkedList高的，当数据量很大的时候，new对象的时间大于扩容的时间，那么就会出现ArrayList'的效率比Linkedlist高了
+
+
+
+
+
+## TreeSet  和  TreeMap 和  HashMap
+
+TreeMap 内部是使用红黑树来实现
+
+
+
+TreeMap 和  HashMap 不合适
+
+
+
+
+

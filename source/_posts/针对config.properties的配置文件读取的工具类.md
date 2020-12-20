@@ -1,10 +1,10 @@
-
 ---
 title: 针对config.properties的配置文件读取的工具类
-date: 2017-6-15 21:31:44
-tags: [工具类,java]
-
+date:  2017-6-15 21:31:44
+tags:  [工具类,java]
 ---
+
+
 
 针对config.properties的配置文件读取的工具类
 拥有

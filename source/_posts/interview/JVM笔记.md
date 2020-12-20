@@ -23,6 +23,8 @@ sun.misc.Launcher$ExtClassLoader实现
 -开发人员可以通过继承java.lang.ClassLoader类的方式
 实现自己的类加载器，以满足一些特殊的需求。
 
+https://blog.nowcoder.net/n/a607e6d3db0542dca8d4e33053af02a1
+
 
 ```java
 public class Demo02 {
@@ -337,7 +339,17 @@ full GC 和 major GC
 
 
 
-### 双亲委派机制
+
+
+cms收集器
+
+![image-20201215153007134](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215153007134.png)
+
+
+
+![image-20201215202437444](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215202437444.png)
+
+### 双亲委派机
 
 ![image-20201212234316719](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201212234316719.png)
 

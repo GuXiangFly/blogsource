@@ -29,7 +29,7 @@ docker pull registry.cn-beijing.aliyuncs.com/opendcp/nginx
 
 6. 前台启动
 docker run -it   c8c29d842c09
-
+d'd'd'd
 7. 后台启动 容器
 docker run  -d   c8c29d842c09
 

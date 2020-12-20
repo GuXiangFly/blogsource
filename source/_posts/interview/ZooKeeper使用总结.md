@@ -88,7 +88,7 @@ ls 是监听子节点
     - leader follower
 - 集群中最少需要多少台机器
     - 3台
- 
+
 ## zookeeper监听原理
 1. 首先 有个main线程
 2. 创建zkClient  在创建Zookeeper Client 的时候会有创建两个线程，一个负责网络连接（connet）
@@ -103,6 +103,13 @@ ls 是监听子节点
     - 广播模式（二阶段提交）
     - 恢复模式
     
+
+
+
+
+
+![image-20201215155850788](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215155850788.png)
+
  假设有1,2,3三个服务器
 ![zookeeper集群示意图](https://i.loli.net/2019/11/11/Yq57jkirITHSEtd.png)
 
@@ -117,8 +124,13 @@ leader节点进行write，要进行二阶段提交
 - 4. leader节点收到这个ack请求，会统计一下这个ack请求的数量。
 - 5. 只要有半数以上的follower返回了ack确认，那么leader就会进行一下commit，并且通知他的follower也进行commit。
 
+### 集群启动时的leader节点
 
-### leader节点挂了怎么办
+![image-20201215160808488](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215160808488.png)
+
+### 服务器运行时的leader选举
+
+![image-20201215161355634](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215161355634.png)
 
 
 
