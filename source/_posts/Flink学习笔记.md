@@ -4,9 +4,32 @@ date: 2019-03-27 20:09:04
 tags: [大数据]
 
 ---
-## Flink 与 spark 的对比
+## Flink的世界观
 
-- Flink 
+![image-20201220134317825](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220134317825.png)
+
+Flink的世界观一切都是流。
+
+- 如果是正常流处理，那么就是无界流
+- 如果是批处理，那么就是有界流
+
+
+
+## Flink分层API
+
+![image-20201220135523650](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220135523650.png)
+
+Flink 分层
+
+- SQL/ Table 的 api， 里面的方法非常容易理解
+- DataStream API   数据流API,用的比较多,   DataSet API，批处理API
+- ProcessFunction   比较底层。
+
+
+
+
+
+
 
 ## Flink计算模型
 
