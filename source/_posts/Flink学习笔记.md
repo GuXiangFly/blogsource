@@ -1,4 +1,5 @@
 ---
+
 title: Flink计算模型
 date: 2019-03-27 20:09:04
 tags: [大数据]
@@ -27,9 +28,66 @@ Flink 分层
 
 
 
+## 有状态的流式处理
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220182002249.png" alt="image-20201220182002249" style="zoom:50%;" />
+
+当我们进行一个状态计算的时候，比方说我们统计一个pv，用户过来一次，我存count+1， 放到内存中。 一个过来，我内存中+1，
+
+为了实现故障恢复，我在远程设计一个周期性的检查点，checkpoint。  
+
+问题： 这种无法保证数据的顺序。
 
 
 
+
+
+## 有状态的流式处理
+
+![image-20201220182506650](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220182506650.png)
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220193727095.png" alt="image-20201220193727095" style="zoom:50%;" />
+
+### Lambda 是什么
+
+>  Lambda架构是twitter的工程师  Nathan Marz提出的。同时他是storm项目的发起人
+
+- lambda系统架构体用了一个 结合实时数据处理和批处理的数据环境的混合平台，用以提供一个实时的数据视图。
+
+- 分层架构
+  - 批处理层
+    - 处理历史数据
+  - 实时处理层
+    - 实时处理新的数据，和批处理层阐释的服务层视图进行关联，返回给query
+  - 服务层
+    - 服务层会主动触发查询，查询批处理层和实时处理层产生的视图数据，进行整合。query用户查询的时候，就只需要查询服务层整合完的数据
+
+>  整体是批处理层处理历史数据，生成批处理视图，给服务层，
+
+
+
+机器学习里的lambda架构
+
+> batch层使用用户的历史数据行为进行建模。
+>
+> speed 实时层通过获取用户的最新行为。
+>
+> servring 服务层将用户的行为通过模型进行推荐
+
+缺点：
+
+- 做一个需求，我们需要做两套系统，一个批处理系统，一个实时处理系统。
+
+
+
+## Flink 和 spark 的区别
+
+- 数据模型
+  - spark采用RDD计算，spark streaming的DStream 实际上是一对对rdd
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220202636957.png" alt="image-20201220202636957" style="zoom:50%;" />
 
 ## Flink计算模型
 
