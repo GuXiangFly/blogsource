@@ -89,6 +89,148 @@ Flink 分层
 
 <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220202636957.png" alt="image-20201220202636957" style="zoom:50%;" />
 
+### Flink 运行时的组件
+
+#### 1. 作业管理器（JobManager） 
+
+一个job 只有一个 jobmanager。 我们作业是提交给jobmanager。
+
+- jobmanager  将图转换为 执行图，然后将图中的任务分发给一个taskmanager的各个slot
+
+- 协调检查
+
+> 控制一个应用程序执行的主进程，也就是说，每个应用程序都会被一个不同的
+>
+> JobManager 所控制执行。
+>
+> • JobManager 会先接收到要执行的应用程序，这个应用程序会包括：作业图
+>
+> （JobGraph）、逻辑数据流图（logical dataflow graph）和打包了所有的类、
+>
+> 库和其它资源的JAR包。
+>
+> • JobManager 会把JobGraph转换成一个物理层面的数据流图，这个图被叫做
+>
+> “执行图”（ExecutionGraph），包含了所有可以并发执行的任务。
+>
+> • JobManager 会向资源管理器（ResourceManager）请求执行任务必要的资源，
+>
+> 也就是任务管理器（TaskManager）上的插槽（slot）。一旦它获取到了足够的
+>
+> 资源，就会将执行图分发到真正运行它们的TaskManager上。而在运行过程中，
+>
+> JobManager会负责所有需要中央协调的操作，比如说检查点（checkpoints）
+>
+> 的协调。
+
+#### 2.任务管理器（TaskManager）
+
+TaskManager会将自己有多少个 slot 等信息，注册到 resourcemanager上。
+
+TaskManager之间可能会传输一些数据。
+
+> • Flink中的工作进程。通常在Flink中会有多个TaskManager运行，每一个TaskManager都包含了一定数量的插槽（slots）。插槽的数量限制了TaskManager能够执行的任务数量。
+>
+> • 启动之后，TaskManager会向资源管理器注册它的插槽；收到资源管理器的指令后，TaskManager就会将一个或者多个插槽提供给JobManager调用。JobManager就可以向插槽分配任务（tasks）来执行了。
+>
+> • 在执行过程中，一个TaskManager可以跟其它运行同一应用程序的TaskManager交换数据。
+
+#### 3.资源管理器（ResourceManager） 
+
+ResourceManager可以和 YARN 或 K8s  standalone等做适配。 并且
+
+> 主要负责管理任务管理器（TaskManager）的插槽（slot），TaskManger 插槽是Flink中定义的处理资源单元。
+>
+> • Flink为不同的环境和资源管理工具提供了不同资源管理器，比如YARN、Mesos、K8s，以及standalone部署。
+>
+> • 当JobManager申请插槽资源时，ResourceManager会将有空闲插槽的TaskManager分配给JobManager。如果ResourceManager没有足够的插槽来满足JobManager的请求，它还可以向资源提供平台发起会话，以提供启动TaskManager进程的容器。
+
+
+
+#### 4.分发器（Dispatcher） 
+
+这个某些架构是可以删除不是必须的，这个就是提供一个web UI 的入口，让我们提交  flink的job，并且给出一些web ui的监控
+
+> • 可以跨作业运行，它为应用提交提供了REST接口。 
+>
+> • 当一个应用被提交执行时，分发器就会启动并将应用移交给一个JobManager。 
+>
+> • Dispatcher也会启动一个Web UI，用来方便地展示和监控作业执行的信息。 
+>
+> • Dispatcher在架构中可能并不是必需的，这取决于应用提交运行的方式。
+
+
+
+
+
+#### Flink 任务提交的流程
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222222109616.png" alt="image-20201222222109616" style="zoom:50%;" />
+
+Q1： 为啥我们要启动Jobmanager，其实我们每个flink-job 都对应一个jobmanager， 它是一一对应的。
+
+Q2:  并行的任务，需要占用多少个slot。
+
+
+
+
+
+#### Flink 在Yarn 上提交任务的流程
+
+
+
+这个图上的 ResourceManager  是yarn 的resourcemanager
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222223015179.png" alt="image-20201222223015179" style="zoom:50%;" />
+
+#### 任务调度的原理
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222222939932.png" alt="image-20201222222939932" style="zoom:50%;" />
+
+
+
+
+
+#### Flink中 TaskManager 和 Slots
+
+
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222225014978.png" alt="image-20201222225014978" style="zoom: 67%;" />
+
+> slot什么情况下可合并：
+>
+> 类似这个， Source 和 Map  其实可以合并。 因为两个Slot直接进行交互， Map 和 keyby 阶段， Map的两个slot 和 keyby的两个slot 都有交互，所以不能合并。
+>
+> 需要几个slot才能将job跑起来：
+>
+> 2个，因为看图而言，最大的并行度是2。  因为默认情况下，slot是允许共享的。
+>
+> 同一时间，并行的任务，slot必须分开，  顺序执行的slot，可以共享。
+>
+> 
+>
+> 不同任务共享slot的好处：
+>
+> - 可以让每个计算资源都得到充分的利用。
+>
+>   假设 source耗时只有 1ms，windows计算耗时得有 100ms，如果分slot计算 source 1个slot，window一个slot，那么会让 source下来的数据积压等待，共享的话，就可以有两个slot，计算 source和window
+>
+>   默认是可以共享的，共享组默认名称叫做 default ，但是如果不想共享，那么可以设置不同的slot共享组(slotSharingGroup)
+>
+>   如果不设置共享组，那么和前面的Task使用同一个slotsharinggroup，  比方说前面设置的red组，那么后面task不显示设置共享组那么就是 red这个共享组
+
+一个特定算子的 子任务（subtask）的个数被称之为其并行度（parallelism）。一般情况下，一个 stream 的并行度，可以认为就是其所有算子中最大的并行度。
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222225241307.png" alt="image-20201222225241307" style="zoom:50%;" />![image-20201222230133112](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222230133112.png)
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222230148934.png" alt="image-20201222230148934" style="zoom:50%;" />
+
+Flink 中每一个 TaskManager 都是一个JVM进程，它可能会在独立的线程上执
+
+建议每个TaskManager的 slot个数，是这个taskmanager所在的机器的 CPU核心数，这样能最大利用CPU
+
 ## Flink计算模型
 
 - 标准  流处理的计算模型 应该如此
