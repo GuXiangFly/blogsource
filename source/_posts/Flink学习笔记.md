@@ -48,7 +48,7 @@ Flink 分层
 
 <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220193727095.png" alt="image-20201220193727095" style="zoom:50%;" />
 
-### Lambda 是什么
+### Lambda架构 是什么
 
 >  Lambda架构是twitter的工程师  Nathan Marz提出的。同时他是storm项目的发起人
 
@@ -103,15 +103,9 @@ Flink 分层
 >
 > JobManager 所控制执行。
 >
-> • JobManager 会先接收到要执行的应用程序，这个应用程序会包括：作业图
+> • JobManager 会先接收到要执行的应用程序，这个应用程序会包括：作业图（JobGraph）、逻辑数据流图（logical dataflow graph）和打包了所有的类、库和其它资源的JAR包。
 >
-> （JobGraph）、逻辑数据流图（logical dataflow graph）和打包了所有的类、
->
-> 库和其它资源的JAR包。
->
-> • JobManager 会把JobGraph转换成一个物理层面的数据流图，这个图被叫做
->
-> “执行图”（ExecutionGraph），包含了所有可以并发执行的任务。
+> • JobManager 会把JobGraph转换成一个物理层面的数据流图，这个图被叫做“执行图”（ExecutionGraph），包含了所有可以并发执行的任务。
 >
 > • JobManager 会向资源管理器（ResourceManager）请求执行任务必要的资源，
 >
@@ -231,13 +225,265 @@ Flink 中每一个 TaskManager 都是一个JVM进程，它可能会在独立的�
 
 建议每个TaskManager的 slot个数，是这个taskmanager所在的机器的 CPU核心数，这样能最大利用CPU
 
-## Flink计算模型
 
-- 标准  流处理的计算模型 应该如此
-有一条数据进入第一个节点，节点1处理后立马放入缓存中，节点2看见缓存中有数据，立马执行节点2的操作
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190324201333.png)
-- 标准 批处理模型 应该如此
-有一条数据进入第一个节点，节点1处理后立马放入缓存中，节点2等待缓存中有指定个数的数据后，节点2才开始执行
+
+### Slot 子任务分配
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223104512500.png" alt="image-20201223104512500" style="zoom:50%;" />
+
+Q1: 为什么 C 和 B能共享一个Slot？
+
+A1：因为slot就是一个线程，我可以先执行玩B后 再执行C 。 然后再执行B  再执行C
+
+
+
+#### 程序与数据流（DataFlow）
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223111253912.png" alt="image-20201223111253912" style="zoom: 67%;" />
+
+- 所有的Flink程序都是由三部分组成的： Source 、Transformation 和 Sink。
+- Source 负责读取数据源，Transformation 利用各种算子进行处理加工，Sink 负责输出。
+
+
+
+#### 执行图（ExecutionGraph）
+
+-  Flink 中的执行图可以分成四层：StreamGraph -> JobGraph -> ExecutionGraph -> 物理执行图 
+
+- StreamGraph：是根据用户通过 Stream API 编写的代码生成的最初的图。用来表示程序的拓扑结构。
+
+-  JobGraph：StreamGraph经过优化后生成了 JobGraph，提交给 JobManager 的数据结构。主要的优化为，将多个符合条件的节点 chain 在一起作为一个节点
+
+-  ExecutionGraph：JobManager 根据 JobGraph 生成ExecutionGraph。ExecutionGraph是JobGraph的并行化版本，是调度层最核心的数据结构。
+
+- 物理执行图：JobManager 根据 ExecutionGraph 对 Job 进行调度后，在各个
+
+- TaskManager 上部署 Task 后形成的“图”，并不是一个具体的数据结构。
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223113023464.png" alt="image-20201223113023464" style="zoom:67%;" />
+
+Q1： 为何 keyby 不作为一个计算算子？
+
+A1：  因为 keyBy 实际上是按key的hash 进行一个重分区的操作而已，并不是做真正的计算。
+
+
+
+#### 数据传输形式有哪些
+
+ 两种（one-to-one，Redistributing）
+
+- 一个程序中，不同的算子可能具有不同的并行度
+
+-  算子之间传输数据的形式可以是 one-to-one (forwarding) 的模式也可以是redistributing 的模式，具体是哪一种形式，取决于算子的种类
+  - One-to-one：stream维护着分区以及元素的顺序（比如source和map之间）。 这意味着map 算子的子任务看到的元素的个数以及顺序跟 source 算子的子任务生产的元素的个数、顺序相同。map、fliter、flatMap等算子都是one-to-one的对应关系。
+  - Redistributing：stream的分区会发生改变。每一个算子的子任务依据所选择的transformation发送数据到不同的目标任务。
+    - 例如，keyBy 基于 hashCode 重分区、而 broadcast 和 rebalance 会随机重新分区，这些算子都会引起redistribute过程，而 **redistribute 过程就类似于 Spark 中的 shuffle 过程**。
+
+  ![image-20201223114506719](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223114506719.png)
+
+  - 图中 forward   就是 one-to-one   （one-to-one 的slot才能合并） （类似spark 的窄分区）
+  - hash  是基于hashcode进行重分区，是redistributing。 （类似spark的宽分区）
+
+#### 任务链（Operator Chains） 
+
+- Flink 采用了一种称为任务链的优化技术，可以在特定条件下减少本地通信的开销。为了满足任务链的要求，必须将两个或多个算子设为相同的并行度，并通过本地转发（local forward）的方式进行连接
+
+- **相同并行度**的 **one-to-one** 操作，Flink 这样相连的算子链接在一起形成一个 task，原来的算子成为里面的 subtask
+
+- 并行度相同、并且是 one-to-one 操作，两个条件缺一不可。
+- 将两个task进行合并的好处：可以  节省了两个task之间的数据通信传输开销，不用序列化了。 条件就是 必须是**并行度相同的one-to-one操作，并且必须要是在同一个slot共享组里**
+- 使用 disableOperatorChaining 或者 那么就不会进行 task的合并。
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223115016900.png" alt="image-20201223115016900" style="zoom: 67%;" />
+
+## Flink流处理计算
+
+
+
+#### 基本转换算子
+
+Map, flatmap,  filter  同属于 one-to-one 操作
+
+- map   假设 inputStream一行是一个 string， 进入是一个string，返回也必须是单个值
+- flatmap    假设 inputStream一行是一个 string， 进入是一个string，返回可以是多个值。将 string 打成一个个 char。  最后多个 string  回合成为多个 char
+- filter     返回一个true 代表我要这个数据， 返回一个false，代表我不要这个数据
+
+ ```java
+public class TransformTest1_Base {
+    public static void main(String[] args) throws Exception{
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+
+        // 从文件读取数据
+        DataStream<String> inputStream = env.readTextFile("D:\\Projects\\BigData\\FlinkTutorial\\src\\main\\resources\\sensor.txt");
+
+        // 1. map，把String转换成长度输出
+        DataStream<Integer> mapStream = inputStream.map(new MapFunction<String, Integer>() {
+            @Override
+            public Integer map(String value) throws Exception {
+                return value.length();
+            }
+        });
+
+        // 2. flatmap，按逗号分字段
+        DataStream<String> flatMapStream = inputStream.flatMap(new FlatMapFunction<String, String>() {
+            @Override
+            public void flatMap(String value, Collector<String> out) throws Exception {
+                String[] fields = value.split(",");
+                for( String field: fields ) {
+                    out.collect(field);
+                }
+            }
+        });
+
+        // 3. filter, 筛选sensor_1开头的id对应的数据
+        DataStream<String> filterStream = inputStream.filter(new FilterFunction<String>() {
+            @Override
+            public boolean filter(String value) throws Exception {
+                return value.startsWith("sensor_1");
+            }
+        });
+
+        // 打印输出
+        mapStream.print("map");
+        flatMapStream.print("flatMap");
+        filterStream.print("filter");
+
+        env.execute();
+    }
+}
+ ```
+
+
+
+#### 滚动聚合算子（Rolling Aggregation）
+
+> Flink 所有的聚合操作，必须进行分组后才能操作
+
+下面这些算子必须在keyby后才能操作
+
+- sum()
+- min()
+- max()
+- minBy()
+- maxBy()
+
+
+
+####  Flink 的 **Reduce** 
+
+>  **KeyedStream** **→** **DataStream**：一个分组数据流的聚合操作，合并当前的元素和上次聚合的结果，产生一个新的值，返回的流中包含每一次聚合的结果，而不是只返回最后一次聚合的最终结果。
+
+```java
+public class TransformTest3_Reduce {
+    public static void main(String[] args) throws Exception {
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+        // 从文件读取数据
+        DataStream<String> inputStream = env.readTextFile("/Users/mtdp/dev/ideaworkspace/guxiangwork/technology-study/flink-java-learn/src/main/resources/sensor.txt");
+        // 转换成SensorReading类型
+        DataStream<SensorReading> dataStream = inputStream.map(line -> {
+            String[] fields = line.split(",");
+            return new SensorReading(fields[0], new Long(fields[1]), new Double(fields[2]));
+        });
+        // 分组
+        KeyedStream<SensorReading, Tuple> keyedStream = dataStream.keyBy("id");
+        // reduce聚合，取最大的温度值，以及当前最新的时间戳
+        SingleOutputStreamOperator<SensorReading> resultStream = keyedStream.reduce(new ReduceFunction<SensorReading>() {
+            @Override
+            public SensorReading reduce(SensorReading value1, SensorReading value2) throws Exception {
+                return new SensorReading(value1.getId(), value2.getTimestamp(), Math.max(value1.getTemperature(), value2.getTemperature()));
+            }
+        });
+
+        keyedStream.reduce( (curState, newData) -> {
+            return new SensorReading(curState.getId(), newData.getTimestamp(), Math.max(curState.getTemperature(), newData.getTemperature()));
+        });
+
+        resultStream.print();
+        env.execute();
+    }
+}
+
+```
+
+
+
+#### 4. Flink 的  **Split** **和** Select
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223222431471.png" alt="image-20201223222431471" style="zoom:50%;" />
+
+​		**DataStream** **→** **SplitStream**：根据某些特征把一个 DataStream 拆分成两个或者多个 DataStream。
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223222908480.png" alt="image-20201223222908480" style="zoom:50%;" />
+
+​		**SplitStream** **→** **DataStream** ：从一个 SplitStream 中获取一个或者多个DataStream。
+
+
+
+#### 5. Flink的**Connect** **和** **CoMap**
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223224215315.png" alt="image-20201223224215315" style="zoom:50%;" />
+
+#### 6. Flink 的 Union
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223224020726.png" alt="image-20201223224020726" style="zoom:50%;" /
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223224247502.png" alt="image-20201223224247502" style="zoom:50%;" />
+
+##### union 和  comap- connect 的不同：  
+
+1. Union 之前两个流的类型必须是一样，Connect 可以不一样，在之后的 coMap中再去调整成为一样的。
+
+2. Connect 只能操作两个流，Union 可以操作多个。
+
+
+
+### Flink 支持的数据类型
+
+Flink 底层有一个 typeinformation
+
+
+
+#### 1.基础数据类型
+Flink 支持所有的 Java 和 Scala 基础数据类型，Int, Double, Long, String, …
+
+#### 2.**Java** **和** **Scala** 元组（Tuples）
+Flink 支持所有的 Java 和 Scala 基础数据类型，Int, Double, Long, String, …
+
+#### 3. **Scala** 样例类（case classes）
+Flink 支持所有的 Java 和 Scala 基础数据类型，Int, Double, Long, String, …
+
+#### 4.其它（Arrays, Lists, Maps, Enums,** **等等）**
+Flink 支持所有的 Java 和 Scala 基础数据类型，Int, Double, Long, String, …
+
+
+
+
+
+
+
+### 数据重分配（partition）
+
+- keyby  通过key的hashcode 取模来定义分区
+- shuffle： 随机将各个数据 分配到不同的  task slot
+- forward：不重新分区了
+- rebalance ： 1 放到 partition1上   2放到partition2上    3放到partition1上  4放到partition2上
+- global： 全部数据全部放到  partition1上  
+
+
+
+
+
+### window概念
+
+
+
+
+
+
 
 ## 实现Stream 的滑动窗口
 ```java
@@ -306,11 +552,18 @@ public class SocketWindowWordCountJava {
 }
 ```
 
+
+
+
+
+
+
 ### linux 中打开端口 发送数据
+
 nc命令是一个功能强大的网络工具，全称是netcat。
 
 ```bash
-nc -l 9000
+nc -lk 9000
 ```
 
 
