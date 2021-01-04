@@ -126,8 +126,7 @@ srandmember activity:10001  2
 
 ##### 三个问题的解决代码
 
-```java
-
+``` java
 
     @Autowired
     CacheHelper cacheHelper;
@@ -254,7 +253,6 @@ setbit bits 10000000  1
 
 
 Redis 内部使用文件事件处理器 `file event handler`
-
 
 
 1. 当一个 Socket01 客户端发起一个请求和redis server 的连接，我们产生后

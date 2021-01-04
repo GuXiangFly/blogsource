@@ -1013,7 +1013,11 @@ public class SocketWindowWordCountJava {
 
 
 
-
+### watermark 时间语意
+我们当前处理数据的时候
+- Event Time：事件创建的时间
+- Ingestion Time：数据进入Flink的时间
+- Processing Time：执行操作算子的本地系统时间，与机器相关
 
 
 
@@ -1253,7 +1257,7 @@ Broadcasting：在后面单独详解
 #### 编写思路四步走
 
 1. env
-2. 
+2. env
 
 
 
