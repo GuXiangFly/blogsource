@@ -463,6 +463,37 @@ Flink 支持所有的 Java 和 Scala 基础数据类型，Int, Double, Long, Str
 
 
 
+### Flink实现UDF函数
+
+####  函数类（Function Classes）
+
+####  匿名函数（Lambda Functions）
+
+####  富函数（Rich Functions）
+
+> “富函数”是 DataStream API 提供的一个函数类的接口，所有 Flink 函数类都有其 Rich 版本。它与常规函数的不同在于，可以获取运行环境的上下文，并拥有一些生命周期方法，所以可以实现更复杂的功能。
+
+每个udf函数类，都有对应的rich版本
+
+- RichMapFunction
+
+- RichFlatMapFunction
+
+- RichFilterFunction
+
+- ...
+
+Rich Function 有一个生命周期的概念。典型的生命周期方法有： 
+
+- open()方法是 rich function 的初始化方法，当一个算子例如 map 或者 filter被调用之前 open()会被调用。
+
+- close()方法是生命周期中的最后一个调用的方法，做一些清理工作。
+
+- getRuntimeContext()方法提供了函数的 RuntimeContext 的一些信息，例如函数执行的并行度，任务的名字，以及 state 状态
+
+
+
+
 
 
 ### 数据重分配（partition）
@@ -475,17 +506,441 @@ Flink 支持所有的 Java 和 Scala 基础数据类型，Int, Double, Long, Str
 
 
 
+### window函数
+
+对于 TimeWindow，可以根据窗口实现原理的不同分成三类：滚动窗口（Tumbling Window）、滑动窗口（Sliding Window）和会话窗口（Session Window）。
+
+Window 可以分成三类：
+
+- CountWindow：按照指定的数据条数生成一个 Window，与时间无关。
+
+- TimeWindow：按照时间生成 Window。
+
+  - 滚动窗口（Tumbling Windows）
+
+    > 将数据依据固定的窗口长度对数据进行切片。
+    >
+    > **特点：时间对齐，窗口长度固定，没有重叠。**
+    
+  - 滑动窗口（Sliding Windows）
+
+    > 滑动窗口是固定窗口的更广义的一种形式，滑动窗口由固定的窗口长度和滑动间隔组成。
+    >
+    > **特点：时间对齐，窗口长度固定，可以有重叠。**
+
+- Session Window
+
+  - >  由一系列事件组合一个指定时间长度的 timeout 间隙组成，类似于 web 应用的session，也就是一段时间没有接收到新数据就会生成新的窗口。
+    >
+    > **特点：时间无对齐。**
 
 
-### window概念
+
+####  window function
+
+window function 定义了要对窗口中收集的数据做的计算操作，主要可以分为两类：
+
+- 增量聚合函数（incremental aggregation functions）
+
+  > 每条数据到来就进行计算，保持一个简单的状态。典型的增量聚合函数有ReduceFunction, AggregateFunction。 
+
+- 全窗口函数（full window functions）
+
+  > 先把窗口所有数据收集起来，等到计算的时候会遍历所有数据。ProcessWindowFunction 就是一个全窗口函数。
 
 
+
+
+
+### 时间语义与 Wartermark
+
+#### Flink 中的时间语义
+
+- **Event Time**：是事件创建的时间。它通常由事件中的时间戳描述，例如采集的日志数据中，每一条日志都会记录自己的生成时间，Flink 通过时间戳分配器访问事件时间戳。
+- **Ingestion Time**：是数据进入 Flink 的时间。
+- **Processing Time**：是每一个执行基于时间操作的算子的本地系统时间，与机器相关，默认的时间属性就是 Processing Time。
+
+
+
+####  EventTime 的引入
+
+​		**在** **Flink** **的流式处理中，绝大部分的业务都会使用** **eventTime**，一般只在eventTime 无法使用时，才会被迫使用 ProcessingTime 或者 IngestionTime。
+
+#### Watermark
+
+
+
+### Flink 的状态编程
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201224233043826.png" alt="image-20201224233043826" style="zoom:50%;" />
+
+Flink的状态分成两大类
+
+- Managed State(托管状态)
+  - 由***\*Flink Runtime\****控制和管理状态数据，并将状态数据转换成为内存的Hash tables或 RocksDB的对象存储，然后将这些数据通过内部的接口持久化到checkpoints中，任务异常时可以通过这些状态数据恢复任务
+- RawState(原生状态)
+  - 由算子自己管理数据结构，当触发Checkpoint操作过程中，Flink并不知道状态数据内部的数据结构，只是将数据转换成bytes数据存储在Checkpoints中，当从Checkpoints恢复任务时，算子自己再反序列化出状态的数据结构
+
+
+
+在 Flink 中，常用的就是 managed state，下面讲的也是managed state，状态始终与特定算子相关联。在我们的 flatmap操作里面可以绑定一个状态，在reduce操作里面，可以绑定一个状态，在window操作内，也可以绑定状态。
+
+总的来说，managed state有两种类型的状态：
+
+- 算子状态（operator state） 
+
+  - 算子状态的作用范围限定为算子任务。   只要是在同一个分区，那么数据就是一样的
+
+  - 类似 reduce， window ，所有在 reduce处理的数据，都能访问到这个状态。 只要在同一个分区，不论key是啥，都是访问同一个状态
+
+  - <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201224234239191.png" alt="image-20201224234239191" style="zoom:50%;" />
+
+  - Flink 为算子状态提供三种基本数据结构：
+
+    - 列表状态（List state）
+
+      > 将状态表示为一组数据的列表。主要是为了方便状态重新分配。
+    >
+      > <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210102021543975.png" alt="image-20210102021543975" style="zoom:67%;" />
+    >
+      > 假设并行度原本是2，并行度 A1，A2上都有一个size为3的list state。 下一个算子任务并行度调整为3后，那么 B1,B2,B3可以各拿都拿 size为2的 list state。、
+
+    -  联合列表状态（Union list state）
+
+      > 也将状态表示为数据的列表。它与常规列表状态的区别在于，在发生故障时，或者从保存点（savepoint）启动应用程序时如何恢复。
+    
+    -  广播状态（Broadcast state） (所有分区的 state 都相同)
+    
+      > 如果一个算子有多项任务，而它的每项任务状态又都相同，那么这种特殊情况最适合应用广播状态。
+
+- 键控状态（keyed state）
+
+  -  只有当前key的数据，才能访问到当前key对应的状态。主要个这么几种数据结构
+
+    - 列表状态（List state） 
+
+      > 将状态表示为一组数据的列表
+
+    - 联合列表状态（Union list state） 
+
+      >也将状态表示为数据的列表。它与常规列表状态的区别在于，在发生故障时，或者从保存点（savepoint）启动应用程序时如何恢复
+
+    - 映射状态（Map state）  
+
+      > 将状态表示为一组 Key-Value 对 
+
+    - 聚合状态（Reducing state & Aggregating State） 
+
+      > 将状态表示为一个用于聚合操作的列表
+
+  -   keyed state 必须使用 rich function。
+
+### 状态后端（state  backend）
+
+- MemoryStateBackend
+  - 存级的状态后端，会将键控状态作为内存中的对象进行管理，将它们存储在TaskManager 的 JVM 堆上，而将 checkpoint 存储在 JobManager 的内存中 
+  - 特点：快速、低延迟，但不稳定
+- FsStateBackend  （默认使用此FileSystem）
+  - 将 checkpoint 存到远程的持久化文件系统（FileSystem）上，而对于本地状态，跟 MemoryStateBackend 一样，也会存在 TaskManager 的 JVM 堆上
+  - 同时拥有内存级的本地访问速度，和更好的容错保证
+- RocksDBStateBackend
+  - 将所有状态序列化后，存入本地的 RocksDB 中存储。 （状态编程，状态存在 rocksDB,   rocksDB 在 taskmanager上）
+
+
+
+
+
+### 容错机制
+
+
+
+## WaterMark的概念
+
+![image-20201231001746191](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201231001746191.png)
+
+
+
+- watermark 其实是一个特殊的数据记录
+- watermark 是单调递增的，用来确保任务的事件时间在向前推移而不是后退
+- watermark 是与我们数据的时间戳有关的
+
+流程
+
+> watermark 来个2 代表 2之前的数据都到齐了，  来了个5，代表5之前的数据都到齐了
+>
+> 如果window函数看到  watermark 5 那么代表要触发 1~5 的窗口操作了 （后面假设 kafka数据4 来了，由于它迟到了，就算它作废了）
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201231012505666.png" alt="image-20201231012505666" style="zoom:67%;" />
+
+> 流程
+>
+> 1.  假设我们设置了一个滚动窗口，时间间隔为5秒。并且设置watermark为3
+> 2.  数据时间为1s  数据-1s 的 会进入 [0,5) 的桶里。
+> 3. 日志时间数据-4s 收到，后面插入watermark为4-3= 1，不需要关闭window桶，进入 [0,5) 的桶里。
+> 4. 日志时间数据-5s 收到，后面插入watermark为5-3= 2，不需要关闭window桶，进入 [5,10) 的桶里。
+> 5. 日志时间数据-2s 收到，后面插入watermark为2-3= -1，不需要关闭window桶，进入 [0,5) 的桶里。
+> 6. 日志时间数据-3s 收到，后面插入watermark为3-3= 0，不需要关闭window桶，进入 [0,5) 的桶里。
+> 7. 日志时间数据-6s 收到，后面插入watermark为6-3= 3，不需要关闭window桶，进入  [5,10)  的桶里。
+> 8. 日志时间数据-7s 收到，后面插入watermark为7-3= 4，不需要关闭window桶，进入  [5,10)  的桶里。
+> 9. 日志时间数据-5s 收到，后面插入watermark为5-3= 2，不需要关闭window桶，进入  [5,10)  的桶里。
+> 10. 日志时间数据-8s 收到，后面插入watermark为8-3= 5，需要关闭window [0,5) 的桶， [0,5)桶的数据进行聚合计算，数据-8s进入  [5,10)  的桶里。
+> 11. 日志时间数据-4.1s 收到，发现window [0,5) 的桶已经被关闭，就被丢弃了（除非设置了）。
+
+
+
+不同Task之间 watermark的传递 通过广播来实现，假设Task A 依赖 Task B ,Task C 和 TaskD。 B,C,D 的最小 watermark 为 2，那么 TaskA 就讲 watermark2 广播给 TaskA 的下游。
+
+![image-20201231014349924](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201231014349924.png)
+
+
+
+
+
+## ProcessFunction
+
+DataStream API 提供了一系列的 Low-Level 转换算子。可以**访问时间戳、watermark **以及注册定时事件**。还可以输出**特定的一些事件，例如超时事件等。Process Function 用来构建事件驱动的应用以及实现自定义的业务逻辑(使用之前的window 函数和转换算子无法实现)。例如，Flink SQL 就是使用 Process Function 实现的。
+
+Flink 提供了 8 个 Process Function： 
+
+- ProcessFunction
+
+- KeyedProcessFunction
+
+- CoProcessFunction
+
+- ProcessJoinFunction
+
+- BroadcastProcessFunction
+
+- KeyedBroadcastProcessFunction
+
+- ProcessWindowFunction
+
+- ProcessAllWindowFunction
+
+8.1 KeyedProcess
+
+```java
+public class ProcessTest2_ApplicationCase_v2 {
+    public static void main(String[] args) throws Exception{
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
+
+        // socket文本流
+        DataStream<String> inputStream = env.socketTextStream("localhost", 7777);
+
+        // 转换成SensorReading类型
+        DataStream<SensorReading> dataStream = inputStream.map(line -> {
+            String[] fields = line.split(",");
+            return new SensorReading(fields[0], new Long(fields[1]), new Double(fields[2]));
+        });
+
+        // 测试KeyedProcessFunction，先分组然后自定义处理
+        dataStream.keyBy("id")
+                .process( new TempConsIncreWarning(10) )
+                .print();
+
+        env.execute();
+    }
+
+    // 实现自定义处理函数，检测一段时间内的温度连续上升，输出报警
+    public static class TempConsIncreWarning extends KeyedProcessFunction<Tuple, SensorReading, String>{
+        // 定义私有属性，当前统计的时间间隔
+        private Integer interval;
+
+        public TempConsIncreWarning(Integer interval) {
+            this.interval = interval;
+        }
+
+        // 定义状态，保存上一次的温度值，定时器时间戳
+        private ValueState<Double> lastTempState;
+        private ValueState<Long> timerTsState;
+
+        @Override
+        public void open(Configuration parameters) throws Exception {
+            lastTempState = getRuntimeContext().getState(new ValueStateDescriptor<Double>("last-temp", Double.class, Double.MIN_VALUE));
+            timerTsState = getRuntimeContext().getState(new ValueStateDescriptor<Long>("timer-ts", Long.class));
+        }
+
+        @Override
+        public void processElement(SensorReading value, Context ctx, Collector<String> out) throws Exception {
+            // 取出状态
+            Double lastTemp = lastTempState.value();
+            Long timerTs = timerTsState.value();
+
+            // 如果温度上升并且没有定时器，注册10秒后的定时器，开始等待
+            if( value.getTemperature() > lastTemp && timerTs == null ){
+                // 计算出定时器时间戳
+                Long ts = ctx.timerService().currentProcessingTime() + interval * 1000L;
+                ctx.timerService().registerProcessingTimeTimer(ts);
+                timerTsState.update(ts);
+            }
+            // 如果温度下降，那么删除定时器
+            else if( value.getTemperature() < lastTemp && timerTs != null ){
+                ctx.timerService().deleteProcessingTimeTimer(timerTs);
+                timerTsState.clear();
+            }
+
+            // 更新温度状态
+            lastTempState.update(value.getTemperature());
+        }
+
+        @Override
+        public void onTimer(long timestamp, OnTimerContext ctx, Collector<String> out) throws Exception {
+            // 定时器触发，输出报警信息
+            out.collect("传感器" + ctx.getCurrentKey().getField(0) + "温度值连续" + interval + "s上升");
+            timerTsState.clear();
+        }
+
+        @Override
+        public void close() throws Exception {
+            lastTempState.clear();
+        }
+    }
+}
+
+```
+
+
+
+## Table API 和 Flink SQL
+
+### 在 Catalog 中注册表
+
+#### 1. 表（Table） 的概念
+
+- TableEnvironment 可以注册目录 Catalog，并可以基于 Catalog 注册表。它会维护一个Catalog-Table 表之间的 map。 
+- 表（Table）是由一个“标识符”来指定的，由 3 部分组成：Catalog 名、数据库（database）名和对象名（表名 table）。如果没有指定目录或数据库，就使用当前的默认值。 catalog 默认是 defaultcatalog 和 defaultdatabase  。   
+- 表可以是常规的（table） 也可以是虚拟的（view）  
+
+常规表（table） 一般用来描述外部数据，比如文件，数据库表，和消息队列的数据，也可以从datastream转换而来
+
+<img src="../../../../../../Library/Application Support/typora-user-images/image-20201229175155661.png" alt="image-20201229175155661" style="zoom:50%;" />
+
+
+
+#### table的打印输出
+
+```java
+// append
+tableEnv.toAppendStream(inputTable,Row.class).print("inputTable");
+// restract 撤回的 stream （可以对数据进行修改）
+tableEnv.toRetractStream(sqlAggTable,Row.class).print("sqlAggTable");
+```
+
+
+
+
+
+### 更新模式
+
+- 与外部系统交互的消息类型，由更新模式（update mode） 指定
+- 追加模式（append）
+  - 表只做插入操作，和外部连接器只交换插入（insert） 消息
+- 撤回模式（retract）
+  - 表和外部链接交换添加 add  和撤回 retract  （撤回就是删除）
+  - update 操作就是  retract 撤回一条，然后新添加一条
+- 更新模式（upsert）
+  - 更新和插入都被编码为upsert消息；删除编码为delete消息 
+  - upsert需要额外指定相应的key
+
+
+
+####  Table 和 DataStream的转换
+
+- 表转换为流
+
+```java
+DataStream<Row> resultAppendStream = tableEnv.toAppendStream(resultTable, Row.class);
+DataStream<Tuple2<Boolean, Row>> resultRetractStream = tableEnv.toRetractStream(resultTable, Row.class);
+```
+
+- 流转换为表
+
+```java
+        // 1. 读取数据
+        DataStreamSource<String> inputStream = env.readTextFile("/Users/mtdp/dev/ideaworkspace/guxiangwork/technology-study/flink-java-learn/src/main/resources/sensor.txt");
+
+
+        // 2. 转换成POJO
+        DataStream<SensorReading> dataStream = inputStream.map(line -> {
+            String[] fields = line.split(",");
+            return new SensorReading(fields[0], new Long(fields[1]), new Double(fields[2]));
+        });
+
+        StreamTableEnvironment tableEnv = StreamTableEnvironment.create(env);
+
+        // 4. 基于流创建一张表
+        Table dataTable = tableEnv.fromDataStream(dataStream);
+
+			  // 或者
+				 Table dataTable2 =tableEnv.fromDataStream(dataStream,"id,timestamp as ts,temperature");
+```
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201229234730770.png" alt="image-20201229234730770" style="zoom: 67%;" />
+
+
+
+### 关系代数和流处理的区别
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230001339707.png" alt="image-20201230001339707"  />
+
+
+
+流处理是  动态表（Dynamic Tables ）
+
+- 动态表是flink对流数据的table API 和 sql支持的核心概念
+
+- 与表示批处理数据的静态表不同，动态表是随时间变化的
+
+#### 持续查询（continuous query）
+
+  - 动态表可以像静态的批处理表一样进行查询
+  - 持续查询永远不会终止，并且会生成另一个动态表。
+  - 每输入一条新数据，就会重新查询
+
+动态表和持续查询的流程
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230002217327.png" alt="image-20201230002217327" style="zoom: 67%;" />
+
+	1. 来一条数据，第一个dynamic table 动态表进行更新（以前的数据也会存在着）
+ 	2. 第一个dynamic table 动态表进行更新后，触发持续查询，更新后面的第二张 动态表
+ 	3. 第二张动态表更新后更新变化成的流
+ 	4. ![image-20201230002837357](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230002837357.png)
+
+对于 restract 流，
+
+![image-20201230003239618](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230003239618.png)
+
+#### Flink Table 的 GroupWindow
+
+输出结果如下
+
+2019-01-17 09:43:10.0 到   2019-01-17 09:43:20.0 的数据只有 sensor_1,1547718199,35.8,2019-01-17 09:43:19.0
+
+```
+dataTable> sensor_1,1547718199,35.8,2019-01-17 09:43:19.0
+dataTable> sensor_6,1547718201,15.4,2019-01-17 09:43:21.0
+dataTable> sensor_7,1547718202,6.7,2019-01-17 09:43:22.0
+dataTable> sensor_10,1547718205,38.1,2019-01-17 09:43:25.0
+dataTable> sensor_1,1547718207,36.3,2019-01-17 09:43:27.0
+dataTable> sensor_1,1547718209,32.8,2019-01-17 09:43:29.0
+dataTable> sensor_1,1547718212,37.1,2019-01-17 09:43:32.0
+
+resultTable> (true,sensor_1,1,35.8,2019-01-17 09:43:20.0)
+resultTable> (true,sensor_6,1,15.4,2019-01-17 09:43:30.0)
+resultTable> (true,sensor_1,2,34.55,2019-01-17 09:43:30.0)
+resultTable> (true,sensor_10,1,38.1,2019-01-17 09:43:30.0)
+resultTable> (true,sensor_7,1,6.7,2019-01-17 09:43:30.0)
+resultTable> (true,sensor_1,1,37.1,2019-01-17 09:43:40.0)
+```
 
 
 
 
 
 ## 实现Stream 的滑动窗口
+
 ```java
 
 public class SocketWindowWordCountJava {
@@ -551,6 +1006,10 @@ public class SocketWindowWordCountJava {
     }
 }
 ```
+
+
+
+开窗函数： 那是对每一行， 然后拿这行数据周围的数据，进行聚合，然后将结果也放到这行里面。
 
 
 
@@ -795,4 +1254,12 @@ Broadcasting：在后面单独详解
 
 1. env
 2. 
+
+
+
+
+
+
+
+CataLog
 

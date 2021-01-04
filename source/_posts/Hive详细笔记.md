@@ -37,3 +37,24 @@ java -cp  xxx.jar;bbb.jar   com.guxiangfly.Maina
 ## 数据倾斜
 数据倾斜，就是在进行MapReduce 时候 ，某一个 reducer过大 导致整个 MR 程序执行过慢
 在hive中 我们会将空key 给一个随机数 让它 执行 “空” 这个字段reducer 的时候  不要过多
+
+
+
+
+
+
+
+### 开窗函数 over
+
+
+
+```sql
+select *,name, count(*) over  from  student;
+```
+
+
+
+```
+
+```
+
