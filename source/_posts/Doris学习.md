@@ -28,7 +28,7 @@ tags: [java]
 | VARCHAR[(length)]           |                                                              | 变长字符串。长度范围：1 ~ 65533                              |
 | HLL                         | 1~16385个字节                                                | hll列类型，不需要指定长度和默认值、长度根据数据的聚合程度系统内控制，并且HLL列只能通过配套的hll_union_agg、Hll_cardinality、hll_hash进行查询或使用 |
 | BITMAP                      |                                                              | bitmap列类型，不需要指定长度和默认值。表示整型的集合，元素最大支持到2^64 - 1 |
-| agg_type                    | 聚合类型，如果不指定，则该列为 key 列。否则，该列为 value 列 | SUM、MAX、MIN、REPLACE                                       |
+| agg_type                    | 聚合类型，如果不指定，则该列为 key 列。否则，该列为 value 列 | SUM、MAX、MIN、REPLACE和HLL_UNION(仅用于HLL列，为HLL独有的聚合方式)5种 |
 
 
 
@@ -111,7 +111,7 @@ P202009 范围值是2020-09-01到2020-09-30的数据
 
 ## Doris 的三种数据模型
 
-#### AGGREGATE KEY
+#### 1.AGGREGATE KEY
 
 AGGREGATE KEY相同时，新旧记录将会进行聚合操作，目前支持SUM,MIN,MAX,REPLACE。
 
@@ -137,4 +137,93 @@ DISTRIBUTED BY HASH(siteid) BUCKETS 10;
 mysql> insert into site_visit values(1,1,'name1',10);
 mysql> insert into site_visit values(1,1,'name1',20);
 ```
+
+结果
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210104172415851.png" alt="image-20210104172415851" style="zoom:50%;" />
+
+#### 2.UNIQUE KEY
+
+UNIQUE KEY相同时，新记录覆盖旧记录。目前UNIQUE KEY和AGGREGATE KEY的REPLACE聚合方法一致。适用于有更新需求的业务。
+
+```sql
+CREATE TABLE sales_order
+(
+    orderid     BIGINT,
+    status      TINYINT,
+    username    VARCHAR(32),
+    amount      BIGINT DEFAULT '0'
+)
+UNIQUE KEY(orderid)
+DISTRIBUTED BY HASH(orderid) BUCKETS 10;
+```
+
+```
+mysql> insert into sales_order values(1,1,'name1',100);
+mysql> insert into sales_order values(1,1,'name1',200);
+```
+
+新数据
+
+
+
+#### 3.DUPLICATE KEY
+
+只指定排序列，相同的行并不会合并。适用于数据无需提前聚合的分析业务。
+
+```sql
+CREATE TABLE session_data
+(
+    visitorid   SMALLINT,
+    sessionid   BIGINT,
+    city        CHAR(20),
+    ip          varchar(32)
+)
+DUPLICATE KEY(visitorid, sessionid)
+DISTRIBUTED BY HASH(sessionid, visitorid) BUCKETS 10;
+```
+
+插入数据
+
+```sql
+mysql> insert into session_data values(1,1,'shanghai','www.111.com');
+mysql> insert into session_data values(1,1,'shanghai','www.111.com');
+mysql> insert into session_data values(3,2,'shanghai','www.111.com');
+mysql> insert into session_data values(2,2,'shanghai','www.111.com');
+mysql> insert into session_data values(2,1,'shanghai','www.111.com');
+```
+
+查询结果
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105105715291.png" alt="image-20210105105715291" style="zoom:50%;" />
+
+
+
+## Rollup 索引
+
+Rollup可以理解为表的一个物化索引结构。Rollup可以调整列的顺序以增加前缀索引的命中率，也可以减少key列以增加数据的聚合度。
+
+（1）以session_data为例添加Rollup
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/wpsk5bdC7.jpg" alt="img" style="zoom: 50%;" /> 
+
+（2）比如我经常需要看某个城市的ip数，那么可以建立一个只有ip和city的rollup
+
+```sql
+mysql> alter table session_data add rollup rollup_city_ip(city,ip);
+```
+
+（3）创建完毕后，再次查看表结构
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/wpsQrLRZT.jpg" alt="img" style="zoom:50%;" /> 
+
+（4）然后可以通过explain查看执行计划，是否使用到了rollup
+
+```
+select ip from session_data where city = 'shanghai'
+```
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/wpshdPMR1.jpg" alt="img" style="zoom: 33%;" />
 

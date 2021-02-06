@@ -543,3 +543,27 @@ PROPAGATION_NESTED
 
 
 
+
+
+
+
+
+# 重学spring 
+
+https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-constructor-injection
+
+### spring 的注入方式
+
+1. [Constructor-based dependency injection](https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-constructor-injection) and [Setter-based dependency injection](https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-setter-injection).
+
+- 通过构造方法进行注入
+- 通过setter进行注入
+
+
+
+
+
+
+
+New  和 init 是不一样的。
+

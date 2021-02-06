@@ -564,10 +564,6 @@ object SortWordCount {
 
 
 
-
-
-
-
 ## Spark SQL
 
 ### 简介

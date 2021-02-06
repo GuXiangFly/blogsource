@@ -550,6 +550,24 @@ window function 定义了要对窗口中收集的数据做的计算操作，主�
 
 
 
+#### window其他可选api
+
+- trigger() —— 触发器
+
+  ➢ 定义 window 什么时候关闭，触发计算并输出结果
+
+- evictor() —— 移除器
+
+  ➢ 定义移除某些数据的逻辑
+
+- allowedLateness() —— 允许处理迟到的数据
+
+  ​	sideOutputLateData() —— 将迟到的数据放入侧输出流
+
+- getSideOutput() —— 获取侧输出流
+
+
+
 
 
 ### 时间语义与 Wartermark
@@ -653,6 +671,123 @@ Flink的状态分成两大类
 ### 容错机制
 
 
+
+#### Checkpoint 检查点
+
+- flink 的 jobmanager 会周期性得自动进行保存
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210104193417161.png" alt="image-20210104193417161" style="zoom:67%;" />
+
+
+
+
+
+source 会重新去 
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105191712936.png" alt="image-20210105191712936" style="zoom:67%;" />
+
+
+
+#### Savepoints 保存点
+
+- 原则上，创建保存点使用的算法与检查点完全相同，因此保存点可以认为就是具有一些额外元数据的检查点
+- flink不会自动创建 savepoints，
+- 保存点是一个强大的功能。除了故障恢复外，保存点可以用于：有计划的手动备份，更新应用程序，版本迁移，暂停和重启应用，等等
+
+
+
+
+
+## Flink状态一致性
+
+> 当在分布式系统中引入状态时，自然也引入了一致性问题。一致性实际上是"正确性级别"的另一种说法，也就是说在成功处理故障并恢复之后得到的结果，与没有发生任何故障时得到的结果相比，前者到底有多正确？举例来说，假设要对最近一小时登录的用户计数。在系统经历故障之后，计数结果是多少？如果有偏差，是有漏掉的计数还是重复计数？
+
+### 一致性级别
+
+- at-most-once: 这其实是没有正确性保障的委婉说法——故障发生之后，计数结果可能丢失。同样的还有 udp。 
+
+- at-least-once:  这表示计数结果可能大于正确值，但绝不会小于正确值。也就是说，计数程序在发生故障后可能多算，但是绝不会少算。 （这个类似uv统计可以使用此）
+
+- exactly-once: 这指的是系统保证在发生故障后得到的计数结果与正确值一致。
+
+
+
+### 端到端（end-to-end）状态一致性
+
+
+
+​		端到端的一致性保证，意味着结果的正确性贯穿了整个流处理应用的始终；每一个组件都保证了它自己的一致性，整个端到端的一致性级别取决于所有组件中一致性最弱的组件。具体可以划分如下：
+
+
+
+具体可以划分如下：
+
+- 内部保证 —— 依赖 checkpoint
+
+- source 端 —— 需要外部源可重设数据的读取位置
+
+- sink 端 —— 需要保证从故障恢复时，数据不会重复写入外部系统
+
+
+
+​		而对于 sink 端，又有两种具体的实现方式：幂等（Idempotent）写入和事务性
+
+（Transactional）写入。
+
+
+
+- 幂等写入 Idempotent
+
+  >  所谓幂等操作，是说一个操作，可以重复执行很多次，但只导致一次结果更改，也就是说，后面再重复执行就不起作用了。 
+
+- 事务写入 Transactional
+
+  需要构建事务来写入外部系统，构建的事务对应着 checkpoint，等到 checkpoint 真正完成的时候，才把所有对应的结果写入 sink 系统中。
+
+  对于事务性写入，具体又有两种实现方式：
+
+  - 预写日志（WAL）
+    - DataStream API 提供了 GenericWriteAheadSink 模板类实现
+  - 两阶段提交（2PC）
+    - DataStream API 提供了 TwoPhaseCommitSinkFunction 接口，可以方便地实现这两种方式的事务性写入。
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105205855997.png" alt="image-20210105205855997" style="zoom:67%;" />
+
+
+
+
+
+
+
+
+
+### Exactly-once 两阶段提交的步骤
+
+Flink 如何通估 2PC 保证端到端的状态一致性
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105213855496.png" alt="image-20210105213855496" style="zoom:67%;" />
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105215128428.png" alt="image-20210105215128428" style="zoom:50%;" />
+
+下面是只看处理到sink部分
+
+- 第一条数据发现需要sink后，开启一个 transaction1 ，正常写入kafka，分区日志，但是标记为未提交，算预提交。
+-  sink连接器收到 barrier ，保存当前状态，存入 checkpoint，并且通知jobmanager，同时为第二条数据开启下一阶段事务transaction2，为了第二条数据
+- jobmanager收到任务通知完成 checkpoint操作。
+- sink 任务收到 jobmanager的确认信息，正式提交这段时间的数据。
+- 外部
+
+
+
+
+
+（state backend  是在taskmanager 的机器上的，默认是内存，也可以是文件）
 
 ## WaterMark的概念
 
@@ -939,295 +1074,13 @@ resultTable> (true,sensor_1,1,37.1,2019-01-17 09:43:40.0)
 
 
 
-## 实现Stream 的滑动窗口
+#### UDF 函数
 
-```java
-
-public class SocketWindowWordCountJava {
-
-    public static class WordWithCount{
-        public String word;
-        public long count;
-        public  WordWithCount(){}
-        public WordWithCount(String word,long count){
-            this.word = word;
-            this.count = count;
-        }
-        @Override
-        public String toString() {
-            return "WordWithCount{" +
-                    "word='" + word + '\'' +
-                    ", count=" + count +
-                    '}';
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        int port;
-        try {
-            ParameterTool parameterTool = ParameterTool.fromArgs(args);
-            port = parameterTool.getInt("port");
-        } catch (Exception e) {
-            System.err.println("No port set");
-            port = 9000;
-        }
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        String hostname = "hadoop101";
-        String delimiter = "\n";
-        //连接socket获取输入的数据
-        DataStreamSource<String> text = env.socketTextStream(hostname, port, delimiter);
-        // a a c
-
-        // a 1
-        // a 1
-        // c 1
-        DataStream<WordWithCount> windowCounts = text.flatMap(new FlatMapFunction<String, WordWithCount>() {
-            @Override
-            public void flatMap(String value, Collector<WordWithCount> out) throws Exception {
-                String[] splits = value.split("\\s");
-                for (String word : splits) {
-                    out.collect(new WordWithCount(word, 1L));
-                }
-            }
-        }).keyBy("word")
-                //指定时间窗口大小为2秒，指定时间间隔为1秒
-                .timeWindow(Time.seconds(2), Time.seconds(1))
-                //.sum("count")
-                .reduce(new ReduceFunction<WordWithCount>() {
-                    @Override
-                    public WordWithCount reduce(WordWithCount a, WordWithCount b) throws Exception {
-                        return new WordWithCount(a.word, +b.count + a.count);
-                    }
-                });
-        // 并行的度为1
-        windowCounts.print().setParallelism(1);
-        env.execute("Socket window count");
-    }
-}
-```
+##### 1. 标量函数
 
 
 
-开窗函数： 那是对每一行， 然后拿这行数据周围的数据，进行聚合，然后将结果也放到这行里面。
 
-
-
-### watermark 时间语意
-我们当前处理数据的时候
-- Event Time：事件创建的时间
-- Ingestion Time：数据进入Flink的时间
-- Processing Time：执行操作算子的本地系统时间，与机器相关
-
-
-
-### linux 中打开端口 发送数据
-
-nc命令是一个功能强大的网络工具，全称是netcat。
-
-```bash
-nc -lk 9000
-```
-
-
-### Flink scala shell 调试代码
-我们可以直接 local 启动  Flink 的 scala shell  
-可以启动本地的 也可以 让 scala  shell 去链接 远程的 spark
-```bash
-bin/start-scala-shell.sh local
-```
-
-- benv  是  batch env 是批处理环境
-- senv  是 streaming env  流处理环境
-
-```bash
-scala> val text = benv.fromElements("hello you","hello world");
-text: org.apache.flink.api.scala.DataSet[String] = org.apache.flink.api.scala.DataSet@1a1f22f2
-
-scala> val counts = text.flatMap { _.toLowerCase.split("\\W+") }.map { (_, 1) }.groupBy(0).sum(1)  
-counts: org.apache.flink.api.scala.AggregateDataSet[(String, Int)] = org.apache.flink.api.scala.AggregateDataSet@53c39950
-
-scala> counts.print()
-(hello,2)
-(world,1)
-(you,1)
-```
-
-### Flink的 自定义数据源
-Flink自定义数据源有三种
-- 实现SourceFunction
-```java
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
-
-/**
- * 自定义实现并行度为1的source
- *
- * 模拟产生从1开始的递增数字
- *
- * 注意：
- * SourceFunction 和 SourceContext 都需要指定数据类型，如果不指定，代码运行的时候会报错
- * Caused by: org.apache.flink.api.common.functions.InvalidTypesException:
- * The types of the interface org.apache.flink.streaming.api.functions.source.SourceFunction could not be inferred.
- * Support for synthetic interfaces, lambdas, and generic or raw types is limited at this point
- */
-public class MyNoParalleSource implements SourceFunction<Long>{
-
-    private long count = 1L;
-
-    private boolean isRunning = true;
-
-    /**
-     * 主要的方法
-     * 启动一个source
-     * 大部分情况下，都需要在这个run方法中实现一个循环，这样就可以循环产生数据了
-     *
-     * @param ctx
-     * @throws Exception
-     */
-    @Override
-    public void run(SourceContext<Long> ctx) throws Exception {
-        while(isRunning){
-            ctx.collect(count);
-            count++;
-            //每秒产生一条数据
-            Thread.sleep(1000);
-        }
-    }
-
-    /**
-     * 取消一个cancel的时候会调用的方法
-     *
-     */
-    @Override
-    public void cancel() {
-        isRunning = false;
-    }
-}
-```
-
-- 实现ParallelSourceFunction 
-```java
-import org.apache.flink.streaming.api.functions.source.ParallelSourceFunction;
-
-/**
- * 自定义实现一个支持并行度的source
- */
-public class MyParalleSource implements ParallelSourceFunction<Long> {
-
-    private long count = 1L;
-    private boolean isRunning = true;
-    /**
-     * 主要的方法
-     * 启动一个source
-     * 大部分情况下，都需要在这个run方法中实现一个循环，这样就可以循环产生数据了
-     *
-     * @param ctx
-     * @throws Exception
-     */
-    @Override
-    public void run(SourceContext<Long> ctx) throws Exception {
-        while(isRunning){
-            ctx.collect(count);
-            count++;
-            Thread.sleep(1000);
-        }
-    }
-
-    /**
-     * 取消一个cancel的时候会调用的方法
-     */
-    @Override
-    public void cancel() {
-        isRunning = false;
-    }
-}
-```
-- 继承RichParallelSourceFunction 
-```
-RichParallelSourceFunction 会额外提供open和close方法
-针对source中如果需要获取其他链接资源，那么可以在open方法中获取资源链接，在close中关闭资源链接
-```
-```java
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
-
-/**
- * 自定义实现一个支持并行度的source
- *
- * RichParallelSourceFunction 会额外提供open和close方法
- * 针对source中如果需要获取其他链接资源，那么可以在open方法中获取资源链接，在close中关闭资源链接
- *
- * Created by xuwei.tech on 2018/10/23.
- */
-public class MyRichParalleSource extends RichParallelSourceFunction<Long> {
-
-    private long count = 1L;
-
-    private boolean isRunning = true;
-
-    /**
-     * 主要的方法
-     * 启动一个source
-     * 大部分情况下，都需要在这个run方法中实现一个循环，这样就可以循环产生数据了
-     *
-     * @param ctx
-     * @throws Exception
-     */
-    @Override
-    public void run(SourceContext<Long> ctx) throws Exception {
-        while(isRunning){
-            ctx.collect(count);
-            count++;
-            //每秒产生一条数据
-            Thread.sleep(1000);
-        }
-    }
-
-    /**
-     * 取消一个cancel的时候会调用的方法
-     *
-     */
-    @Override
-    public void cancel() {
-        isRunning = false;
-    }
-
-    /**
-     * 这个方法只会在最开始的时候被调用一次
-     * 实现获取链接的代码
-     * @param parameters
-     * @throws Exception
-     */
-    @Override
-    public void open(Configuration parameters) throws Exception {
-        System.out.println("open.............");
-        super.open(parameters);
-    }
-    /**
-     * 实现关闭链接的代码
-     * @throws Exception
-     */
-    @Override
-    public void close() throws Exception {
-        System.out.println("close.............");
-        super.close();
-    }
-}
-```
-
-### Flink中的分区
-#### Random partitioning：随机分区  
-dataStream.shuffle()
-#### Rebalancing：对数据集进行再平衡，重分区，消除数据倾斜  
-dataStream.rebalance()
-#### Rescaling：解释见备注  
-dataStream.rescale()
-#### Custom partitioning：自定义分区  
-自定义分区需要实现Partitioner接口  
-dataStream.partitionCustom(partitioner, "someKey")  
-或者dataStream.partitionCustom(partitioner, 0);
-Broadcasting：在后面单独详解
-#### 
 
 
 
@@ -1252,18 +1105,38 @@ Broadcasting：在后面单独详解
 
 
 
-### Flink 编写步骤
+## Flink  stream  Join
 
-#### 编写思路四步走
-
-1. env
-2. env
+https://ci.apache.org/projects/flink/flink-docs-release-1.12/zh/dev/stream/operators/joining.html
 
 
 
+Flink 内部的join有两种   window join   和  interval join
+
+
+
+####  窗口连接（ window join ）
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210107162500661.png" alt="image-20210107162500661" style="zoom:50%;" />
+
+window join 一般是将 两条流，在同一个窗口的数据 进行一个笛卡尔积
 
 
 
 
-CataLog
 
+####  区间连接 （interval join）
+
+![image-20210107163337645](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210107163337645.png)
+
+interval join ，假设  stream a  要 和 stream  b 进行join。
+
+流a 的 event e 会和    (a流event e发生时间 + lowerBound )   到    (  a流event e发生时间 + upperBound)  这个区间内发生的  流b的 event b  list   去做join 
+
+```
+b.timestamp ∈ [a.timestamp + lowerBound; a.timestamp + upperBound] 
+```
+
+
+
+regular join
