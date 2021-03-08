@@ -548,22 +548,97 @@ PROPAGATION_NESTED
 
 
 
-# 重学spring 
-
-https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-constructor-injection
-
-### spring 的注入方式
-
-1. [Constructor-based dependency injection](https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-constructor-injection) and [Setter-based dependency injection](https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-setter-injection).
-
-- 通过构造方法进行注入
-- 通过setter进行注入
+## 重学的spring
 
 
 
+![image-20210309013032829](C:\Users\guxiang\AppData\Roaming\Typora\typora-user-images\image-20210309013032829.png)
+
+类似下面这段
+
+```xml
+<bean id ="datasource"  class = "com.alibaba.druid.pool.DruidDataSource">
+    <property name="username" value="${jdbc.username}"></property>
+</bean>
+```
+
+${jdbc.username}是通过BeanFactoryPostProcessor来赋值的  源码如下
+
+```java
+public class PropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerSupport implements EnvironmentAware {
+··············
+
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        if (this.propertySources == null) {
+    ······················
+            try {
+                PropertySource<?> localPropertySource = new PropertiesPropertySource("localProperties", this.mergeProperties());
+                if (this.localOverride) {
+                    this.propertySources.addFirst(localPropertySource);
+                } else {
+                    this.propertySources.addLast(localPropertySource);
+                }
+            } catch (IOException var3) {
+                throw new BeanInitializationException("Could not load properties", var3);
+            }
+        }
+················
+    }
+}
+```
 
 
 
 
-New  和 init 是不一样的。
+
+自己想实现可以这么实现： 实现postProcessBeanFactory
+
+```java
+@Component
+public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+
+	@Override
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		System.out.println("MyBeanFactoryPostProcessor...postProcessBeanFactory...");
+		int count = beanFactory.getBeanDefinitionCount();
+		String[] names = beanFactory.getBeanDefinitionNames();
+		for (String name : names) {
+			System.out.println(name);
+		}
+		System.out.println("当前BeanFactory中有"+count+" 个Bean");
+		System.out.println(Arrays.asList(names));
+	}
+
+}
+```
+
+
+
+####  Bean的生命周期
+
+![image-20210309013032829](C:\Users\guxiang\AppData\Roaming\Typora\typora-user-images\image-20210309013032829.png)
+
+前提：首先明确bean分为实例化和初始化两步，bean是通过beandefinition创建出来的
+
+1. 扫描 xml，@bean等注解
+
+2. 通过beandefinitionReader读取出beanDefinition
+
+3. beanDefinition通过 BeanFactoryPostProcessor进行部分操作（类似填充jdbc.username等配置信息）
+
+4. 通过反射，进行实例化。  
+
+5. 实例化后填充属性 populationBean--------------(属于初始化)
+
+6. 执行 aware接口，注入部分属性--------------(属于初始化)
+
+7. beanpostprocesser.before 执行--------------(属于初始化)
+
+8. InitializingBean 与 init-method：--------------(属于初始化)
+
+   如果Bean在Spring配置文件中配置了 init-method 属性，则会自动调用其配置的初始化方法。
+
+9. beanpostprocesser.after 执行 （这里面AbstractAutoProxyCreator继承了beanpostprocesser 在postProcessAfterInitialization方法中实现了 aop的自动代理）--------------(属于初始化)
+
+10. 
 
