@@ -548,22 +548,50 @@ PROPAGATION_NESTED
 
 
 
-# 重学spring 
+## 重学spring
 
-https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-constructor-injection
+ https://www.bilibili.com/video/BV1iZ4y137CZ?p=5
 
-### spring 的注入方式
-
-1. [Constructor-based dependency injection](https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-constructor-injection) and [Setter-based dependency injection](https://docs.spring.io/spring-framework/docs/5.3.0-SNAPSHOT/spring-framework-reference/core.html#beans-setter-injection).
-
-- 通过构造方法进行注入
-- 通过setter进行注入
+![image-20210304210511074](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210304210511074.png)
 
 
 
 
 
+### 实例化与初始化
+
+![image-20210304211521124](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210304211521124.png)
+
+从刚开始准备实例化对象，到最终完成 bean的初始化分为3步
+
+1. 实例化(从堆中开辟一块空间)
+
+2. 填充对象的各个属性 （这个使用set方法完成，不使用init）
+
+3. 执行 init-method (类似下面的xml，有一个init-method)
+
+   ```xml
+       <bean id="compInfoChangeMessageProducer" class="com.meituan.lvyou.libra.business.adapter.producer.impl.CompInfoChangeMessageProducer" init-method="init" destroy-method="destroy">
+           <property name="topic" value="${lvyou_libra_promotion_compare_comp_deal_change_topic}"/>
+           <property name="properties">
+               <props>
+                   <prop key="mafka.bg.namespace">hotel</prop>
+                   <prop key="mafka.client.appkey">com.sankuai.lvyou.libra</prop>
+               </props>
+           </property>
+       </bean>
+   ```
 
 
-New  和 init 是不一样的。
+
+
+
+
+
+
+spring的生命周期流程
+
+
+
+![image-20210309215926865](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309215926865.png)
 

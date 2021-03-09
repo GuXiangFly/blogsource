@@ -24,6 +24,8 @@ kafka单独一个topic内，也会进行分区，kafka只能保证单独分区�
 
 视频连接 [https://www.bilibili.com/video/BV1a4411B7V9?p=12]
 
+
+
 ![image-20200518174054937](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518174054937.png)
 
 .log文件存储的是kafka队列里面的数据
@@ -34,13 +36,27 @@ kafka单独一个topic内，也会进行分区，kafka只能保证单独分区�
 
 ![image-20200518174400952](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518174400952.png)
 
+有一个全局的segment list：
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209111755507.png" alt="image-20210209111755507" style="zoom:67%;" />
+
 **.log 和 .index 都是以当前segment的第一条消息的offset命名的**。下图为 index和log文件的结构示意图
 
 > .index 文件存储大量的索引信息，  .log文件存储大量的数据信息
 
 ![image-20200518191544556](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518191544556.png)
 
+![image-20210209112059142](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209112059142.png)
 
+由于kafka的消息头，会存储message的长度，所以，然后就能直接读取到相应的数据结尾。
+
+
+
+kafka读取日志的顺序：
+
+1. 首先会读取一个全局的segment list
 
 ##### kafka分区的原因
 
@@ -362,3 +378,36 @@ bin/kafka-manager
 8.有哪些情形会造成重复消费？
 
 9.那些情景会造成消息漏消费？
+
+
+
+
+
+
+
+#### Kafka为什么快？
+
+1. 日志的顺序读写和快速检索。
+
+   1. 日志分段记录，单独一个partition中，每1g会新创建
+
+      <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209111755507.png" alt="image-20210209111755507" style="zoom:67%;" />
+
+   2. 当
+
+2. Partition机制
+
+3. 批量发送接收，以及数据压缩机制
+
+4. 通过sendfile实现了零拷贝原则
+
+   1. 正常来说  消费者进程需要读取文件，需要先 
+      1. 从磁盘文件进行读取到内核态缓冲区 ，
+      2. 然后读取到用户态缓冲区，
+      3. 然后读取到内核态的socket缓冲区，
+      4. 然后通过网卡传输给消费者
+   2. ![image-20210209113227842](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209113227842.png)
+   3. KAFKA 的 sendfile 操作实现原理
+      1. 减少了内核态和用户态之间的上下文切换
+      2. 
+   4. ![image-20210209114402905](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209114402905.png)

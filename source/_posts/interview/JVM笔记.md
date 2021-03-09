@@ -189,15 +189,23 @@ public class SingleTonTest {
 
 ![image-20201213003257956](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201213003257956.png)
 
+!![image-20210209005853554](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209005853554.png)
+
+
+
+![image-20210209010247606](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209010247606.png)
+
+JIT 有的认为应该属于元数据区，有的认为应该单独拿出来
 
 ###  JDK 1.6 和 1.7 1.8 有所区别
+
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181026012129.png)
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181026011620.png)
-
 
 线程安全的本质
 看图 所以有 内存屏障
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181026011844.png)
+
 - 线程共享区
     - 方法区  (永久带 Tenured Gen) 
         ```
@@ -228,9 +236,23 @@ public class SingleTonTest {
 
 
 - 线程独占区
+
+    ![image-20210209001124938](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209001124938.png)
+
+    ![image-20210209003850385](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209003850385.png)
+
+     线程独占的有
+
     - 虚拟机栈
         ```
-           
+        生命周期：与线程是一致的
+        作用：主管java程序的运行，它保存方法的局部变量、部分结果、并且参与方法的调用和返回
+        - 局部变量  和  成员变量
+        - 基本数据变量  和  引用类型变量
+        
+        栈是不存在GC的
+        
+        在相应的线程上，正在执行的每个方法都各自对应一个栈帧（stack Frame）
         ```
         
     - 本地方法栈
@@ -241,7 +263,12 @@ public class SingleTonTest {
             （Hotspot 虚拟机中是将他们合二为一的）
          ```
         
-    - 程序计数器 （程序执行到哪一行）
+    - 程序计数器（也叫做 program counter register 或者  PC寄存器） （记录当前线程执行到哪一条指令）
+
+        - PC寄存器用来存储指向下一条指令的地址，也即将要执行的指令代码。由执行引擎读取下一条指令。
+        - 为什么使用PC寄存器来记录当前线程的执行地址
+            - 当CPU需要不停的切换各个线程的时候，就得知道接着从哪来开始执行
+            - ![image-20210209004311052](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209004311052.png)
 
 ## JVM 参数调优
 

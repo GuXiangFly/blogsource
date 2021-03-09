@@ -1,10 +1,289 @@
 ---
+
 title: Redis面试
 date: 2018-1-2 20:09:04
 tags: [Redis]
 ---
 
+### 什么是redis
+
+> redis 是内存数据库，kv数据库，以及数据结构数据库
+
+![image-20210207152014758](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207152014758.png)
+
+### 如何理解redis？
+
+操作redis，就想相当于操作 unordered_map
+
+```c++
+template class<T>
+unordered_map<string,T>
+  
+unordered_map 采用的是hashtable的底层实现
+  和  map 的
+```
+
+> T支持string，list，set，zset，hash
+
+ ```C++
+
+#include<unordered_map>
+#include<unordered_set>
+#include<set>
+#include<string>
+using namespace std;
+ 
+//string
+unordered_map<string, string> strings;
+ 
+//list
+unordered_map<string, list<string>> lists;
+ 
+//set
+unordered_map<string, unordered_set<string>> sets;
+ 
+//zset
+unordered_map<string, skiplist<string, string>> zsets;
+ 
+//hash
+unordered_map < string, unordered_map<string, string>  hashs;
+ ```
+
+> 要点：
+>
+> 1. redis中的字符串并非C结构中的字符串，它是一个二进制安全的字符串, 不会被特殊字符(\0) 隔断
+>
+> 2. map采用红黑树（平衡二叉搜索树）实现，而unordered_map 采用hash表；redis中的dict也是采用 hash表的方式存储的
+>
+> 3. 红黑树是有序的树结构，查找需要比较key，时间复杂度为 O(logn)；而hash表是无序的，查抄不需要比较key，应为通过hash函数生成整数，然后映射到数组当中，它的时间复杂度为o(1)
+>
+> 4. set一般是采用有序的结构来存储实现，因为集合中可能涉及到交集，并集，差集的运算（为何这些运算要求结构有序？）
+>
+> 5. skiplist是一个多层级的有序链表，并且方便进行范围查询；与B+树实现的功能类似，但是比B+效率高（这句话我个人认为有争议）
+>
+>    ![image-20210207232258797](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207232258797.png)
+
+
+
+redis 的字符串类型是： SDS （simple dynamic  string）
+
+原因：
+
+- 不同语言的序列化问题
+- 二进制安全
+
+#### SDS (redis3.2 及其之前的实现方式)
+
+```c
+struct sdshdr {
+    unsigned int len;
+    unsigned int free;
+    char buf[];
+};
+```
+
+- char buf[] = "guxiang"  变成   "guxiang123"
+  - addlen = 3     原来的len = 7     假设原来的free=0
+  - 这种情况分配到字节大小 = （len + addlen）x 2 = （3+7）x2  = 20byte   （不过redis的成倍分配在大于1M后就每次只增加1M）
+  -  变成    len = 10   free = 20-10 =10    （下次就不用频繁分配内存）
+
+#### SDS（redis 6.0的实现方式）
+
+```C
+struct __attribute__ ((__packed__)) sdshdr5 {
+    unsigned char flags; /* 3 lsb of type, and 5 msb of string length */
+    char buf[];
+};
+struct __attribute__ ((__packed__)) sdshdr8 {
+    uint8_t len; /* used */
+    uint8_t alloc; /* excluding the header and null terminator */
+    unsigned char flags; /* 3 lsb of type, 5 unused bits */
+    char buf[];
+};
+struct __attribute__ ((__packed__)) sdshdr16 {
+    uint16_t len; /* used */
+    uint16_t alloc; /* excluding the header and null terminator */
+    unsigned char flags; /* 3 lsb of type, 5 unused bits */
+    char buf[];
+};
+```
+
+
+
+sdshdr5 的内存记录
+
+![image-20210220211059292](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210220211059292.png)
+
+sdshdr8 的内存记录
+
+![image-20210220210952219](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210220210952219.png)
+
+#### redis的数据结构通用的3个结构特性
+
+> 1. 二进制安全的数据结构
+> 2. 提供内存预分配的能力，避免频繁的分配内存
+> 3. 兼容C语言的函数库
+
+### 如何操作redis
+
+操作redis 是使用RESP协议, 通过发送命令，返回数据的方式操作我们的 unordered_map
+
+```
+redis采用cs结构模式，采用resp协议进行通信，客户通过请求响应来操作redis
+client----------->server   redis unordered_map<string,T>  resp请求
+client<---------- server   redis响应  resp响应
+```
+
+
+
+
+
+![image-20210207232236277](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207232236277.png)
+
+
+
+### Redis的数据结构
+
+redis由于是一个 kv 数据库。  对于kv, 其实redis的内部对应的结构是一个类似的hashmap
+
+redis内部是一个hashmap，通过数组+链表（没使用红黑树） 来构建
+
+redis的 rehash是一个渐进式的rehash.：
+
+
+
+下图的对应数据结构，有相应的时间复杂度
+
+
+
+如下图所示：redis有16个 redisDb，每个redisDb内部维护了一个 dict (也就是hashmap) 如下面代码。
+
+dict中维护有两个dicht,用于实现渐进式rehash：当size和used到1：1的时候当扩展哈希表需要将 `ht[0]` 里面的所有键值对 rehash 到 `ht[1]` 里面， 但是， 这个 rehash 动作并不是一次性、集中式地完成的， 而是分多次、渐进式地完成的。
+
+http://redisbook.com/preview/dict/incremental_rehashing.html
+
+```c++
+typedef struct redisDb {
+    dict *dict;                 /* The keyspace for this DB */
+    dict *expires;              /* Timeout of keys with a timeout set */
+    dict *blocking_keys;        /* Keys with clients waiting for data (BLPOP)*/
+    dict *ready_keys;           /* Blocked keys that received a PUSH */
+    dict *watched_keys;         /* WATCHED keys for MULTI/EXEC CAS */
+    int id;                     /* Database ID */
+    long long avg_ttl;          /* Average TTL, just for stats */
+    unsigned long expires_cursor; /* Cursor of the active expire cycle. */
+    list *defrag_later;         /* List of key names to attempt to defrag one by one, gradually. */
+} redisDb;
+```
+
+```C
+typedef struct dict {
+    dictType *type;
+    void *privdata;
+    dictht ht[2];
+    long rehashidx; /* rehashing not in progress if rehashidx == -1 */
+    unsigned long iterators; /* number of iterators currently running */
+} dict;
+
+typedef struct dictht {
+    dictEntry **table;
+    unsigned long size;
+    unsigned long sizemask;
+    unsigned long used;
+} dictht;
+
+
+typedef struct dictEntry {
+    void *key;
+    union {
+        void *val;
+        uint64_t u64;
+        int64_t s64;
+        double d;
+    } v;
+    struct dictEntry *next;
+} dictEntry;
+
+
+typedef struct redisObject {
+    unsigned type:4;
+    unsigned encoding:4;
+    unsigned lru:LRU_BITS; /* LRU time (relative to global lru_clock) or
+                            * LFU data (least significant 8 bits frequency
+                            * and most significant 16 bits access time). */
+    int refcount;
+    void *ptr;
+} robj;
+```
+
+![image-20210221155056824](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210221155056824.png)
+
+![image-20210220220606841](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210220220606841.png)
+
+
+
+Dict 有dict
+
+![image-20210207232851838](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207232851838.png)
+
+
+
+![image-20210221195229556](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210221195229556.png)
+
+
+
+### redis数据结构的存储规则
+
+![image-20210207224056227](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207224056227.png)
+
+dict 就是C语言中的 hashtable
+
+### string结构的以及细节
+
+![image-20210207233522229](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207233522229.png)
+
+> 相当于操作： unordered_map<string,string>
+>
+> - 字符串长度小于等于20且能转为整数   -- int
+> - 字符串长度大于44    raw
+> -  字符长度小于44     embstr
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207233848739.png" alt="image-20210207233848739"  />
+
+
+
+### list结构以及应用
+
+ ![image-20210208012046235](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210208012046235.png)
+
+
+
+quicklist当中的节点存储的就是 压缩列表
+
+![image-20210208014329695](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210208014329695.png)
+
+```
+BRPOP key timeout  // 它是 RPOP的阻塞版本，因为这个命令会在给定list无法弹出任何元素的时候阻塞连接
+```
+
+
+
+- 阻塞队列
+
+  ```
+  LPUSH + BROPO
+  或者
+  RPUSH + BLPOP
+  ```
+
+  
+
+- 百度测试
+
+
+
 ## Redis 数据结构
+
 - string
 - hash
 - set
@@ -265,6 +544,27 @@ Redis 内部使用文件事件处理器 `file event handler`
 
 
 
+#### redis的日活统计方式
+
+```shell
+bitmap 范围 0~ (2^32-1)    bitmap 限制在512M以下
+
+setbit/ getbit 
+setbit   keyname   offset    value
+setbit    login:2020:10:12    7    1       #(7是userid，用userid代为offset)
+setbit    login:2020:10:13    7    1       #(7是userid，用userid代为offset)
+setbit    login:2020:10:13    6    1       #(7是userid，用userid代为offset)
+
+bitcount  login:2020:10:13      # 可以统计2020:10:13 的uv
+
+bitop  and  result:12:13  login:2020:10:12  login:2020:10:13  #使用按位与的方式，统计连续登陆的用户
+bitop  or  result:12:13  login:2020:10:12  login:2020:10:13  #使用按位或的方式，统计近几天有登陆的用户
+```
+
+![image-20210221185754046](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210221185754046.png)
+
+
+
 
 
 
@@ -273,4 +573,10 @@ Redis 内部使用文件事件处理器 `file event handler`
 
 - redis 在 5.x 及其之前
   - redis 处理网络请求的主worker线程，是单线程的
+
+
+
+
+
+
 
