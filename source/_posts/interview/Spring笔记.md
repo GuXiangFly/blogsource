@@ -656,4 +656,4 @@ spring的生命周期流程
    2. 执行Aware填充： doCreateBean 内调用 initializeBean， initializeBean调用invokeAwareMethods，执行 aware的属性填充
    3. 执行BeanPostProcessor的Before：doCreateBean 内调用的initializeBean  调用了 applyBeanPostProcessorsBeforeInitialization
    4. 执行init-method：doCreateBean 内调用的initializeBean  调用了 invokeInitMethods
-   5. 执行BeanPostProcessor的After
+   5. 执行BeanPostProcessor的After ： doCreateBean 内调用的initializeBean  调用了applyBeanPostProcessorsAfterInitialization
