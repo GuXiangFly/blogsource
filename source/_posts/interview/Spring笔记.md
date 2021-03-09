@@ -548,11 +548,54 @@ PROPAGATION_NESTED
 
 
 
-## 重学的spring
+## 重学spring
+
+ https://www.bilibili.com/video/BV1iZ4y137CZ?p=5
+
+![image-20210304210511074](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210304210511074.png)
 
 
 
-![image-20210309013032829](C:\Users\guxiang\AppData\Roaming\Typora\typora-user-images\image-20210309013032829.png)
+
+
+### 实例化与初始化
+
+![image-20210304211521124](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210304211521124.png)
+
+从刚开始准备实例化对象，到最终完成 bean的初始化分为3步
+
+1. 实例化(从堆中开辟一块空间)
+
+2. 填充对象的各个属性 （这个使用set方法完成，不使用init）
+
+3. 执行 init-method (类似下面的xml，有一个init-method)
+
+   ```xml
+       <bean id="compInfoChangeMessageProducer" class="com.meituan.lvyou.libra.business.adapter.producer.impl.CompInfoChangeMessageProducer" init-method="init" destroy-method="destroy">
+           <property name="topic" value="${lvyou_libra_promotion_compare_comp_deal_change_topic}"/>
+           <property name="properties">
+               <props>
+                   <prop key="mafka.bg.namespace">hotel</prop>
+                   <prop key="mafka.client.appkey">com.sankuai.lvyou.libra</prop>
+               </props>
+           </property>
+       </bean>
+   ```
+
+
+
+
+
+
+
+
+spring的生命周期流程
+
+
+
+![image-20210309215926865](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309215926865.png)
+
+
 
 类似下面这段
 
@@ -640,5 +683,64 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
 9. beanpostprocesser.after 执行 （这里面AbstractAutoProxyCreator继承了beanpostprocesser 在postProcessAfterInitialization方法中实现了 aop的自动代理）--------------(属于初始化)
 
-10. 
 
+1. 首先 需要创建一个BeanFactory   也就是 DefaultListableBeanFactory
+
+   1. refresh方法中的obtainFreshBeanFactory  进行了   1. 创建beanfactory  2. 加载bean定义信息
+
+      ```java
+      obtainFreshBeanFactory调用了refreshBeanFactory
+      protected final void refreshBeanFactory() throws BeansException {
+      -----
+      			DefaultListableBeanFactory beanFactory = createBeanFactory();
+      			beanFactory.setSerializationId(getId());
+      			customizeBeanFactory(beanFactory);
+      			loadBeanDefinitions(beanFactory);
+      -----
+      	}
+      ```
+
+      defaultListableBeanFactory 里面有 beandefinitionmap
+
+      <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309224409378.png" alt="image-20210309224409378" style="zoom:67%;" />
+
+2. 通过BeanFactory读取配置文件 loadBeanDefinitions   (在上面源码处理完成)
+
+3.  执行beanfactorypostprocesser      【refresh 内的 invokeBeanFactoryPostProcessors(beanFactory)】
+
+4. 准备其他东西
+
+   ```java
+   				// Register bean processors that intercept bean creation.
+   				registerBeanPostProcessors(beanFactory);   
+   
+   				// Initialize message source for this context.
+   				initMessageSource();
+   
+   				// Initialize event multicaster for this context.
+   				initApplicationEventMulticaster();
+   
+   				// Initialize other special beans in specific context subclasses.
+   				onRefresh();
+   
+   				// Check for listener beans and register them.
+   				registerListeners();
+   ```
+
+5. 进行实例化
+
+   ```
+   // Instantiate all remaining (non-lazy-init) singletons. 翻译：实例化非懒加载的单例对象
+   finishBeanFactoryInitialization(beanFactory);
+   
+   内部调用有
+   beanFactory.preInstantiateSingletons();
+   
+   finishBeanFactoryInitialization 调用 preInstantiateSingletons 调用 getBean 调用 doGetBean 调用 createBean  调用doCreateBean 调用  createBeanInstance   最后调用到 BeanUtils.instantiateClass(constructorToUse) 进行 ctor.newInstance(args) 反射调用
+   ```
+
+   1. 属性填充:    doCreateBean 内调用 populateBean 进行 属性填充
+   2. 执行Aware填充： doCreateBean 内调用 initializeBean， initializeBean调用invokeAwareMethods，执行 aware的属性填充
+   3. 执行BeanPostProcessor的Before：doCreateBean 内调用的initializeBean  调用了 applyBeanPostProcessorsBeforeInitialization
+   4. 执行init-method：doCreateBean 内调用的initializeBean  调用了 invokeInitMethods
+   5. 执行BeanPostProcessor的After ： doCreateBean 内调用的initializeBean  调用了applyBeanPostProcessorsAfterInitialization
