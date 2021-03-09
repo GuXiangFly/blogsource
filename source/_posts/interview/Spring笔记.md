@@ -595,3 +595,65 @@ spring的生命周期流程
 
 ![image-20210309215926865](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309215926865.png)
 
+
+
+1. 首先 需要创建一个BeanFactory   也就是 DefaultListableBeanFactory
+
+   1. refresh方法中的obtainFreshBeanFactory  进行了   1. 创建beanfactory  2. 加载bean定义信息
+
+      ```java
+      obtainFreshBeanFactory调用了refreshBeanFactory
+      protected final void refreshBeanFactory() throws BeansException {
+      -----
+      			DefaultListableBeanFactory beanFactory = createBeanFactory();
+      			beanFactory.setSerializationId(getId());
+      			customizeBeanFactory(beanFactory);
+      			loadBeanDefinitions(beanFactory);
+      -----
+      	}
+      ```
+
+      defaultListableBeanFactory 里面有 beandefinitionmap
+
+      <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309224409378.png" alt="image-20210309224409378" style="zoom:67%;" />
+
+2. 通过BeanFactory读取配置文件 loadBeanDefinitions   (在上面源码处理完成)
+
+3.  执行beanfactorypostprocesser      【refresh 内的 invokeBeanFactoryPostProcessors(beanFactory)】
+
+4. 准备其他东西
+
+   ```java
+   				// Register bean processors that intercept bean creation.
+   				registerBeanPostProcessors(beanFactory);   
+   
+   				// Initialize message source for this context.
+   				initMessageSource();
+   
+   				// Initialize event multicaster for this context.
+   				initApplicationEventMulticaster();
+   
+   				// Initialize other special beans in specific context subclasses.
+   				onRefresh();
+   
+   				// Check for listener beans and register them.
+   				registerListeners();
+   ```
+
+5. 进行实例化
+
+   ```
+   // Instantiate all remaining (non-lazy-init) singletons. 翻译：实例化非懒加载的单例对象
+   finishBeanFactoryInitialization(beanFactory);
+   
+   内部调用有
+   beanFactory.preInstantiateSingletons();
+   
+   finishBeanFactoryInitialization 调用 preInstantiateSingletons 调用 getBean 调用 doGetBean 调用 createBean  调用doCreateBean 调用  createBeanInstance   最后调用到 BeanUtils.instantiateClass(constructorToUse) 进行 ctor.newInstance(args) 反射调用
+   ```
+
+   1. 属性填充:    doCreateBean 内调用 populateBean 进行 属性填充
+   2. 执行Aware填充： doCreateBean 内调用 initializeBean， initializeBean调用invokeAwareMethods，执行 aware的属性填充
+   3. 执行BeanPostProcessor的Before：doCreateBean 内调用的initializeBean  调用了 applyBeanPostProcessorsBeforeInitialization
+   4. 执行init-method：doCreateBean 内调用的initializeBean  调用了 invokeInitMethods
+   5. 执行BeanPostProcessor的After
