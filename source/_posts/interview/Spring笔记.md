@@ -640,7 +640,7 @@ spring的生命周期流程
    				registerListeners();
    ```
 
-5. 进行实例化
+5. 进行实例化 和 初始化
 
    ```
    // Instantiate all remaining (non-lazy-init) singletons. 翻译：实例化非懒加载的单例对象
@@ -649,7 +649,7 @@ spring的生命周期流程
    内部调用有
    beanFactory.preInstantiateSingletons();
    
-   finishBeanFactoryInitialization 调用 preInstantiateSingletons 调用 getBean 调用 doGetBean 调用 createBean  调用doCreateBean 调用  createBeanInstance   最后调用到 BeanUtils.instantiateClass(constructorToUse) 进行 ctor.newInstance(args) 反射调用
+   finishBeanFactoryInitialization 调用 preInstantiateSingletons 调用 getBean 调用 doGetBean 调用 createBean  调用doCreateBean 调用  createBeanInstance  调用到instantiateBean 调用到getInstantiationStrategy().instantiate 看impl  最后调用到 BeanUtils.instantiateClass(constructorToUse) 进行 ctor.newInstance(args) 反射调用
    ```
 
    1. 属性填充:    doCreateBean 内调用 populateBean 进行 属性填充
@@ -657,3 +657,106 @@ spring的生命周期流程
    3. 执行BeanPostProcessor的Before：doCreateBean 内调用的initializeBean  调用了 applyBeanPostProcessorsBeforeInitialization
    4. 执行init-method：doCreateBean 内调用的initializeBean  调用了 invokeInitMethods
    5. 执行BeanPostProcessor的After ： doCreateBean 内调用的initializeBean  调用了applyBeanPostProcessorsAfterInitialization
+
+
+
+
+
+
+
+####  如何实现循环依赖
+
+首先我们明确， Bean A的生命周期 包括有 实例化A 和 初始化A
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210310132535166.png" alt="image-20210310132535166" style="zoom:67%;" />
+
+解决办法：三级缓存
+
+```java
+ /** Cache of singleton objects: bean name to bean instance. 一级缓存*/
+	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
+
+	/** Cache of singleton factories: bean name to ObjectFactory. 三级缓存*/
+	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
+
+//ObjectFactory 是一个函数式接口，仅有一个方法，可以用来传入lambda表达式，可以通过调用getObject来执行具体的逻辑
+
+	/** Cache of early singleton objects: bean name to bean instance. 二级缓存*/
+	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
+```
+
+
+
+循环依赖主要在实例化和初始化bean阶段完成
+
+主要集中在`finishBeanFactoryInitialization(beanFactory` 内调用的`beanFactory.preInstantiateSingletons()` 方法中
+
+
+
+spring实例化bean的流程方法
+
+- getBean -> doGetBean  ->createBean -> doCreateBean
+
+
+
+三级缓存流程
+
+getBean -> doGetBean-> `getSingleton(beanName) ` 先从一级缓存中获取，如果获取不到，那么通过beanName看是否bean在创建中。都不在，那么这个getSingleton(beanName) 先出栈。  
+
+然后会调用到 `getSingleton(String beanName, ObjectFactory<?> singletonFactory)`; 这个
+
+getSingleton(beanName, createBean的lambda表达式)
+
+
+
+
+
+
+
+
+
+getBean入栈 -> doGetBean入栈->  getSingleton(beanName,ObjectFactory)入栈 ->singletonFactory调用 createBean(入栈) 
+
+-> doCreateBean入栈  
+
+-> 调用createBeanInstance创建BeanA 并且 出栈，此时Bean A 的b属性为null
+
+(此时的bean对象只进行了实例化，没有初始化，只是个半成品)
+
+-> 调用addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean)); 里面放置 三级缓存和一级缓存
+
+```java
+protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
+		Assert.notNull(singletonFactory, "Singleton factory must not be null");
+		synchronized (this.singletonObjects) {
+			if (!this.singletonObjects.containsKey(beanName)) {
+				this.singletonFactories.put(beanName, singletonFactory);
+				this.earlySingletonObjects.remove(beanName);
+				this.registeredSingletons.add(beanName);
+			}
+		}
+	}
+```
+
+addSingletonFactory出栈
+
+-> 调用 populateBean 入栈 
+
+​	-> 调用applyPropertyValues 入栈
+
+   内部有
+
+```
+String propertyName = pv.getName();
+Object originalValue = pv.getValue(); 类型是RuntimeBeanReference
+```
+
+​      -> 调用resolveValueIfNecessary 入栈
+
+​      ->  调用 resolveReference 入栈
+
+​      ->  调用 this.beanFactory.getBean(refName) 入栈   进入创建B的过程
+
+   ->  调用 doGetbean
+
+​     
