@@ -727,7 +727,7 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
    				registerListeners();
    ```
 
-5. 进行实例化
+5. 进行实例化 和 初始化
 
    ```
    // Instantiate all remaining (non-lazy-init) singletons. 翻译：实例化非懒加载的单例对象
@@ -736,7 +736,7 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
    内部调用有
    beanFactory.preInstantiateSingletons();
    
-   finishBeanFactoryInitialization 调用 preInstantiateSingletons 调用 getBean 调用 doGetBean 调用 createBean  调用doCreateBean 调用  createBeanInstance   最后调用到 BeanUtils.instantiateClass(constructorToUse) 进行 ctor.newInstance(args) 反射调用
+   finishBeanFactoryInitialization 调用 preInstantiateSingletons 调用 getBean 调用 doGetBean 调用 createBean  调用doCreateBean 调用  createBeanInstance  调用到instantiateBean 调用到getInstantiationStrategy().instantiate 看impl  最后调用到 BeanUtils.instantiateClass(constructorToUse) 进行 ctor.newInstance(args) 反射调用
    ```
 
    1. 属性填充:    doCreateBean 内调用 populateBean 进行 属性填充
@@ -744,3 +744,281 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
    3. 执行BeanPostProcessor的Before：doCreateBean 内调用的initializeBean  调用了 applyBeanPostProcessorsBeforeInitialization
    4. 执行init-method：doCreateBean 内调用的initializeBean  调用了 invokeInitMethods
    5. 执行BeanPostProcessor的After ： doCreateBean 内调用的initializeBean  调用了applyBeanPostProcessorsAfterInitialization
+
+
+
+
+
+
+
+####  如何实现循环依赖
+
+首先我们明确， Bean A的生命周期 包括有 实例化A 和 初始化A
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210310132535166.png" alt="image-20210310132535166" style="zoom:67%;" />
+
+解决办法：三级缓存
+
+```java
+ /** Cache of singleton objects: bean name to bean instance. 一级缓存*/
+	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
+
+	/** Cache of singleton factories: bean name to ObjectFactory. 三级缓存*/
+	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
+//ObjectFactory 是一个函数式接口，仅有一个方法，可以用来传入lambda表达式，可以通过调用getObject来执行具体的逻辑
+
+
+	/** Cache of early singleton objects: bean name to bean instance. 二级缓存*/
+	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
+```
+
+
+
+循环依赖主要在实例化和初始化bean阶段完成
+
+主要集中在`finishBeanFactoryInitialization(beanFactory` 内调用的`beanFactory.preInstantiateSingletons()` 方法中
+
+
+
+spring实例化bean的流程方法
+
+- getBean -> doGetBean  ->createBean -> doCreateBean
+
+
+
+#### 三级缓存流程
+
+getBean -> doGetBean-> `getSingleton(beanName) ` 先从一级缓存中获取，如果获取不到，那么通过beanName看是否bean在创建中。都不在，那么这个getSingleton(beanName) 先出栈。  
+
+然后会调用到 `getSingleton(String beanName, ObjectFactory<?> singletonFactory)`; 这个
+
+getSingleton(beanName, createBean的lambda表达式)    这个 `getSingleton(String beanName, ObjectFactory<?> singletonFactory)` **并没有进入三级缓存**中
+
+
+
+
+
+
+
+
+
+#### 三级缓存入栈流程
+
+**进入创建A的过程**
+
+getBean入栈 -> doGetBean入栈->  getSingleton(beanName,ObjectFactory)入栈 ->singletonFactory调用 createBean(入栈) 
+
+-> doCreateBean入栈  
+
+-> 调用createBeanInstance创建BeanA 并且 出栈，此时Bean A 的b属性为null
+
+(此时的bean对象只进行了实例化，没有初始化，只是个半成品)
+
+-> 调用addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, mbd, bean)); 里面放置 三级缓存和一级缓存
+
+```java
+protected void addSingletonFactory(String beanName, ObjectFactory<?> singletonFactory) {
+		Assert.notNull(singletonFactory, "Singleton factory must not be null");
+		synchronized (this.singletonObjects) {
+			if (!this.singletonObjects.containsKey(beanName)) {
+				this.singletonFactories.put(beanName, singletonFactory);
+				this.earlySingletonObjects.remove(beanName);
+				this.registeredSingletons.add(beanName);
+			}
+		}
+	}
+```
+
+addSingletonFactory出栈
+
+-> 调用 populateBean 入栈 
+
+​	-> 调用applyPropertyValues 入栈
+
+   内部有
+
+```
+String propertyName = pv.getName();
+Object originalValue = pv.getValue(); 类型是RuntimeBeanReference
+```
+
+​      -> 调用resolveValueIfNecessary 入栈
+
+​      ->  调用 resolveReference 入栈
+
+​      ->  调用 this.beanFactory.getBean(refName) 入栈   
+
+**进入创建B的过程**
+
+   ->  调用  doGetbean -> 调用B doCreateBean  -> 调用 ···· 重复上面的工作
+
+**进入二次创建A的过程**
+
+（此时，三级缓存singletonFactories中已经有了  【a,() -> getEarlyBeanReference(a, mbd, A@1755) 这个ObjectFactory】 和 【b,()->getEarlyBeanReference(b, mbd, B@1876) 这个ObjectFactory】）
+
+
+
+ getBean(a)-> createbean(a) -> doCreateBean(a)-> getSingleton(a)
+
+此时 getSingleton（a） 调用到  this.singletonFactories.get(a) 通过调用getEarlyBeanReference 获取到了ObjectFactory， ObjectFactory获取到了bean的半成品
+
+
+
+出栈到 B   this.beanFactory.getBean(B) 
+
+......
+
+#### 循环依赖简易版步骤
+
+先进行A的实例化，然后A初始化受阻 将a,lambda放入 singletonFactories，需要赋值B
+
+再进行B的实例化，然后B初始化受阻 将a,lambda放入 singletonFactories，需要赋值A
+
+
+
+|                                                              | A                             | B                             |
+| :----------------------------------------------------------- | :---------------------------- | :---------------------------- |
+| 一级缓存                                                                                                                          Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256); |                               |                               |
+| 二级缓存                                                                                                                            Map<String, Object> earlySingletonObjects = new HashMap<>(16); |                               |                               |
+| 三级缓存 Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16); | k:a, v:ObjectFactory 的lambda | k:b, v:ObjectFactory 的lambda |
+
+ 
+
+再进行A的getBean ->doGetBean  ->getSingleton(a)                 ----具体位置（AbstractBeanFactory  搜getSingleton(beanName)）
+
+从此段代码中先得到ObjectFactory，调用getObject 调用lambda 获取bean的半成品(仅仅进行了实例化). 
+
+```java
+	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		Object singletonObject = this.singletonObjects.get(beanName);
+		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			synchronized (this.singletonObjects) {
+				singletonObject = this.earlySingletonObjects.get(beanName);
+				if (singletonObject == null && allowEarlyReference) {
+					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+					if (singletonFactory != null) {
+						singletonObject = singletonFactory.getObject();
+						this.earlySingletonObjects.put(beanName, singletonObject);
+						this.singletonFactories.remove(beanName);
+					}
+				}
+			}
+		}
+		return singletonObject;
+	}
+```
+
+加入二级缓存，并且从三级缓存中删除
+
+此阶段图示 
+
+|                                                              | A                                                            | B             |
+| :----------------------------------------------------------- | :----------------------------------------------------------- | :------------ |
+| 一级缓存Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256); |                                                              |               |
+| 二级缓存Map<String, Object> earlySingletonObjects = new HashMap<>(16); | k:a, v:A@1755(半成品)（A对象中的b属性为null）                |               |
+| 三级缓存 Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16); | k:a,                                               v:lambda(删除) | k:b, v:lambda |
+
+ 
+
+
+
+到这个阶段，其实B的实例化 和初始化都完成了 于是B变成了一个完成品 （虽然B对象 里面的a属性是个半成品，但是B已经是个完成品了）
+
+退回到(DefaultSingletonBeanRegistry这段代码中的getSingleton中的 **addsingleton 下面有具体代码**)
+
+这段代码中将B 添加入一级缓存，并且删除二级缓存和三级缓存
+
+|                                                              | A                    | B                                                       |
+| :----------------------------------------------------------- | :------------------- | :------------------------------------------------------ |
+| 一级缓存Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256); |                      | k:b,    v:B@2153(完成品)虽然B对象 里面的a属性是个半成品 |
+| 二级缓存Map<String, Object> earlySingletonObjects = new HashMap<>(16); | k:a v:A@1755(半成品) |                                                         |
+| 三级缓存 Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16); | k:a, v:lambda(删除)  | k:b    v:lambda(删除)                                   |
+
+ 
+
+给B进行实例化和初始化已经出栈，
+
+进入给A进行 初始化的操作，  退回到A进行 (DefaultSingletonBeanRegistry这段代码中的getSingleton中的 addsingleton)
+
+ 添加入一级缓存，并且删除二级缓存和三级缓存
+
+|                                                              | A                               | B                                                     |
+| :----------------------------------------------------------- | :------------------------------ | :---------------------------------------------------- |
+| 一级缓存Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256); | k:a,     V: A@1755（完成品）    | k:b,  v:B@2153(完成品)虽然B对象 里面的a属性是个半成品 |
+| 二级缓存Map<String, Object> earlySingletonObjects = new HashMap<>(16); | k:a,     v:A@1755(半成品)(删除) |                                                       |
+| 三级缓存 Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16); | k:a,     v:lambda(删除)         | k:b,  v:lambda(删除)                                  |
+
+ 
+
+
+
+#### 循环依赖深入思考
+
+- 三级缓存解决循环依赖的关键是什么？为什么通过提前暴露对象能解决？
+  - 实例化和初始化分开操作。 spring是将半成品的对象赋值给其他对象
+- 如果只使用一级缓存能否解决问题？
+  - 不能，在整个过程中，缓存中放的是半成品和成品对象，如果只使用一级缓存，那么成品和半成品都会放到一级缓存中，会混淆
+- 只使用二级的缓存行不行
+  - 三级缓存的singletonFactories的 lambda存放的是   beanName, () -> getEarlyBeanReference(beanName, mbd, bean)
+  - 这个getEarlyBeanReference是里面用来实现动态代理的。使用三级缓存主要使用解决aop代理问题。
+- 如果某个bean对象需要使用代理对象，会不会创建普通的bean对象
+  - 会
+- 为什么使用三级缓存能解决这个问题
+  - 当一个对象需要被代理的时候，在整个过程中是生成两个对象，一个普通对象，一个代理对象，bean默认是单例的
+
+------------
+
+
+
+getEarlyBeanReference的代码
+
+```java
+	protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
+		Object exposedObject = bean;
+		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
+			for (BeanPostProcessor bp : getBeanPostProcessors()) {
+				if (bp instanceof SmartInstantiationAwareBeanPostProcessor) {
+					SmartInstantiationAwareBeanPostProcessor ibp = (SmartInstantiationAwareBeanPostProcessor) bp;
+					exposedObject = ibp.getEarlyBeanReference(exposedObject, beanName);
+				}
+			}
+		}
+		return exposedObject;
+	}
+```
+
+
+
+```java
+	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		Object singletonObject = this.singletonObjects.get(beanName);
+		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			synchronized (this.singletonObjects) {
+				singletonObject = this.earlySingletonObjects.get(beanName);
+				if (singletonObject == null && allowEarlyReference) {
+					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
+					if (singletonFactory != null) {
+						singletonObject = singletonFactory.getObject();
+						this.earlySingletonObjects.put(beanName, singletonObject);
+						this.singletonFactories.remove(beanName);
+					}
+				}
+			}
+		}
+		return singletonObject;
+	}
+```
+
+
+
+```java
+	protected void addSingleton(String beanName, Object singletonObject) {
+		synchronized (this.singletonObjects) {
+			this.singletonObjects.put(beanName, singletonObject);
+			this.singletonFactories.remove(beanName);
+			this.earlySingletonObjects.remove(beanName);
+			this.registeredSingletons.add(beanName);
+		}
+	}
+```
+
