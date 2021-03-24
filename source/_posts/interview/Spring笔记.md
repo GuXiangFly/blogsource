@@ -552,12 +552,6 @@ PROPAGATION_NESTED
 
  https://www.bilibili.com/video/BV1iZ4y137CZ?p=5
 
-![image-20210304210511074](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210304210511074.png)
-
-
-
-
-
 ### 实例化与初始化
 
 ![image-20210304211521124](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210304211521124.png)
@@ -684,6 +678,10 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 9. beanpostprocesser.after 执行 （这里面AbstractAutoProxyCreator继承了beanpostprocesser 在postProcessAfterInitialization方法中实现了 aop的自动代理）--------------(属于初始化)
 
 
+
+#### 具体源码的 bean生命； 周期流程
+
+
 1. 首先 需要创建一个BeanFactory   也就是 DefaultListableBeanFactory
 
    1. refresh方法中的obtainFreshBeanFactory  进行了   1. 创建beanfactory  2. 加载bean定义信息
@@ -744,6 +742,15 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
    3. 执行BeanPostProcessor的Before：doCreateBean 内调用的initializeBean  调用了 applyBeanPostProcessorsBeforeInitialization
    4. 执行init-method：doCreateBean 内调用的initializeBean  调用了 invokeInitMethods
    5. 执行BeanPostProcessor的After ： doCreateBean 内调用的initializeBean  调用了applyBeanPostProcessorsAfterInitialization
+   6. 执行了
+
+
+
+
+
+### ![image-20210310005642762](C:\Users\guxiang\AppData\Roaming\Typora\typora-user-images\image-20210310005642762.png)
+
+循环依赖的流程
 
 
 
