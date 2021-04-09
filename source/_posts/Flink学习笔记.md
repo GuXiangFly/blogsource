@@ -619,7 +619,7 @@ Flink的状态分成两大类
 
       > 将状态表示为一组数据的列表。主要是为了方便状态重新分配。
     >
-      > <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210102021543975.png" alt="image-20210102021543975" style="zoom:67%;" />
+      > ![image-20210408130605309](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210408130605309.png)
     >
       > 假设并行度原本是2，并行度 A1，A2上都有一个size为3的list state。 下一个算子任务并行度调整为3后，那么 B1,B2,B3可以各拿都拿 size为2的 list state。、
 
@@ -1074,12 +1074,6 @@ resultTable> (true,sensor_1,1,37.1,2019-01-17 09:43:40.0)
 
 
 
-#### UDF 函数
-
-##### 1. 标量函数
-
-
-
 
 
 
@@ -1139,4 +1133,5 @@ b.timestamp ∈ [a.timestamp + lowerBound; a.timestamp + upperBound]
 
 
 
-regular join
+#### 普通连接 regular join
+

@@ -1559,11 +1559,14 @@ should
 - master节点中**可以存储主分片，副本分片等数据**
   
     - (**但是一般不推荐master存储分片数据，让master维护节点就好**)
-  
+    
     - ```
       node.master=true   # 这个代表这个机器是否可以竞选master节点
     node.data=true     # 这个代表这个机器是否
-    ```
+      ```
+  ```
+  
+  ```
   
 - slave节点
 
@@ -1609,7 +1612,43 @@ should
 
 ![image-20210323212602758](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210323212602758.png)
 
-- es的索引和文档一旦写入，就不能进行
+- **es的索引和文档一旦写入，就不能进行修改**
+- 优势
+  - 不需要加锁防止并发修改，不必担心多个程序同时修改(写索引库)
+  - 把索引读入内存，索引不可改变，索引在内存中 一直没有改变，搜索的时候可以不读磁盘直接在内存命中
+  - 防止索引库被频繁修改，写入，浪费性能，浪费IO资源
+- 如何对es进行增删改？
+  - 使用多个segment。
+  - 当新增数据的时候，不是重写整个倒排索引，而是通过新增一个segment，反映索引最近变化
+
+
+
+![image-20210324221523295](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210324221523295.png)
+
+
+
+
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210327163754776.png" alt="image-20210327163754776" style="zoom:67%;" />
+
+![image-20210327163937384](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210327163937384.png)
+
+
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210330144853833.png" alt="image-20210330144853833" style="zoom:50%;" />
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210327150459957.png" alt="image-20210327150459957" style="zoom: 50%;" />
+
+
+
+#### 提交文档的流程
+
+1. 发一个put 请求 带上json文档（document）
+2.  将document数据写入内存缓冲区 memory buffer中。
+3. 将 memory buffer 提交，统一写入一个新的 segment中，然后清空 memory buffer
+4.  segment在写入内存后，就可以被搜索。
 
 
 
@@ -1705,5 +1744,131 @@ ElasticSearch是一个分布式系统,隐藏了复杂的处理机制
 
 
 
+### 索引重建
 
+##### 什么情况下需要进行索引重建
+
+- 索引的Mappings发生变更：字段类型增加，分词器以及字典更新
+- 索引的settings发生变化，如改变index的主分片数
+- 集群内，集群间需要做数据迁移
+
+##### es对索引重建提供了两个API
+
+- update by query：在现有索引上重建
+
+  - 对于将索引的字段类型增加，分词器改变的情况，可以使用  _update_by_query
+
+  - ```json
+    POST blogs/_update_by_query
+    {
+    }
+    ```
+
+- Reindex：在其他索引上重建
+
+  - 对于修改es中已存在的字段类型
+
+  - ```json
+    PUT blogs_fix/_mapping
+    {
+      "properties":{
+        "content":{
+          "type":"text",
+          "fields":{
+            "english":{
+              "type":"text",
+              "analyzer":"english"
+            }
+          }
+        },
+        "keyword":{
+          "type":"keyword"
+          }
+        }
+    }
+    
+    
+    POST _reindex
+    {
+      "source": {
+        "index": "blogs"
+      },
+      "dest": {
+        "index": "blogs_fix",
+        "op_type": "create" #对于op_type是create的，在blogs_fix中也存在数据的时候，  reindex只会创建(导入)不存在的文档，文档已存在，会导致版本冲突
+      }
+    }
+    ```
+
+  - 对于集群之前的reindex，需要修改 elasticsearch.yml 的
+
+    ```
+    reindex.remote.whitelist:"otherhost:9200,another:9200"
+    ```
+
+    
+
+  
+
+```json
+PUT blogs
+
+DELETE blogs
+
+PUT blogs/_doc/1
+{
+  "content":"hadoop is cool",
+  "keyword":"hadoop"
+}
+
+GET blogs/_mapping
+
+PUT blogs/_mapping
+{
+  "properties":{
+    "content":{
+      "type":"text",
+      "fields":{
+        "english":{
+          "type":"text",
+          "analyzer":"english"
+        }
+      }
+    }
+  }
+}
+
+PUT blogs/_doc/2
+{
+  "content":"elasticsearch rocks",
+  "keyword":"elasticsearch"
+}
+
+
+POST blogs/_search
+{
+  "query": {
+    "match": {
+       "content.english":"elasticsearch"
+    }
+  }
+}
+
+
+POST blogs/_search
+{
+  "query": {
+    "match": {
+       "content.english":"hadoop"
+    }
+  }
+}
+
+
+# 使用_update_by_query 将现有的index数据进行清洗
+POST blogs/_update_by_query
+{
+  
+}
+```
 

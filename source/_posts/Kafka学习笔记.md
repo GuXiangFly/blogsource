@@ -266,6 +266,38 @@ bin/kafka-manager
 
 ## Kafka生产者写数据流程
 
+kafka异步发送的源码
+
+```java
+    public static void producerSend(){
+        Properties properties = new Properties();
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"192.168.220.128:9092");
+        properties.put(ProducerConfig.ACKS_CONFIG,"all");
+        properties.put(ProducerConfig.RETRIES_CONFIG,"0");
+        properties.put(ProducerConfig.BATCH_SIZE_CONFIG,"16384");
+        properties.put(ProducerConfig.LINGER_MS_CONFIG,"1");
+        properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG,"33554432");
+
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,"org.apache.kafka.common.serialization.StringSerializer");
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,"org.apache.kafka.common.serialization.StringSerializer");
+
+        // Producer的主对象
+        Producer<String,String> producer = new KafkaProducer<>(properties);
+
+        // 消息对象 - ProducerRecoder
+        for(int i=0;i<10;i++){
+            ProducerRecord<String,String> record =
+                    new ProducerRecord<>(TOPIC_NAME,"key-"+i,"value-"+i);
+
+            producer.send(record);
+        }
+        // 所有的通道打开都需要关闭
+        producer.close();
+    }
+```
+
+
+
 ![image-20201121162444033](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201121162444033.png)
 
 
@@ -276,11 +308,50 @@ bin/kafka-manager
 
 1. java代码中发出消息，先进行封装
 2. 封装后进行代码的序列化
-3. 第三步对消息进行分区，分区器会先到集群上获取集群的元数据，然后分区器决定将消息发送到对应topic的哪个分区。 （kafka 0.8版本会直接在这时候将消息发出）
+3. 第三步对消息进行分区，分区器会先到集群上获取集群的元数据，然后分区器决定将消息发送到对应topic的哪个分区。，就损。 （kafka 0.8版本会直接在这时候将消息发出） 
 4. kafka先将要发送的消息进行缓存（在kafka 0.10后的一个动作）
-5. 有一个sender线程会将 recordaccumulator的缓存数据封装为一个个16k的batch，然后进行发送。 （如果消息一直达不到16k，那么100ms后就会进行发送）
+5. 有一个守护线程sender线程会将 recordaccumulator的缓存数据封装为一个个16k的batch，然后进行发送。 （如果消息一直达不到16k，那么100ms后就会进行发送）
 
 
+
+##### kafka producer  解析步骤
+
+KafkaProducer 创建的源码
+
+1. 配置一个监控 metricConfig
+
+2. 加载负载均衡器
+
+3. 初始化serializer
+
+4. 初始化recordaccumulator（一个计数器）
+
+5. 创建 newSender线程 /并且启动   （创建/启动 一个守护线程 ）
+
+   --  由于 newSender 来发送数据，所以KafkaProducer的send是线程安全的
+
+
+
+kafka  producer 发送的核心
+
+- 直接发送（kafka会直接发送数据到计算后partition的leader节点上，就算bootstrap节点写的不是leader节点，也会通过缓存 leader节点ip的方式发送到leader节点上）
+- 负载均衡 （客户端可以决定 数据具体发送到哪个 partition上）
+- 异步/并且批量发送    
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210409002831071.png" alt="image-20210409002831071" style="zoom:50%;" />
+
+kafka 是如何保证 exactly  once，
+
+- 配置 ack_config= all： 代表leader需要等待所有备份都成功写入follower 才返回，这样只要有一个follow不丢就不会有问题。
+-  通过配置 ack_config 保证 at least once，  然后通过
+
+
+
+
+
+### KAFKA 对应的api
+
+<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210408224940687.png" alt="image-20210408224940687" style="zoom:50%;" />
 
 
 
@@ -393,11 +464,9 @@ bin/kafka-manager
 
       <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209111755507.png" alt="image-20210209111755507" style="zoom:67%;" />
 
-   2. 当
+      
 
-2. Partition机制
-
-3. 批量发送接收，以及数据压缩机制
+2. producer会批量发送数据， 并且由于是批量发送数据，于是kafka能方便做数据排序
 
 4. 通过sendfile实现了零拷贝原则
 
