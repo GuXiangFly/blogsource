@@ -5,6 +5,16 @@ tags: [大数据]
 
 ---
 
+
+
+## 列存储和行存储的
+
+![image-20210425110805723](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210425110805723.png)
+
+
+
+
+
 HDFS 适合于 一次写入 多次读取
 
 数据是存储在 RegionServer中 

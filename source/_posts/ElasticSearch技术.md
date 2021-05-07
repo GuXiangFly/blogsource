@@ -1872,3 +1872,32 @@ POST blogs/_update_by_query
 }
 ```
 
+
+
+
+
+
+
+
+
+
+
+### GEO 信息搜索(es5.6.3)
+
+```json
+PUT /my_index 
+{
+  "mappings": {
+    "my_type": {
+      "properties": {
+        "location": {
+          "type": "geo_point"
+        }
+      }
+    }
+  }
+}
+```
+
+
+

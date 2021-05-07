@@ -65,6 +65,8 @@ kafka读取日志的顺序：
 
 
 
+![image-20210430111638110](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210430111638110.png)
+
 
 
 
