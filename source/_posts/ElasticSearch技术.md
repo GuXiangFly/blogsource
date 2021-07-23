@@ -474,6 +474,37 @@ GET /lib2/_settings   ## 查看索引设置
 
 
 
+### Doc Value  正排索引
+
+https://www.elastic.co/guide/cn/elasticsearch/guide/current/_deep_dive_on_doc_values.html
+
+```json
+PUT /lib6
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "books":{
+      "properties":{
+        "title":{"type":"text"},
+        "name":{"type":"text","analyzer":"standard"},
+        "publish_date":{"type":"date","index":false}, ##默认es会对每个字段进行倒排索引， index:false，表示不要对这个字段进行倒排索引
+        "price":{"type":"dobule"},
+        "number":{"type":"integer","doc_value":false}
+      }
+    }
+  }
+}
+```
+
+DocValue的正排索引按照  **列存储**的格式来**压缩**存储在磁盘。
+
+> 注：  当 `working set` 远小于系统的可用内存，系统会自动将 `Doc Values` 驻留在内存中，使得其读写十分快速；不过，当其远大于可用内存时，系统会根据需要从磁盘读取 `Doc Values`，然后选择性放到分页缓存中
+
+
+
 ### 分词器 
 
 ## 2.2 分词器
@@ -1896,6 +1927,64 @@ PUT /my_index
       }
     }
   }
+}
+```
+
+
+
+
+
+
+
+## scroll 查询
+
+#### 第一次查询，会生成一个快照ID
+
+```
+GET /example/my_type/_search?scroll=1m
+{
+  "query":{
+    "match_all":{}
+  },
+  "sort":["_doc"], #指定不要按相关度分数排序了，按文档排序吧
+  "size":3         #
+}
+
+```
+
+结果
+
+```json
+{
+  "_scroll_id" : "DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAADxFlItZ21NUG5XUXVpdUlGczkyTUlzQUEAAAAAAAAA8hZSLWdtTVBuV1F1aXVJRnM5Mk1Jc0FBAAAAAAAAAPQWUi1nbU1QbldRdWl1SUZzOTJNSXNBQQAAAAAAAADzFlItZ21NUG5XUXVpdUlGczkyTUlzQUEAAAAAAAAA9RZSLWdtTVBuV1F1aXVJRnM5Mk1Jc0FB",
+  "took" : 19,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 5,
+    "successful" : 5,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : 4,
+    "max_score" : null,
+    "hits" : [
+      ····················
+  }
+}
+```
+
+第一次查询需要生成一个快照id    "_scroll_id"
+
+
+
+##### 第二次查询，可以直接拿 scrollid来查询
+
+```json
+GET /_search/scroll
+{
+ "scroll":"1m",
+ "scroll_id":"DnF1ZXJ5VGhlbkZldGNoBQAAAAAAAAEFFlItZ21NUG5XUXVpdUlGczkyTUlzQUEAAAAAAAABBhZSLWdtTVBuV1F1aXVJRnM5Mk1Jc0FBAAAAAAAAAQcWUi1nbU1QbldRdWl1SUZzOTJNSXNBQQAAAAAAAAEIFlItZ21NUG5XUXVpdUlGczkyTUlzQUEAAAAAAAABCRZSLWdtTVBuV1F1aXVJRnM5Mk1Jc0FB"
 }
 ```
 

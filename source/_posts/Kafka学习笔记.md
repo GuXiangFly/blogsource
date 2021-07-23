@@ -264,6 +264,85 @@ bin/kafka-manager
 
 
 
+### Kafka 的rebalance流程
+
+触发时机：
+
+- topic 的 partition出现增加和减少
+
+  - ![image-20210525214613414](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525214613414.png)
+
+- 消费者组中，消费者出现增加和减少
+
+  ![image-20210525214717361](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525214717361.png)
+
+  由于消费者可以消费多个topic， topic 的数量发生了变化（不常用）
+
+  
+
+  ![image-20210525214907538](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525214907538.png)
+
+- 触发时机总结：
+  - 消费者数量发生变化
+    - 某个consumer  奔溃
+    - 新增 consumer
+  - topic的数量发生变化
+    - 某个topic被删除
+  - partition的数量发生变化
+    - 删除partition
+    - 新增partition
+- 不良影响
+  - rebalance过程会对consumer group 产生非常严重的影响，rebalance的过程中，所有的消费这都会停止工作，直到rebalance完成了。
+
+
+
+#### rebalance分配策略
+
+- Range分配策略
+
+  - 算法公式：
+    - n = 分区数量/消费者数量
+    - ![image-20210525220358215](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525220358215.png)
+
+- RoundRobin轮询策略
+
+- stricky黏性分配策略
+
+  从kafka0.11开始引入此策略。主要目的：
+
+  - 分区尽可能均匀
+  - 在发生rebalance时候，分区尽可能和上一次保持一致
+
+  没有发生rebalance时，striky黏性分配策略和roundrobin分配策略类似。 
+
+  如果发生rebalance， RoundRobin策略会重新走轮询进行分配。而 stricky会尽量保证和上次一致。减少分区的一些切换。
+
+
+
+### kafka的Contoller
+
+- kafka启动时候，会在所有的broker中选出controller
+
+- kafka中的 leader和follow是针对partition的，controller是针对整个broker集群的。
+
+- 创建topic，添加分区，修改副本数这类管理任务，都是通过controller来实现。
+
+- kafka的leader选举也是由controller决定。
+
+  
+
+  ##### controller的选举
+
+  - kafka集群启动的时候，每个broker都会尝试去zookeeper上注册为controller
+
+  
+
+
+
+
+
+
+
 # 面试题专区
 
 ## Kafka生产者写数据流程

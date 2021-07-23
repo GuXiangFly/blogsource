@@ -24,6 +24,48 @@ tags: [Netty]
 
 ![image.png](https://i.loli.net/2020/01/21/bLFolXSvmVNKHQt.png)
 
+![image-20210616211439045](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210616211439045.png)
+
+每有一个client连接，就会创建一个线程进行处理。 
+
+1. 未进行线程池优化- 一个主机有线程个数限制，线程多了机器容易卡死。
+2. 进行了线程池优化-  cacheThreadPool 容易造成oom
+
+
+
+
+
+```java
+    public static void main(String[] args)  throws Exception {
+        ExecutorService newCachedThreadPool = Executors.newCachedThreadPool();
+
+        //创建ServerSocket
+        ServerSocket serverSocket = new ServerSocket(6666);
+
+
+        System.out.println("服务器启动了");
+
+        while (true) {
+            System.out.println("线程信息 id =" + Thread.currentThread().getId() + " 名字=" + Thread.currentThread().getName());
+            //监听，等待客户端连接
+            System.out.println("等待连接....");
+
+            final Socket socket = serverSocket.accept();
+            System.out.println("连接到一个客户端");
+
+            newCachedThreadPool.execute(new Runnable() {
+                @Override
+                public void run() { //我们重写
+                    //可以和客户端通讯
+                    handler(socket);
+                }
+            });
+        }
+    }
+```
+
+
+
 
 
 #### NIO 同步非阻塞
@@ -32,11 +74,25 @@ tags: [Netty]
 
 服务器一个线程，处理多个请求连接，客户端的连接请求都会发送到多路复用器selector上，使用 （select  pull  epull）进行处理
 
-![image.png](https://i.loli.net/2020/01/21/fPxcCn15bm4iQvo.png)
-
 详细的如下
 
 <img src="https://i.loli.net/2020/01/21/q9DSgVLWf7Zax5U.png"/>
+
+
+
+![image-20210616212251929](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210616212251929.png)
+
+- client连接进来，会创建一个对应的channel，  channel注册到 selector上。 
+- selector不停轮询 channel是否有相应事件发生。
+- 有相应事件发生，
+
+
+
+##### BIO和NIO的区别
+
+- BIO是一个client连接了，直到client处理
+
+
 
 
 
@@ -238,7 +294,7 @@ Selector 开发
 
 <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201210011920654.png" alt="image-20201210011920654" style="zoom:67%;" />
 
-#### Reactor 模式
+#### Reactor 模型
 
 ##### I/O 复用结合线程池，就是 Reactor 模式基本设计思想
 
@@ -251,4 +307,36 @@ Selector 开发
 
 
 
+
+## Netty 模型
+
+#### netty模型简单版
+
+![image-20210603172536124](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210603172536124.png)
+
+说明
+
+1. BossGroup 线程维护Selector, 只关注Accecpt
+2. 当接收到Accept事件，获取到对应的SocketChannel,封装成NIOScoketChannel 并注册到Worker线程(事件循环)，并进行维护
+3. 当worker线程监听到selector中通道发生自己感兴趣的事件后，就由handler进行处理。
+
+
+
+![image-20210603213150088](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210603213150088.png)
+
+
+
+1. netty抽象出两种线程模池。  Boss Group  专门负责接收客户端连接。Worker Group 专门负责网络的读写。
+2. boss Group 和 worker Group 类型都是 NioEventLoopGroup类似
+3. NioEventLoopGroup 是有很多的循环事件的 一个组，没够NioEventLoopGroup包含多个 NioEventLoop
+4. NioEventLoop 表示一个不断循环的执行处理任务的线程，每个NioEventLoop都有一个selector，用于监听绑定在其上的socket的网络通信
+5. NioEventLoopGroup 可以有多个线程，可以含有多个NioEventLoop
+6. 每个Boss NioEventLoop 循环执行的步骤有3步
+   - 轮询accept事件
+   - 处理accept事件，与client建立连接，生成NioSocketChannel，并且将其注册到某个worker NIOEventLoop上的selector上
+   - 处理任务队列上的任务，即runAllTasks
+7. 每个Worker NioEventLoop 循环化执行的步骤
+   - 轮询read、write事件
+   - 处理 i/o 事件
+   - 
 
