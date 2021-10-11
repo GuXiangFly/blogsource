@@ -2,7 +2,7 @@
 
 
 title: Kafka学习笔记
-date: 2019-7-11 13:09:04
+date: 2020-7-11 13:09:04
 tags: [Kafka]
 
 ---
@@ -82,6 +82,8 @@ kafka读取日志的顺序：
 - 7、Replica：副本，为保证集群中的某个节点发生故障时，该节点上的partition数据不丢失，且kafka仍然能够继续工作，kafka提供了副本机制，一个topic的每个分区都有若干个副本，一个leader和若干个follower。
 - 8、leader：每个分区多个副本的“主”，生产者发送数据的对象，以及消费者消费数据的对象都是leader。
 - 9、follower：每个分区多个副本中的“从”，实时从leader中同步数据，保持和leader数据的同步。leader发生故障时，某个follower会成为新的follower。
+- 10、controller：这是kafka中相对block的一个概念，主要在rebalance的时候用到。  kafka集群中有一堆block机器，会在一堆block机器中选出一个controller。
+- 11、coordinator：coordinator 是相对partition来说的， 同城
 
 
 
@@ -319,9 +321,10 @@ bin/kafka-manager
 
 
 
-### kafka的Contoller
+### kafka的Contoller 和 coordinator
 
-- kafka启动时候，会在所有的broker中选出controller
+- controller：这个是相对于kafka集群中block机器的一个概念
+  - kafka启动时候，会在所有的broker中选出controller
 
 - kafka中的 leader和follow是针对partition的，controller是针对整个broker集群的。
 

@@ -5,7 +5,6 @@ tags: [JUC]
 
 ---
 
-
 **ReentrantLock加锁和释放锁的底层原理**
 
 ![image-20201214023523713](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201214023523713.png)
@@ -27,3 +26,4 @@ AQS 内部主要有三块东西
 
 - CLH 等待队列（内部是一个双向链表）
   - 如果有新线程，类似线程2 如果来竞争锁，如果通过CAS竞争到了state 那么直接占有锁，如果竞争不到，就放到 CLH 队列中进行等待。
+
