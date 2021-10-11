@@ -82,8 +82,8 @@ kafka读取日志的顺序：
 - 7、Replica：副本，为保证集群中的某个节点发生故障时，该节点上的partition数据不丢失，且kafka仍然能够继续工作，kafka提供了副本机制，一个topic的每个分区都有若干个副本，一个leader和若干个follower。
 - 8、leader：每个分区多个副本的“主”，生产者发送数据的对象，以及消费者消费数据的对象都是leader。
 - 9、follower：每个分区多个副本中的“从”，实时从leader中同步数据，保持和leader数据的同步。leader发生故障时，某个follower会成为新的follower。
-- 10、controller：这是kafka中相对block的一个概念，主要在rebalance的时候用到。  kafka集群中有一堆block机器，会在一堆block机器中选出一个controller。
-- 11、coordinator：coordinator 是相对partition来说的， 同城
+- 10、controller：这是kafka中相对block的一个概念，如果一个topic1中有partitionA 和 partitionB   Topic1-partitionA的leader partition挂了或 topic1-partitionA的leader partition所在的block挂了，那么需要使用controller来从Topic1-partitionA的ISR集合中选取一个leader partition 。  
+- 11、coordinator：coordinator 是相对consumer group来说的， kafka中会有一个 coordinator来专门协调 consumer 和  topic的关系
 
 
 
@@ -321,6 +321,10 @@ bin/kafka-manager
 
 
 
+
+
+https://www.bilibili.com/video/BV1Pq4y1P73r?p=24&spm_id_from=pageDriver
+
 ### kafka的Contoller 和 coordinator
 
 - controller：这个是相对于kafka集群中block机器的一个概念
@@ -334,13 +338,25 @@ bin/kafka-manager
 
   
 
-  ##### controller的选举
+  ##### controller的概念
 
-  - kafka集群启动的时候，每个broker都会尝试去zookeeper上注册为controller
+  - kafka集群启动的时候，每个broker都会尝试去zookeeper上注册序号节点，序号节点最小的blocker 就成为了controller
 
-  
+  - **controller的功能：**如果一个topic1中有partitionA 和 partitionB   Topic1-partitionA的leader partition挂了或 topic1-partitionA的leader partition所在的block挂了，那么需要使用controller来从Topic1-partitionA的ISR集合中选取一个leader partition 。  
+    - topic1-partitionA 的leader节点 挂了，  controller会在ISR中选取新leader
+    - topic1-partitionA  新增了follower节点，  controller会通知，并且维护ISR集合
+    - topic1 增加了partitionD，那么也需要controller来通知topic1的其他partition
 
 
+
+  ##### 		coordinator的概念
+
+-  coordinator是相对 consumer group来说的， consumer group中 consumer 数量发生变化,会通过coordinator来发起 rebalance    
+-   [相对controller：如果  topic1中partition 的变化 由 controller来调控] 
+- rebalance三个策略
+  - Range分配策略
+  - RoundRobin
+  - stricky
 
 
 
