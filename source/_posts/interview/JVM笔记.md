@@ -328,9 +328,17 @@ SoftReference<String> softRef = new SoftReference<String>(str)
 ```
 
 有哪些可以作为 GC root  （GCroot）
-- **GC root**
-  -  **由系统类加载器(system class loader)加载的对象** （不带有自定义类加载器），这些类是不能够被回收的，他们可以以静态字段的方式保存持有其它对象。我们需要注意的一点就是，通过用户自定义的类加载器加载的类，除非相应的java.lang.Class实例以其它的某种（或多种）方式成为roots，否则它们并不是roots。
-  -  虚拟机栈中引用的对象
+- **GC root**（一般来说，不在heap 区的能作为 GC root）
+  - 虚拟机栈中引用的对象（主要放在虚拟机栈的局部变量表里面）
+    - 比如各个线程被调用的方法中使用的参数，局部变量
+  - 本地方法栈内JNI引用的对象（主要放在本地方法栈的局部变量表里面）
+  - 方法区中静态属性引用的对象（虽然JDK1.8 将静态属性放入常量池了）
+    - 比如：Java类的应用类型静态遍历
+  - 方法区中常量引用的对象
+    - 比如：字符串常量池（String table）里的引用
+  - 被同步锁synchronized持有的对象
+  - **由系统类加载器(system class loader)加载的对象** （这个在metaspace） （不带有自定义类加载器），这些类是不能够被回收的，他们可以以静态字段的方式保存持有其它对象。我们需要注意的一点就是，通过用户自定义的类加载器加载的类，除非相应的java.lang.Class实例以其它的某种（或多种）方式成为roots，否则它们并不是roots。
+  - 
      - 比如各个线程被调用的方法中使用的参数，局部变量
   - 方法区中静态成员或者常量引用的对象（全局对象） （引出JDK1.7之后JVM常量池不存在方法区，1.8后没有了方法区） （方法区中常量的）
   - JNI方法栈中引用对象
@@ -366,15 +374,57 @@ full GC 和 major GC
 
 
 
+![image-20211012121323139](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211012121323139.png)
 
+我们的 CMS垃圾收集器 一般配合 parNew 来进行垃圾收集。  CMS在极端情况下，比如说用户线程内存不够的时候 会变为 Serial Old 收集器。
 
-cms收集器
+#### cms收集器
 
 ![image-20201215153007134](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215153007134.png)
 
 
 
-![image-20201215202437444](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215202437444.png)
+![image-20211012005659791](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211012005659791.png)
+
+- 在初始标记和重新标记的时候 会进stop-the-world
+
+- CMS的优缺点
+  - **CMS优点**
+    - 低延迟（只有在  初始标记和重新标记的时候 会进行stop the world，这两个阶段stop the word时间非常短）
+    - 并发清除
+  - **CMS缺点**
+    - 会产生内存碎片， 并发清理后用户先的可用大段空间不足，无法分配大对虾的情况下，会产生Full GC。 Full GC 又会导致CMS进行垃圾回收，而且很有可能会在用户线程内存不够的时候临时采用到Serial Old 收集器来重新进行老年代的垃圾手机，时间就很长了。
+    - CMS收集器会产生cpu资源
+    - 会产生一些浮动垃圾
+
+
+
+#### G1垃圾收集器
+
+![image-20211013003042782](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013003042782.png)
+
+```
+官方给G1设定的目标是在延迟可控的情况下获得尽可能高的吞吐量
+G1 是既针对新生代又针对老年代的
+
+---- CMS GC主要爱是针对老年代
+```
+
+- G1的优势
+
+
+
+
+
+![image-20211015100452916](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015100452916.png)
+
+G1的回收有三个环节   
+
+![image-20211015100608947](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015100608947.png)
+
+
+
+![image-20211015100755340](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015100755340.png)
 
 ### 双亲委派机
 

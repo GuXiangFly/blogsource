@@ -1,4 +1,5 @@
 ---
+
 title: MySQL深入理解
 date: 2019-12-24 20:11:44
 tags: [MySQL]
@@ -312,9 +313,49 @@ B+ 树  高度为2的时候 可以存储  两万多条数据  高度为3  可以
 
 
 
+### 脏读 不可重复读 和 幻读
 
+
+
+- 脏读（读取到了其他事务没有提交的数据）
+
+![image-20211013105242007](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013105242007.png)
+
+
+
+- 不可重复读（一个当前事务前后两次读取到的数据不一致）
+
+  ![image-20211013110101575](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013110101575.png)
+
+- 幻读（一个事务前后两次读取到的数据量不一致，新增了或者减少了）
+
+![image-20211013102946831](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013102946831.png)
+
+innodb的repeatable read 部分解决了幻读，但还是有可能出现幻读？当一个事务里面既出现了快照读，又出现当前读的时候就有可能会出现幻读。当然，只要把语句给改成都是当前读或者都是快照读就能解决幻读的问题了。
+
+- 当事务中只产生快照度，那么不会产生幻读
+- 当事务中使用了update，select  share mode  等产生了
+
+
+
+ACID
+
+![image-20211015093852322](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015093852322.png)
 
 ## mysql事务实现原理
+
+MVCC(多版本并发控制，为了提升我们并发访问mysql的读写效率，mysql，提供了mvcc的机制，主要是为了，
+当然可以加锁。但是仅仅加锁效率太低)
+
+- 前置概念
+  - 当前读：我数据读取的是最新版本的数据   
+        （select ）
+  - 快照读：我数据读取的是历史版本的数据  （undo log里面记录了历史版本数据）
+
+  ![image-20211015092109013](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015092109013.png)
+
+- 当前读：select ... lock in share mode；  select ... for update ； 加锁的增删改语句 update；delete；insert
+- 快照读：不加锁的非阻塞读，select
 
 Innodb行格式中，存在有
 
@@ -322,7 +363,8 @@ Innodb行格式中，存在有
   - row_id                  行id
   - Transcation_id    每次对某条记录进行改动时，都会把对应的事务id赋值给trx_id隐藏列。
   - roll_pointer        每次对某条记录进行改动时，这个隐藏列会存一个指针，可以通过这个指针找到该记 录修改前的信息。
-
+  - ![image-20211015092529707](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015092529707.png)
+  
 - 脏读、幻读、不可重复读的概念
 
   - 脏读 ：所谓脏读是指一个事务中访问到了另外一个事务未提交的数据
@@ -332,22 +374,26 @@ Innodb行格式中，存在有
 
 - ReadView
 
+  - 只有在事务的第一次读的时候会生成readview
+
+  ​	![image-20211015093221107](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015093221107.png)
+
   ​	对于使用Read uncommitted隔离级别的事务来说，直接读取记录的最新版本就好了，对于使用 SERIALIZABLE隔离级别的事务来说，使用加锁的方式来访问记录。对于使用READ COMMITTED和 REPEATABLE READ隔离级别的事务来说，就需要用到我们上边所说的版本链了，核心问题就是:需要判断一下 版本链中的哪个版本是当前事务可见的。
 
   
-
+  
   - m_ids   ReadView 里面有一个 m_ids 里面记录着活跃的还没有提交的活跃事务id   m_ids:[200,199,198]
-
+  
     ```
     按照下图而言，
     在Read Committed隔离级别下： 
-    1. 现在有一个事务A事务id为202，它来查询一条sql， m_ids里面有[200，199，198]。那么就会顺着版本链找下去，一直找到 197 这条事务，A事务就会将 tx_id为 197的版本数据给找出来。
+    1. 现在有一个事务A事务id为202，它来查询一条sql， m_ids里面有[200，199，198]。那么就会顺着版本链找下去，一直找到 197 这条事务，A事务就会将 tx_id为 197的事务给找出来。
     2. 现在假设 200这条事务已经commit了，那么200这条事务就不在m_ids里面了  m_ids变成[199，198], 按版本链直接读取到 tx_id 为200的事务，就好了
     
     read commit：
     A		B
     1		1改为2
-    1   2
+    1       2
     		commit
     2
     
@@ -374,6 +420,12 @@ Innodb行格式中，存在有
 
 
 
+幻读问题：
+
+
+
+
+
 ### undoLog与redoLog
 
 #### undo log
@@ -386,8 +438,7 @@ undo log有两个作用：提供回滚和多个行版本控制(MVCC)。
 
 ### 当前读和快照读
 
-- 当前读：select ... lock in share mode；  select ... for update ； 加锁的增删改语句 update；delete；insert
-- 快照读：不加锁的非阻塞读，select
+- 
 
 
 
@@ -462,16 +513,6 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 
 
 
-
-
-
-会使用MDP建立的新组件
-
-
-
-
-
-如果BD  
 
 
 

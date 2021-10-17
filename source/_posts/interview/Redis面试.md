@@ -351,7 +351,7 @@ srandmember activity:10001  2
 ## Redis 缓存
 ![](https://i.loli.net/2019/11/02/GrwTpmRlUiHDMkq.png)
 - Redis更新方式
-    - 同步更新 
+    - 同步更新
     - 异步更新
     - 定时更新
     - 失效更新

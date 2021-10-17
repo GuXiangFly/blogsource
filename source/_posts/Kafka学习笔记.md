@@ -1,6 +1,8 @@
 ---
 
 
+
+
 title: Kafka学习笔记
 date: 2020-7-11 13:09:04
 tags: [Kafka]
@@ -319,6 +321,26 @@ bin/kafka-manager
 
   如果发生rebalance， RoundRobin策略会重新走轮询进行分配。而 stricky会尽量保证和上次一致。减少分区的一些切换。
 
+- **rebalance会出现什么问题**
+
+```
+1、可能重复消费: Consumer被踢出消费组，可能还没有提交offset，Rebalance时会Partition重新分配其它Consumer,会造成重复消费，虽有幂等操作但耗费消费资源，亦增加集群压力
+
+2、集群不稳定：Rebalance扩散到整个ConsumerGroup的所有消费者，因为一个消费者的退出，导致整个Group进行了Rebalance，并在一个比较慢的时间内达到稳定状态，影响面较大
+
+3、影响消费速度：频繁的Rebalance反而降低了消息的消费速度，大部分时间都在重复消费和Rebalance
+```
+
+![image-20211013000009386](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013000009386.png)
+
+由于发生rebalance， consumer成员会新生成generation，于是所有的consumer是需要重连topic的partition的。
+
+这种情况下，假设是consumerA的策略是自动提交，提交间隔是5s，   提交完后3s出现了 rebalance，超时提交位移是200ms，所有consumer重连partition，consumer会从上次提交的offset进行消费。  会导致 consumerA 重复消费0s~3s的数据。
+
+
+
+
+
 
 
 
@@ -580,3 +602,10 @@ kafka 是如何保证 exactly  once，
       1. 减少了内核态和用户态之间的上下文切换
       2. 
    4. ![image-20210209114402905](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209114402905.png)
+
+
+
+
+
+
+
