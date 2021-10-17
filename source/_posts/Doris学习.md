@@ -1,6 +1,6 @@
 ---
 title: Doris学习
-date: 2017-1-10 13:22:54
+date: 2021-1-10 13:22:54
 tags: [java]
 
 
@@ -231,3 +231,5 @@ select ip from session_data where city = 'shanghai'
 
 
 
+# Doris存储文件格式优化
+文件格式
