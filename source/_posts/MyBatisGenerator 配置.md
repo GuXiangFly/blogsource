@@ -83,7 +83,6 @@ mybatisGenerator {
 ![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190429114232.png)
 
 ### mybatis-generator.xml 配置详解
-可以参考demo [点我](https://gitlab.corp.youdao.com/luna-dev/adapmath-server/blob/dev-guxiang/src/main/resources/mybatis-generator.xml)
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE generatorConfiguration
