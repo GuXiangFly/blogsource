@@ -41,7 +41,6 @@ mybatisGenerator {
 
 
 #### 简单的 build.gradle 配置Demo
-可以参考后面的链接 [点我](https://gitlab.corp.youdao.com/luna-dev/adapmath-server/blob/dev-guxiang/build.gradle)   
 或者下面的简单配置
 ```groovy
 buildscript {
@@ -98,8 +97,8 @@ mybatisGenerator {
         </commentGenerator>
         <!--数据库链接地址账号密码-->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://ns013x.corp.youdao.com:3306/adapmath?useSSL=false"
-                        userId="root" password="zhaoweidictop">
+                        connectionURL="jdbc:mysql://xxxx:3306/xxxxxxx?useSSL=false"
+                        userId="root" password="xxxx">
         </jdbcConnection>
         
         
@@ -114,7 +113,7 @@ mybatisGenerator {
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!--生成Model类存放位置-->
-        <javaModelGenerator targetPackage="com.youdao.adapmathserver.dao.entity" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="cn.guxiangfly.adapmathserver.dao.entity" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
@@ -130,7 +129,7 @@ mybatisGenerator {
                 type="MIXEDMAPPER",生成基于注解的Java Model 和相应的Mapper对象
                 type="XMLMAPPER",生成SQLMap XML文件和独立的Mapper接口
         -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.youdao.adapmathserver.dao.mapper"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="cn.guxiangfly.adapmathserver.dao.mapper"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>

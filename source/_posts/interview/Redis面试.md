@@ -588,7 +588,16 @@ redis的 zset如何实现排序，增删改的速度
 
 
 
+## Redis 集群的三种模式
 
+- #### **主从复制原理**
+
+
+
+
+
+- 
+- ![image-20211103132243284](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211103132243284.png)
 
 
 

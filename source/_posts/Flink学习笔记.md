@@ -812,10 +812,11 @@ Flink 如何通估 2PC 保证端到端的状态一致性
 下面是只看处理到sink部分
 
 - 第一条数据发现需要sink后，开启一个 transaction1 ，正常写入kafka，分区日志，但是标记为未提交，算预提交。
--  sink连接器收到 barrier ，保存当前状态，存入 checkpoint，并且通知jobmanager，同时为第二条数据开启下一阶段事务transaction2，为了第二条数据
+- sink连接器收到 barrier ，保存当前状态，存入 checkpoint，并且通知jobmanager，同时为第二条数据开启下一阶段事务transaction2，为了第二条数据
 - jobmanager收到任务通知完成 checkpoint操作。
 - sink 任务收到 jobmanager的确认信息，正式提交这段时间的数据。
 - 外部
+- 1
 
 
 

@@ -232,4 +232,24 @@ select ip from session_data where city = 'shanghai'
 
 
 # Doris存储文件格式优化
-文件格式
+![image-20211018015629126](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018015629126.png)
+
+文件包括：
+
+- 文件开始是8个字节的magic code，用于识别文件格式和版本
+- Data Region：用于存储各个列的数据信息，这里的数据是按需分page加载的
+- Index Region: doris中将各个列的index数据统一存储在Index Region，这里的数据会按照列粒度进行加载，所以跟列的数据信息分开存储
+- Footer信息
+  - FileFooterPB:定义文件的元数据信息
+  - 4个字节的footer pb内容的checksum
+  - 4个字节的FileFooterPB消息长度，用于读取FileFooterPB
+  - 8个字节的MAGIC CODE，之所以在末位存储，是方便不同的场景进行文件类型的识别
+
+文件中的数据按照page的方式进行组织，page是编码和压缩的基本单位。现在的page类型包括以下几种:
+
+### DataPage
+
+DataPage分为两种：nullable和non-nullable的data page。
+
+nullable的data page内容包括：
+

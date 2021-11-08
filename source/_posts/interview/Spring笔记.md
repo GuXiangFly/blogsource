@@ -1043,3 +1043,95 @@ springMVC流程
 - 由找到的适配器，调用实现对应接口的处理器，并将结果返回给适配器，结果中包含数据模型和视图对象，再由适配器返回给核心控制器
 - 核心控制器将获取的数据和视图结合的对象传递给视图解析器，获取解析得到的结果，并由视图解析器响应给核心控制器
 - 核心控制器将结果返回给客户端
+
+
+
+
+
+
+
+Spring AOP
+
+![image-20211028104845716](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028104845716.png)
+
+
+
+
+
+![image-20211028105647448](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028105647448.png)
+
+![image-20211028105826508](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028105826508.png)
+
+![image-20211028141930959](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028141930959.png)
+
+![image-20211028144615524](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028144615524.png)
+
+
+
+
+
+![image-20211028145555900](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028145555900.png)
+
+
+
+
+
+### Spring AOP
+
+![image-20210309215926865](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309215926865.png)
+
+在填充属性之后， 使用  afterpropertiesset 进行初始化， 初始化后会进行 AOP
+
+
+
+class (userservice)---->实例化---》对象---》填充属性----》afterpropertiesSet(初始化)----> AOP-----> 代理对象-------> bean
+
+AOP会将我们通过  ASM 字节码加强工具生成出来的被加强的 字节码 生成代理对象。
+
+
+
+#### 具体的AOP执行步骤
+
+1. AOP会先找出所有的切点（定义了@Aspect 注解的class文件中）
+
+2. 判断当前的 userservice.class 是否有对应的切点
+3. 对于没有实现接口的 会使用cglib进行动态代理
+
+```java
+	@Override
+	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
+			Class<?> targetClass = config.getTargetClass();
+			if (targetClass == null) {
+				throw new AopConfigException("TargetSource cannot determine target class: " +
+						"Either an interface or a target is required for proxy creation.");
+			}
+			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
+				return new JdkDynamicAopProxy(config);
+			}
+			return new ObjenesisCglibAopProxy(config);
+		}
+		else {
+			return new JdkDynamicAopProxy(config);
+		}
+	}
+
+```
+
+
+
+cglib的aop产生的java的动态类
+
+```java
+class UserServiceProxy extend UserService{
+	//class (userservice)---->实例化---》对象---》填充属性----》afterpropertiesSet(初始化)----> AOP-----> 代理对象-------> bean   这个 target为 最初实例化出来的userservice的代理对象
+    private UserService target;
+    
+    
+    public void test(){
+        MyAspect.guxiangBefore();
+        target.test();
+    }
+}
+```
+

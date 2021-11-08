@@ -45,9 +45,9 @@ get /znode路径
 - 持久（persistent）（断开连接不删除）
 #### Znode有四种形式的目录节点（默认是persistent ）
 - PERSISTENT
-- PERSISTENT_SEQUENTIAL（持久序列/test0000000019 ）
+- PERSISTENT_[sequential](javascript:;) （持久序列/test0000000019 ）
 - EPHEMERAL
-- EPHEMERAL_SEQUENTIAL
+- EPHEMERAL_[sequential](javascript:;) 
 
 
 创建 ephemeral（朝生暮死的  客户端与zookeeper的连接断开ephemeral类型的znode就自动删除）
@@ -77,7 +77,7 @@ ls 是监听子节点
 - 持久（persistent）：客户端与服务器断开连接后，创建的节点不删除  
     持久中又有两种类型节点
     - 持久化目录节点
-    -出九华顺序编号牡蛎节点
+    -持久化顺序编号节点
 - 短暂（ephemeral）：客户端与服务器断开连接后，创建的节点自己删除
 
 

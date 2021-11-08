@@ -339,8 +339,61 @@ bin/kafka-manager
 
 
 
+### kafka动态重平衡策略详解
+
+架构师杨波
+
+https://time.geekbang.org/course/intro/100053601  
+
+Kafka动态重平衡是如何工作的
+
+![image-20211024204315366](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024204315366.png)
+
+- kafka为了解决动态重平衡问题 使用了比较复杂的重平衡协议 主要由两个子协议构成Group Member Protocal 和 Consumer Embeded Protocol
+  - 在 kafka的动态重平衡协议适用场景非常广泛，不仅
+    - 用于消费者的分区分配
+    - kafka connect 组件用这个协议给worker分配任务
+    - kafka stream 上也使用了动态重平衡协议
+  - Group Member Protocol  （主要用于组成员的管理）这个协议主要是在broker上实现  包括有
+    - JoinGroup 
+    - SyncGroup
+    - HeartBeat
+    - LeaveGroup
+  -  Consumer Embeded Protocol （主要是用于分区的分配的） 主要在客户端实现
 
 
+
+![image-20211024215303994](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024215303994.png)
+
+![image-20211024214516326](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024214516326.png)
+
+1. 对于每个 consumer group， blocker集群上会选出一个对应的 coordinator 用于消费者组管理
+2. 当消费者启动，它们会先找到对应的协调者，然后向他发送 joinGroup的请求。请求中包含了
+   1. group id 
+   2. 超时时间  （后面协调者会通过超时时间来判断组成员是否存活， 可能一个full GC 会导致一个rebalance）
+   3. 协议类型 
+   4. 支持的算法 订阅的topic
+3. 协调者收到这个join group请求，就知道哪些消费者需要加入组，coordinator不会立马响应，会将这个请求hold一个超时间隔， 如果这时候 消费者数量不再发生变化，那么就会开启这个kafka的重平衡策略。
+	![image-20211024215453601]	(https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024215453601.png)
+4. 协调者会将第一个发送 join group请求的 consumer作为leader。 执行一个分区分配算法。 leader 将这个分配结果通过一个 sync group请求发送给 coordinator。其他消费者也会发 sync group请求。但是是空请求。
+5. 发起 sync group 请求后会拿到响应。每个consumer就接收到了各自对应的partition，然后进行 onpartitionassigned()。
+6. 然后 consumer开始 pull 消息
+7. 同时，会定期发送 heartbeat心跳给 coordinator。表明自己活着。 但如果 coordinator说需要进行rebalance，会通过 heartbeat返回告诉 consumer需要重新 join Group。
+8. **rebalance会导致 stop-the-world的如果发生**
+   1. 假设 consumer1需要升级更新，我们需要将consumer1停止，  在停止前consumer1会向 coordinator发送一个 leaveGroup请求。
+   2. 其他消费者也收到通知，需要重新发起一个joinGroup/syncgroup请求，来重新分配
+   3. 只要我们的 consumer group没发生处理完重分配策略，  consumer就无法继续消费 message。 
+   4. 上面就是 stop-the-world
+
+
+
+重平衡的缺点：
+
+​	1. 重平衡具有 stop-the-world的
+
+
+
+![image-20211024221418053](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024221418053.png)
 
 
 
@@ -544,7 +597,7 @@ kafka 是如何保证 exactly  once，
 >
 > 顺序写磁盘的，使用LSM tree
 >
-> 
+> ``
 
 
 

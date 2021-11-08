@@ -344,7 +344,85 @@ ACID
 
 ## mysql事务实现原理
 
-MVCC(多版本并发控制，为了提升我们并发访问mysql的读写效率，mysql，提供了mvcc的机制，主要是为了，
+**LBCC（Lock-Based Concurrent Control 基于锁的并发控制）**
+
+- innodb  （行锁+表锁）
+- mysiom （行锁）
+
+通过锁的模式可以划分为
+- 共享锁
+    ```
+        begin;
+        select * from table where id =12345 lock in share mode;
+        update table set name ='xxx' where id = 12345
+        commit;
+        rollback;
+    ```
+- 排它锁
+    - select * from table for update
+    ![image-20211029000634223](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211029000634223.png)
+
+![image-20211029002746558](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211029002746558.png)
+
+- 意向锁
+  - 意向共享锁---(in)
+    - 主要适用于表示： 表中有没有已经加共享锁的数据
+  - 意向排它锁---
+    - 主要用于表示：表中有没有已经加排它锁的数据
+
+
+
+
+
+
+
+![image-20211029002914413](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211029002914413.png)
+- record lock（记录锁）
+
+    - 常见于在主键索引 唯一索引里面做等值查询 
+
+      - ```
+        事务1
+        begin;
+        select * from  A  where id =1  for update；
+        
+        事务2
+        begin:
+        update A 
+        ```
+
+      - 
+
+- Gap locks （间隙锁）（根据数据库当前表的记录来划分）
+
+    - ```
+        当查询命中某个范围的时候，会触发Gap lock
+        事务1：select * from A  where id>5 and id<9 for update; （如果id没有索引，会锁整个表）
+        
+        事务2: insert into A value('6','6'); 会阻塞
+        ```
+
+    - ![image-20211101015335226](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101015335226.png)
+
+    - ```
+        当查询命中某个范围的时候，会触发Gap lock
+        事务1：select * from A  where id>15 for update;
+        
+        事务2: insert into A value('13','13'); 也会阻塞  由于锁的区间划分是根据数据库当前表的记录来划分的。 id没有15， 所以锁的区间是  11~无穷大
+        ```
+
+- Next-key-locks (临界锁)（mysql rr隔离级别独有）
+
+    - 当范围进行数据锁定的时候，命中了某一条record记录，会触发临界锁  
+    - ![image-20211101015947476](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101015947476.png)
+
+    https://mp.weixin.qq.com/s?src=11&timestamp=1635704886&ver=3408&signature=3KK0wCn6XK6-Ug20TE-ix*Dtn7zH5OdVubtsahsS8i1ZR6fkSRdlUkkKNo7lWFmc5lak1FQm-DqHGM6gs7xCStExfO53GxqGyeVS2m3ngueOzQC7E2i4Faywp5UuzcHO&new=1
+
+- 
+
+- 自增锁()
+
+**MVCC**(multi-version Concurrent Control 多版本并发控制，为了提升我们并发访问mysql的读写效率，mysql，提供了mvcc的机制，主要是为了，
 当然可以加锁。但是仅仅加锁效率太低)
 
 - 前置概念
@@ -392,6 +470,7 @@ Innodb行格式中，存在有
     
     read commit：
     A		B
+    begin   begin
     1		1改为2
     1       2
     		commit
@@ -421,6 +500,12 @@ Innodb行格式中，存在有
 
 
 幻读问题：
+
+
+
+
+
+![image-20211101134317868](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101134317868.png)
 
 
 
@@ -624,4 +709,23 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 
 
 
+
+
+
+mysql 默认50s没有插入进数据库就会报出死锁。
+
+另外mysql会通过一个 wait-for  graph算法生成这个策略。
+
+
+
+### 如何查看死锁
+
+```
+#这个命令会查看最近的一次死锁
+show engine innodb status 
+```
+
+
+
+![image-20211101164414531](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101164414531.png)
 

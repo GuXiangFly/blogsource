@@ -228,11 +228,34 @@ JIT 有的认为应该属于元数据区，有的认为应该单独拿出来
                  就会报出 OutOfMemory 的异常，对有就带调优是非常困难的 于是我们将永久带移除  将类信息存放在 直接内存中   也避免了 Full GC  JVM对本地内存 无法回收
             JAVA8 去掉了  -XX:PermSize  和  -XX:MaxPermSize  
                 新增了    -XX:MetaspaceSize  和  -XX:MaxMetaspaceSize
+                
+                
+             
+             -Xmx  最大堆空间的大小
+        -Xms   初始化堆空间的大小
+         设置JVM 的最大可用内存，Xms 设置JVM实际使用内存，一般Xmx和Xms相同，这是因为当Xmx内存空间不够用时，将进行扩容导致Full GC。将Xmx和Xms设置成相同的值，避免因Xms偏小导致频繁重新分配内存，影响应用使用。
         ```
+        
     - 堆区
        - Eden
        - Survivor*2  
        - Old 
+       
+       |                                                              |                           |
+       | :----------------------------------------------------------- | :------------------------ |
+       | 参数                                                         | 等同于                    |
+       | -Xss1024k                                                    | -XX:ThreadStackSize=1024k |
+       | -Xms512m   初始化堆空间的大小                                |                           |
+       | -Xmx1024m  最大堆空间的大小(设置JVM 的最大可用内存，Xms 设置JVM实际使用内存，一般Xmx和Xms相同，这是因为当Xmx内存空间不够用时，将进行扩容导致Full GC。将Xmx和Xms设置成相同的值，避免因Xms偏小导致频繁重新分配内存，影响应用使用。) | -XX:MaxHeapSize=1024m     |
+       | -Xmn512m                                                     |                           |
+       | -XX:NewSize=512m                                             |                           |
+       | -XX:MaxNewSize=512m                                          |                           |
+       | -XX:NewRatio=8                                               |                           |
+       | -XX:SurvivorRatio=32                                         |                           |
+       | -XX:MinHeapFreeRatio=40                                      |                           |
+       | -XX:MaxHeapFreeRatio=70                                      |                           |
+       | -XX:MetaspaceSize=128m                                       |                           |
+       | -XX:MaxMetaspaceSize=256m                                    |                           |
 
 
 - 线程独占区
@@ -425,6 +448,34 @@ G1的回收有三个环节
 
 
 ![image-20211015100755340](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015100755340.png)
+
+![image-20211018130221441](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018130221441.png)
+
+- 注意由于 G1 是 region分片的。
+
+![image-20211018130027977](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018130027977.png)
+
+![image-20211018131642855](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018131642855.png)
+
+
+
+![image-20211018131730648](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018131730648.png)
+
+G1 会在并发标记的过程中标记一个垃圾对象的活性， 如果活性很低，会在Mix GC 的时候被优先回收掉
+
+![image-20211018132016000](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018132016000.png)
+
+
+
+
+
+
+
+
+
+历史的垃圾回收期
+
+![image-20211018132156252](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018132156252.png)
 
 ### 双亲委派机
 
@@ -750,4 +801,21 @@ JMM用处是定义程序中变量的返回规则
 ###### 下图代表这个char 来自于 控制台 PrintStream
 
 ![image-20200519165518802](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165518802.png)
+
+
+
+
+
+1. 整理待办事项
+2. 每日重点
+3. 给每天设置方向
+4. 每天先处理自己的事情
+   1. 穷爸爸和富爸爸（pay yourself first）
+5. 
+
+
+
+
+
+分析下GC log，看不出问题可以jmap -histo pid 看下对象的占用排行，实在不行就摘除流量，dump一份heap文件到mat分析下
 
