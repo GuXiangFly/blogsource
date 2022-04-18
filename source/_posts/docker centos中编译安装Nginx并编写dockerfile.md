@@ -142,4 +142,4 @@ docker build -t niginx-file:v1 --no-cache .
 什么是BIO NIO AIO
 ###  BIO 又称是阻塞IO
 基于socket  -  server socket
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181120013043.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/img20181120013043.png)

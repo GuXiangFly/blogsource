@@ -80,7 +80,7 @@ mybatisGenerator {
 }
 ```
 双击此处进行生成  
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190429114232.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190429114232.png)
 
 ### mybatis-generator.xml 配置详解
 ```xml

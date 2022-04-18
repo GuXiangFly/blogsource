@@ -119,7 +119,7 @@ Spark 操作分为两大类  转换 transformations  行动action
 ####  cluster模式
 在worker上随便一个机器上新建一个JVM 里面跑一个driver
 ### spark 的架构
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190205215625.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190205215625.png)
 
 ###  action 操作有这些
 - reduce
@@ -367,7 +367,7 @@ public class ActionOperation {
 ### RDD 的持久化
 
 这个是持久化之后的RDD 数据
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190205205118.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190205205118.png)
 RDD 持久化的策略有以下几种
 
 - MEMORY_ONLY   
@@ -548,7 +548,7 @@ object SortWordCount {
 仅仅依赖于父RDD的一个partition，父RDD 和子 RDD 之间的是一一对应的关系
 - 宽依赖：英文全名 shuffle dependency。 本质就是shuffle
 每一个父
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190206200039.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190206200039.png)
 
 
 ### parquet 存储格式

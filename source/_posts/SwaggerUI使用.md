@@ -60,7 +60,7 @@ public class SwaggerConfig {
     }
 }
 ```
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190430113732.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190430113732.png)
 
 
 启动服务器  
@@ -68,9 +68,9 @@ public class SwaggerConfig {
 输入 http://localhost:8080/swagger-ui.html  
 就可以访问
 出现类似如下界面
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190430115333.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190430115333.png)
 **具体有一些简单的操作**   
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190430115545.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190430115545.png)
 
 其实做到这一步已经能初步使用 swagger-ui 
 但是在 api 上 我们还可以写一些 annotation  

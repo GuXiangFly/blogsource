@@ -389,7 +389,7 @@ class MySQL1 {
 
 ### Scala集合类
 
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190128203945.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190128203945.png)
 
 
 ### Scala数组与Java的List的互转

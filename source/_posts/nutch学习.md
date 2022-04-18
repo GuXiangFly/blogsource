@@ -19,7 +19,7 @@ tags: [大数据]
 - parse_text：从每个URL解析得到的文本
 - parse_data：从每个URL解析得到的外链和元数据
 - crawl_parse：包含外链URL，用来更新crawldb
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190215101330.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190215101330.png)
 
 
 ###  通过readdb 来查看爬取状态

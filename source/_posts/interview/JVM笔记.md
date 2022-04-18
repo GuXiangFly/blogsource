@@ -199,12 +199,12 @@ JIT 有的认为应该属于元数据区，有的认为应该单独拿出来
 
 ###  JDK 1.6 和 1.7 1.8 有所区别
 
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181026012129.png)
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181026011620.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/img20181026012129.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/img20181026011620.png)
 
 线程安全的本质
 看图 所以有 内存屏障
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181026011844.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/img20181026011844.png)
 
 - 线程共享区
     - 方法区  (永久带 Tenured Gen) 
@@ -671,7 +671,7 @@ concurrent Mark sweep
 ## 垃圾收集器
 G1(Garbage First)垃圾收集器是当今垃圾回收技术最前沿的成果之一.
 G1 在 java9中被设置为默认的垃圾收集器
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/img20181112030202.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/img20181112030202.png)
 G1 中 不太看重 老年代 或者 新生代 
 G1采用了分区(Region)的思路，将整个堆空间分成若干个大小相等的内存区域，
 有一个global card 管理它。

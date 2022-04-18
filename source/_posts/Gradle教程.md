@@ -9,7 +9,7 @@ Gradle 生成的 build文件夹 类似于 Maven的  target
 
 ### wrapper命令的用处
 在我们的 gradle-> wrapper ->wrapper.properties 有如下
-![](https://raw.githubusercontent.com/GuXiangFly/imagerepo/master/20190313103654.png)
+![](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/imagerepo/20190313103654.png)
 ```properties
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
