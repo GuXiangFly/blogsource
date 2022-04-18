@@ -47,16 +47,16 @@ Ext 就是 扩展类加载器（extensionsclassloader）可以获取到
 
 ### 字节码加载流程
 
-![image-20201212194527279](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201212194527279.png)
+![image-20201212194527279](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201212194527279.png)
 
 
 
-![image-20200518010403696](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518010403696.png)
+![image-20200518010403696](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518010403696.png)
 
 - 类从被加载到虚拟机内存中开始，到卸载出内存为止，它的整个生命周期包括：加载（Loading）、验证（Verification）、准备(Preparation)、解析(Resolution)、初始化(Initialization)、使用(Using)和卸载(Unloading)7个阶段。其中准备、验证、解析3个部分统称为连接（Linking）
 - 加载、验证、准备、初始化和卸载这5个阶段的顺序是确定的，类的加载过程必须按照这种顺序按部就班地开始，而解析阶段则不一定：它在某些情况下可以在初始化阶段之后再开始，这是为了支持Java语言的运行时绑定（也称为动态绑定或晚期绑定）。以下陈述的内容都已HotSpot为基准。
 
-![image-20201212195325459](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201212195325459.png)
+![image-20201212195325459](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201212195325459.png)
 
 对于一段代码，走如上的流程图，先看程序有没有相应的class对象，如果没有就先加载，有就不加载，然后链接，后初始化，然后执行main方法
 
@@ -150,7 +150,7 @@ public class SingleTonTest {
 
 1. 通过子类引用父类的静态字段，不会导致子类的初始化（此时的静态资源不是属于子类父类的）
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518111255286.png" alt="image-20200518111255286" style="zoom: 50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518111255286.png" alt="image-20200518111255286" style="zoom: 50%;" />
 
 2. 
 
@@ -187,13 +187,13 @@ public class SingleTonTest {
 ## 内存图
 ![JVM 内存图](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1534694453&di=a372c6fc205d8da43a39e6cb5dfd6f9d&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.kuqin.com%2Fupimg%2Fallimg%2F160518%2F20521a109-0.png)
 
-![image-20201213003257956](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201213003257956.png)
+![image-20201213003257956](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201213003257956.png)
 
-!![image-20210209005853554](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209005853554.png)
+!![image-20210209005853554](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209005853554.png)
 
 
 
-![image-20210209010247606](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209010247606.png)
+![image-20210209010247606](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209010247606.png)
 
 JIT 有的认为应该属于元数据区，有的认为应该单独拿出来
 
@@ -260,9 +260,9 @@ JIT 有的认为应该属于元数据区，有的认为应该单独拿出来
 
 - 线程独占区
 
-    ![image-20210209001124938](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209001124938.png)
+    ![image-20210209001124938](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209001124938.png)
 
-    ![image-20210209003850385](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209003850385.png)
+    ![image-20210209003850385](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209003850385.png)
 
      线程独占的有
 
@@ -291,7 +291,7 @@ JIT 有的认为应该属于元数据区，有的认为应该单独拿出来
         - PC寄存器用来存储指向下一条指令的地址，也即将要执行的指令代码。由执行引擎读取下一条指令。
         - 为什么使用PC寄存器来记录当前线程的执行地址
             - 当CPU需要不停的切换各个线程的时候，就得知道接着从哪来开始执行
-            - ![image-20210209004311052](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209004311052.png)
+            - ![image-20210209004311052](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209004311052.png)
 
 ## JVM 参数调优
 
@@ -372,7 +372,7 @@ Object obj = new Object()
     null     # 由于分配了10M（软） + 11M内存（强），于是直接将10M软引用内存回收了
     ```
 
-    <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20220321191708789.png" alt="image-20220321191708789" style="zoom:50%;" />
+    <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220321191708789.png" alt="image-20220321191708789" style="zoom:50%;" />
 
 - **弱引用**（垃圾回收，不管内存够不够，都回收，任意内存回收都会回收它）
 ```
@@ -458,17 +458,17 @@ full GC 和 major GC
 
 
 
-![image-20211012121323139](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211012121323139.png)
+![image-20211012121323139](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211012121323139.png)
 
 我们的 CMS垃圾收集器 一般配合 parNew 来进行垃圾收集。  CMS在极端情况下，比如说用户线程内存不够的时候 会变为 Serial Old 收集器。
 
 #### cms收集器
 
-![image-20201215153007134](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215153007134.png)
+![image-20201215153007134](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201215153007134.png)
 
 
 
-![image-20211012005659791](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211012005659791.png)
+![image-20211012005659791](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211012005659791.png)
 
 - 在初始标记和重新标记的时候 会进stop-the-world
 
@@ -485,7 +485,7 @@ full GC 和 major GC
 
 #### G1垃圾收集器
 
-![image-20211013003042782](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013003042782.png)
+![image-20211013003042782](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211013003042782.png)
 
 ```
 官方给G1设定的目标是在延迟可控的情况下获得尽可能高的吞吐量
@@ -500,31 +500,31 @@ G1 是既针对新生代又针对老年代的
 
 
 
-![image-20211015100452916](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015100452916.png)
+![image-20211015100452916](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211015100452916.png)
 
 G1的回收有三个环节   
 
-![image-20211015100608947](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015100608947.png)
+![image-20211015100608947](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211015100608947.png)
 
 
 
-![image-20211015100755340](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015100755340.png)
+![image-20211015100755340](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211015100755340.png)
 
-![image-20211018130221441](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018130221441.png)
+![image-20211018130221441](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018130221441.png)
 
 - 注意由于 G1 是 region分片的。
 
-![image-20211018130027977](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018130027977.png)
+![image-20211018130027977](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018130027977.png)
 
-![image-20211018131642855](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018131642855.png)
+![image-20211018131642855](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018131642855.png)
 
 
 
-![image-20211018131730648](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018131730648.png)
+![image-20211018131730648](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018131730648.png)
 
 G1 会在并发标记的过程中标记一个垃圾对象的活性， 如果活性很低，会在Mix GC 的时候被优先回收掉
 
-![image-20211018132016000](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018132016000.png)
+![image-20211018132016000](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018132016000.png)
 
 
 
@@ -536,13 +536,13 @@ G1 会在并发标记的过程中标记一个垃圾对象的活性， 如果活�
 
 历史的垃圾回收期
 
-![image-20211018132156252](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018132156252.png)
+![image-20211018132156252](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018132156252.png)
 
 ### 双亲委派机
 
-![image-20201212234316719](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201212234316719.png)
+![image-20201212234316719](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201212234316719.png)
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201213012452190.png" alt="image-20201213012452190" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201213012452190.png" alt="image-20201213012452190" style="zoom: 67%;" />
 
 - 双亲委派的优势
   - 避免类的重复加载
@@ -846,9 +846,9 @@ jmap -dump:live,format=b,file=my_container_battery.hprof  1288
 
 ##### 通过MAT查看 GCRoot：
 
-![image-20200519163443352](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519163443352.png)
+![image-20200519163443352](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200519163443352.png)
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519163622464.png" alt="image-20200519163622464" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200519163622464.png" alt="image-20200519163622464" style="zoom:50%;" />
 
 
 
@@ -860,21 +860,21 @@ jmap -dump:live,format=b,file=my_container_battery.hprof  1288
 
 ###### jprofile打开后如下
 
-![image-20200519164911923](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519164911923.png)
+![image-20200519164911923](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200519164911923.png)
 
 ###### 双加最大的对象 char[] 选中 incoming references  （来源引用， 这个incoming reference可以帮助分析来源） 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165055346.png" alt="image-20200519165055346" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200519165055346.png" alt="image-20200519165055346" style="zoom:50%;" />
 
 ###### 进入这个页面后点击 show paths to GC root 选择 single Root
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165347342.png" alt="image-20200519165347342" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200519165347342.png" alt="image-20200519165347342" style="zoom:50%;" />
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165452640.png" alt="image-20200519165452640" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200519165452640.png" alt="image-20200519165452640" style="zoom:50%;" />
 
 ###### 下图代表这个char 来自于 控制台 PrintStream
 
-![image-20200519165518802](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200519165518802.png)
+![image-20200519165518802](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200519165518802.png)
 
 
 
@@ -895,7 +895,7 @@ jmap -dump:live,format=b,file=my_container_battery.hprof  1288
 
 
 
-![image-20211215155422860](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211215155422860.png)
+![image-20211215155422860](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211215155422860.png)
 
 
 

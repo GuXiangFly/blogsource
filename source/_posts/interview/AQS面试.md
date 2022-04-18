@@ -7,7 +7,7 @@ tags: [JUC]
 
 **ReentrantLock加锁和释放锁的底层原理**
 
-![image-20201214023523713](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201214023523713.png)
+![image-20201214023523713](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201214023523713.png)
 
 
 

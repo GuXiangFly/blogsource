@@ -9,7 +9,7 @@ tags: [Redis]
 
 > redis 是内存数据库，kv数据库，以及数据结构数据库
 
-![image-20210207152014758](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207152014758.png)
+![image-20210207152014758](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210207152014758.png)
 
 ### 如何理解redis？
 
@@ -61,7 +61,7 @@ unordered_map < string, unordered_map<string, string>  hashs;
 >
 > 5. skiplist是一个多层级的有序链表，并且方便进行范围查询；与B+树实现的功能类似，但是比B+效率高（这句话我个人认为有争议）
 >
->    ![image-20210207232258797](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207232258797.png)
+>    ![image-20210207232258797](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210207232258797.png)
 
 
 
@@ -112,11 +112,11 @@ struct __attribute__ ((__packed__)) sdshdr16 {
 
 sdshdr5 的内存记录
 
-![image-20210220211059292](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210220211059292.png)
+![image-20210220211059292](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210220211059292.png)
 
 sdshdr8 的内存记录
 
-![image-20210220210952219](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210220210952219.png)
+![image-20210220210952219](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210220210952219.png)
 
 #### redis的数据结构通用的3个结构特性
 
@@ -138,7 +138,7 @@ client<---------- server   redis响应  resp响应
 
 
 
-![image-20210207232236277](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207232236277.png)
+![image-20210207232236277](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210207232236277.png)
 
 
 
@@ -216,31 +216,31 @@ typedef struct redisObject {
 } robj;
 ```
 
-![image-20210221155056824](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210221155056824.png)
+![image-20210221155056824](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210221155056824.png)
 
-![image-20210220220606841](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210220220606841.png)
+![image-20210220220606841](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210220220606841.png)
 
 
 
 Dict 有dict
 
-![image-20210207232851838](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207232851838.png)
+![image-20210207232851838](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210207232851838.png)
 
 
 
-![image-20210221195229556](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210221195229556.png)
+![image-20210221195229556](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210221195229556.png)
 
 
 
 ### redis数据结构的存储规则
 
-![image-20210207224056227](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207224056227.png)
+![image-20210207224056227](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210207224056227.png)
 
 dict 就是C语言中的 hashtable
 
 ### string结构的以及细节
 
-![image-20210207233522229](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207233522229.png)
+![image-20210207233522229](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210207233522229.png)
 
 > 相当于操作： unordered_map<string,string>
 >
@@ -248,19 +248,19 @@ dict 就是C语言中的 hashtable
 > - 字符串长度大于44    raw
 > -  字符长度小于44     embstr
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210207233848739.png" alt="image-20210207233848739"  />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210207233848739.png" alt="image-20210207233848739"  />
 
 
 
 ### list结构以及应用
 
- ![image-20210208012046235](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210208012046235.png)
+ ![image-20210208012046235](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210208012046235.png)
 
 
 
 quicklist当中的节点存储的就是 压缩列表
 
-![image-20210208014329695](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210208014329695.png)
+![image-20210208014329695](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210208014329695.png)
 
 ```
 BRPOP key timeout  // 它是 RPOP的阻塞版本，因为这个命令会在给定list无法弹出任何元素的时候阻塞连接
@@ -360,7 +360,7 @@ srandmember activity:10001  2
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200927191957310.png" alt="image-20200927191957310" style="zoom:43%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200927191957310.png" alt="image-20200927191957310" style="zoom:43%;" />
 
 ```java
     @GetMapping("/getUserById")
@@ -523,11 +523,11 @@ setbit bits 10000000  1
 
 ### Redis线程模型
 
-![image-20201207221959145](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201207221959145.png)
+![image-20201207221959145](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201207221959145.png)
 
 
 
-![image-20201210201333070](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201210201333070.png)
+![image-20201210201333070](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201210201333070.png)
 
 
 
@@ -561,7 +561,7 @@ bitop  and  result:12:13  login:2020:10:12  login:2020:10:13  #使用按位与�
 bitop  or  result:12:13  login:2020:10:12  login:2020:10:13  #使用按位或的方式，统计近几天有登陆的用户
 ```
 
-![image-20210221185754046](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210221185754046.png)
+![image-20210221185754046](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210221185754046.png)
 
 
 
@@ -597,7 +597,7 @@ redis的 zset如何实现排序，增删改的速度
 
 
 - 
-- ![image-20211103132243284](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211103132243284.png)
+- ![image-20211103132243284](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211103132243284.png)
 
 
 

@@ -44,4 +44,4 @@ public class RocksDBDemo {
 
 
 
-![image-20210628173741518](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210628173741518.png)
+![image-20210628173741518](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210628173741518.png)

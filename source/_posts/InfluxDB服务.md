@@ -4,7 +4,7 @@
 
 
 
-![image-20220301114605288](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20220301114605288.png)
+![image-20220301114605288](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220301114605288.png)
 
 
 

@@ -14,11 +14,11 @@ tags: [java]
        1.  -c 在 command列显示完整的命令
        2.  按P 对CPU占用率进行排序
 
-   <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201120192801212.png" alt="image-20201120192801212" style="zoom:67%;" />
+   <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201120192801212.png" alt="image-20201120192801212" style="zoom:67%;" />
 
 2. 第二步：top  -Hp  41469     查看pid 内的具体线程
 
-   <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201120203158484.png" alt="image-20201120203158484" style="zoom:50%;" />
+   <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201120203158484.png" alt="image-20201120203158484" style="zoom:50%;" />
 
 3. 使用 printf "%x\n"  41604    将**线程id**转换为16进制        //**记得转换线程Id ，不是进程Id**/
 
@@ -26,7 +26,7 @@ tags: [java]
 
 4. jstack 41604 | grep '0x线程十六进制号'  -C5 --color     此命令查看线程堆栈
 
-![image-20201120210356677](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201120210356677.png)
+![image-20201120210356677](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201120210356677.png)
 
 
 
@@ -46,7 +46,7 @@ jstack 36565 | grep '0x8ed5'  -C5 --color
    通过ps -mp 进程ID  -o THREAD,tid,time  
    命令查看进程id
 
-![image-20200726124941985](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200726124941985.png)
+![image-20200726124941985](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200726124941985.png)
 
 
 

@@ -14,13 +14,13 @@ tags: [Kafka]
 
 ### kafka工作流程
 
-![image-20200518155036500](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518155036500.png)
+![image-20200518155036500](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518155036500.png)
 
 kafka单独一个topic内，也会进行分区，kafka只能保证单独分区内，消息是有序的.
 
 
 
- ![image-20200914164905228](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200914164905228.png)
+ ![image-20200914164905228](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200914164905228.png)
 
 #### kafka的文件存储
 
@@ -28,29 +28,29 @@ kafka单独一个topic内，也会进行分区，kafka只能保证单独分区�
 
 
 
-![image-20200518174054937](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518174054937.png)
+![image-20200518174054937](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518174054937.png)
 
 .log文件存储的是kafka队列里面的数据
 
 .index 记录的是kafka的某个consumer的
 
-![image-20200518173852677](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518173852677.png)
+![image-20200518173852677](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518173852677.png)
 
-![image-20200518174400952](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518174400952.png)
+![image-20200518174400952](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518174400952.png)
 
 有一个全局的segment list：
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209111755507.png" alt="image-20210209111755507" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209111755507.png" alt="image-20210209111755507" style="zoom:67%;" />
 
 **.log 和 .index 都是以当前segment的第一条消息的offset命名的**。下图为 index和log文件的结构示意图
 
 > .index 文件存储大量的索引信息，  .log文件存储大量的数据信息
 
-![image-20200518191544556](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518191544556.png)
+![image-20200518191544556](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518191544556.png)
 
-![image-20210209112059142](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209112059142.png)
+![image-20210209112059142](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209112059142.png)
 
 由于kafka的消息头，会存储message的长度，所以，然后就能直接读取到相应的数据结尾。
 
@@ -67,7 +67,7 @@ kafka读取日志的顺序：
 
 
 
-![image-20210430111638110](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210430111638110.png)
+![image-20210430111638110](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210430111638110.png)
 
 
 
@@ -274,17 +274,17 @@ bin/kafka-manager
 
 - topic 的 partition出现增加和减少
 
-  - ![image-20210525214613414](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525214613414.png)
+  - ![image-20210525214613414](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210525214613414.png)
 
 - 消费者组中，消费者出现增加和减少
 
-  ![image-20210525214717361](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525214717361.png)
+  ![image-20210525214717361](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210525214717361.png)
 
   由于消费者可以消费多个topic， topic 的数量发生了变化（不常用）
 
   
 
-  ![image-20210525214907538](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525214907538.png)
+  ![image-20210525214907538](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210525214907538.png)
 
 - 触发时机总结：
   - 消费者数量发生变化
@@ -306,7 +306,7 @@ bin/kafka-manager
 
   - 算法公式：
     - n = 分区数量/消费者数量
-    - ![image-20210525220358215](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210525220358215.png)
+    - ![image-20210525220358215](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210525220358215.png)
 
 - RoundRobin轮询策略
 
@@ -331,7 +331,7 @@ bin/kafka-manager
 3、影响消费速度：频繁的Rebalance反而降低了消息的消费速度，大部分时间都在重复消费和Rebalance
 ```
 
-![image-20211013000009386](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013000009386.png)
+![image-20211013000009386](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211013000009386.png)
 
 由于发生rebalance， consumer成员会新生成generation，于是所有的consumer是需要重连topic的partition的。
 
@@ -347,7 +347,7 @@ https://time.geekbang.org/course/intro/100053601
 
 Kafka动态重平衡是如何工作的
 
-![image-20211024204315366](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024204315366.png)
+![image-20211024204315366](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211024204315366.png)
 
 - kafka为了解决动态重平衡问题 使用了比较复杂的重平衡协议 主要由两个子协议构成Group Member Protocal 和 Consumer Embeded Protocol
   - 在 kafka的动态重平衡协议适用场景非常广泛，不仅
@@ -363,9 +363,9 @@ Kafka动态重平衡是如何工作的
 
 
 
-![image-20211024215303994](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024215303994.png)
+![image-20211024215303994](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211024215303994.png)
 
-![image-20211024214516326](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024214516326.png)
+![image-20211024214516326](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211024214516326.png)
 
 1. 对于每个 consumer group， blocker集群上会选出一个对应的 coordinator 用于消费者组管理
 2. 当消费者启动，它们会先找到对应的协调者，然后向他发送 joinGroup的请求。请求中包含了
@@ -374,7 +374,7 @@ Kafka动态重平衡是如何工作的
    3. 协议类型 
    4. 支持的算法 订阅的topic
 3. 协调者收到这个join group请求，就知道哪些消费者需要加入组，coordinator不会立马响应，会将这个请求hold一个超时间隔， 如果这时候 消费者数量不再发生变化，那么就会开启这个kafka的重平衡策略。
-	![image-20211024215453601]	(https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024215453601.png)
+	![image-20211024215453601]	(http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211024215453601.png)
 4. 协调者会将第一个发送 join group请求的 consumer作为leader。 执行一个分区分配算法。 leader 将这个分配结果通过一个 sync group请求发送给 coordinator。其他消费者也会发 sync group请求。但是是空请求。
 5. 发起 sync group 请求后会拿到响应。每个consumer就接收到了各自对应的partition，然后进行 onpartitionassigned()。
 6. 然后 consumer开始 pull 消息
@@ -393,7 +393,7 @@ Kafka动态重平衡是如何工作的
 
 
 
-![image-20211024221418053](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211024221418053.png)
+![image-20211024221418053](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211024221418053.png)
 
 
 
@@ -473,7 +473,7 @@ kafka异步发送的源码
 
 
 
-![image-20201121162444033](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201121162444033.png)
+![image-20201121162444033](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201121162444033.png)
 
 
 
@@ -513,7 +513,7 @@ kafka  producer 发送的核心
 - 负载均衡 （客户端可以决定 数据具体发送到哪个 partition上）
 - 异步/并且批量发送    
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210409002831071.png" alt="image-20210409002831071" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210409002831071.png" alt="image-20210409002831071" style="zoom:50%;" />
 
 kafka 是如何保证 exactly  once，
 
@@ -526,7 +526,7 @@ kafka 是如何保证 exactly  once，
 
 ### KAFKA 对应的api
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210408224940687.png" alt="image-20210408224940687" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210408224940687.png" alt="image-20210408224940687" style="zoom:50%;" />
 
 
 
@@ -637,7 +637,7 @@ kafka 是如何保证 exactly  once，
 
    1. 日志分段记录，单独一个partition中，每1g会新创建
 
-      <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209111755507.png" alt="image-20210209111755507" style="zoom:67%;" />
+      <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209111755507.png" alt="image-20210209111755507" style="zoom:67%;" />
 
       
 
@@ -650,11 +650,11 @@ kafka 是如何保证 exactly  once，
       2. 然后读取到用户态缓冲区，
       3. 然后读取到内核态的socket缓冲区，
       4. 然后通过网卡传输给消费者
-   2. ![image-20210209113227842](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209113227842.png)
+   2. ![image-20210209113227842](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209113227842.png)
    3. KAFKA 的 sendfile 操作实现原理
       1. 减少了内核态和用户态之间的上下文切换
       2. 
-   4. ![image-20210209114402905](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210209114402905.png)
+   4. ![image-20210209114402905](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210209114402905.png)
 
 
 

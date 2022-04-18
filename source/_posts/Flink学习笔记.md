@@ -7,7 +7,7 @@ tags: [大数据]
 ---
 ## Flink的世界观
 
-![image-20201220134317825](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220134317825.png)
+![image-20201220134317825](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201220134317825.png)
 
 Flink的世界观一切都是流。
 
@@ -18,7 +18,7 @@ Flink的世界观一切都是流。
 
 ## Flink分层API
 
-![image-20201220135523650](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220135523650.png)
+![image-20201220135523650](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201220135523650.png)
 
 Flink 分层
 
@@ -30,7 +30,7 @@ Flink 分层
 
 ## 有状态的流式处理
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220182002249.png" alt="image-20201220182002249" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201220182002249.png" alt="image-20201220182002249" style="zoom:50%;" />
 
 当我们进行一个状态计算的时候，比方说我们统计一个pv，用户过来一次，我存count+1， 放到内存中。 一个过来，我内存中+1，
 
@@ -44,9 +44,9 @@ Flink 分层
 
 ## 有状态的流式处理
 
-![image-20201220182506650](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220182506650.png)
+![image-20201220182506650](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201220182506650.png)
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220193727095.png" alt="image-20201220193727095" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201220193727095.png" alt="image-20201220193727095" style="zoom:50%;" />
 
 ### Lambda架构 是什么
 
@@ -87,7 +87,7 @@ Flink 分层
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201220202636957.png" alt="image-20201220202636957" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201220202636957.png" alt="image-20201220202636957" style="zoom:50%;" />
 
 ### Flink 运行时的组件
 
@@ -159,7 +159,7 @@ ResourceManager可以和 YARN 或 K8s  standalone等做适配。 并且
 
 #### Flink 任务提交的流程
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222222109616.png" alt="image-20201222222109616" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201222222109616.png" alt="image-20201222222109616" style="zoom:50%;" />
 
 Q1： 为啥我们要启动Jobmanager，其实我们每个flink-job 都对应一个jobmanager， 它是一一对应的。
 
@@ -175,11 +175,11 @@ Q2:  并行的任务，需要占用多少个slot。
 
 这个图上的 ResourceManager  是yarn 的resourcemanager
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222223015179.png" alt="image-20201222223015179" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201222223015179.png" alt="image-20201222223015179" style="zoom:50%;" />
 
 #### 任务调度的原理
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222222939932.png" alt="image-20201222222939932" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201222222939932.png" alt="image-20201222222939932" style="zoom:50%;" />
 
 
 
@@ -191,7 +191,7 @@ Q2:  并行的任务，需要占用多少个slot。
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222225014978.png" alt="image-20201222225014978" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201222225014978.png" alt="image-20201222225014978" style="zoom: 67%;" />
 
 > slot什么情况下可合并：
 >
@@ -217,9 +217,9 @@ Q2:  并行的任务，需要占用多少个slot。
 
 一个特定算子的 子任务（subtask）的个数被称之为其并行度（parallelism）。一般情况下，一个 stream 的并行度，可以认为就是其所有算子中最大的并行度。
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222225241307.png" alt="image-20201222225241307" style="zoom:50%;" />![image-20201222230133112](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222230133112.png)
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201222225241307.png" alt="image-20201222225241307" style="zoom:50%;" />![image-20201222230133112](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201222230133112.png)
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201222230148934.png" alt="image-20201222230148934" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201222230148934.png" alt="image-20201222230148934" style="zoom:50%;" />
 
 Flink 中每一个 TaskManager 都是一个JVM进程，它可能会在独立的线程上执
 
@@ -229,7 +229,7 @@ Flink 中每一个 TaskManager 都是一个JVM进程，它可能会在独立的�
 
 ### Slot 子任务分配
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223104512500.png" alt="image-20201223104512500" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223104512500.png" alt="image-20201223104512500" style="zoom:50%;" />
 
 Q1: 为什么 C 和 B能共享一个Slot？
 
@@ -239,7 +239,7 @@ A1：因为slot就是一个线程，我可以先执行玩B后 再执行C 。 然
 
 #### 程序与数据流（DataFlow）
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223111253912.png" alt="image-20201223111253912" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223111253912.png" alt="image-20201223111253912" style="zoom: 67%;" />
 
 - 所有的Flink程序都是由三部分组成的： Source 、Transformation 和 Sink。
 - Source 负责读取数据源，Transformation 利用各种算子进行处理加工，Sink 负责输出。
@@ -260,7 +260,7 @@ A1：因为slot就是一个线程，我可以先执行玩B后 再执行C 。 然
 
 - TaskManager 上部署 Task 后形成的“图”，并不是一个具体的数据结构。
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223113023464.png" alt="image-20201223113023464" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223113023464.png" alt="image-20201223113023464" style="zoom:67%;" />
 
 Q1： 为何 keyby 不作为一个计算算子？
 
@@ -279,7 +279,7 @@ A1：  因为 keyBy 实际上是按key的hash 进行一个重分区的操作而�
   - Redistributing：stream的分区会发生改变。每一个算子的子任务依据所选择的transformation发送数据到不同的目标任务。
     - 例如，keyBy 基于 hashCode 重分区、而 broadcast 和 rebalance 会随机重新分区，这些算子都会引起redistribute过程，而 **redistribute 过程就类似于 Spark 中的 shuffle 过程**。
 
-  ![image-20201223114506719](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223114506719.png)
+  ![image-20201223114506719](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223114506719.png)
 
   - 图中 forward   就是 one-to-one   （one-to-one 的slot才能合并） （类似spark 的窄分区）
   - hash  是基于hashcode进行重分区，是redistributing。 （类似spark的宽分区）
@@ -294,7 +294,7 @@ A1：  因为 keyBy 实际上是按key的hash 进行一个重分区的操作而�
 - 将两个task进行合并的好处：可以  节省了两个task之间的数据通信传输开销，不用序列化了。 条件就是 必须是**并行度相同的one-to-one操作，并且必须要是在同一个slot共享组里**
 - 使用 disableOperatorChaining 或者 那么就不会进行 task的合并。
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223115016900.png" alt="image-20201223115016900" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223115016900.png" alt="image-20201223115016900" style="zoom: 67%;" />
 
 ## Flink流处理计算
 
@@ -411,11 +411,11 @@ public class TransformTest3_Reduce {
 
 #### 4. Flink 的  **Split** **和** Select
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223222431471.png" alt="image-20201223222431471" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223222431471.png" alt="image-20201223222431471" style="zoom:50%;" />
 
 ​		**DataStream** **→** **SplitStream**：根据某些特征把一个 DataStream 拆分成两个或者多个 DataStream。
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223222908480.png" alt="image-20201223222908480" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223222908480.png" alt="image-20201223222908480" style="zoom:50%;" />
 
 ​		**SplitStream** **→** **DataStream** ：从一个 SplitStream 中获取一个或者多个DataStream。
 
@@ -423,15 +423,15 @@ public class TransformTest3_Reduce {
 
 #### 5. Flink的**Connect** **和** **CoMap**
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223224215315.png" alt="image-20201223224215315" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223224215315.png" alt="image-20201223224215315" style="zoom:50%;" />
 
 #### 6. Flink 的 Union
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223224020726.png" alt="image-20201223224020726" style="zoom:50%;" /
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223224020726.png" alt="image-20201223224020726" style="zoom:50%;" /
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201223224247502.png" alt="image-20201223224247502" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201223224247502.png" alt="image-20201223224247502" style="zoom:50%;" />
 
 ##### union 和  comap- connect 的不同：  
 
@@ -624,7 +624,7 @@ window 窗口分配器
 
 ### Flink 的状态编程
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201224233043826.png" alt="image-20201224233043826" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201224233043826.png" alt="image-20201224233043826" style="zoom:50%;" />
 
 Flink的状态分成两大类
 
@@ -645,7 +645,7 @@ Flink的状态分成两大类
 
   - 类似 reduce， window ，所有在 reduce处理的数据，都能访问到这个状态。 只要在同一个分区，不论key是啥，都是访问同一个状态
 
-  - <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201224234239191.png" alt="image-20201224234239191" style="zoom:50%;" />
+  - <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201224234239191.png" alt="image-20201224234239191" style="zoom:50%;" />
 
   - Flink 为算子状态提供三种基本数据结构：
 
@@ -653,7 +653,7 @@ Flink的状态分成两大类
 
       > 将状态表示为一组数据的列表。主要是为了方便状态重新分配。
     >
-      > ![image-20210408130605309](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210408130605309.png)
+      > ![image-20210408130605309](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210408130605309.png)
     >
       > 假设并行度原本是2，并行度 A1，A2上都有一个size为3的list state。 下一个算子任务并行度调整为3后，那么 B1,B2,B3可以各拿都拿 size为2的 list state。、
 
@@ -710,7 +710,7 @@ Flink的状态分成两大类
 
 - flink 的 jobmanager 会周期性得自动进行保存
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210104193417161.png" alt="image-20210104193417161" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210104193417161.png" alt="image-20210104193417161" style="zoom:67%;" />
 
 
 
@@ -720,7 +720,7 @@ source 会重新去
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105191712936.png" alt="image-20210105191712936" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210105191712936.png" alt="image-20210105191712936" style="zoom:67%;" />
 
 
 
@@ -789,7 +789,7 @@ source 会重新去
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105205855997.png" alt="image-20210105205855997" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210105205855997.png" alt="image-20210105205855997" style="zoom:67%;" />
 
 
 
@@ -803,11 +803,11 @@ source 会重新去
 
 Flink 如何通估 2PC 保证端到端的状态一致性
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105213855496.png" alt="image-20210105213855496" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210105213855496.png" alt="image-20210105213855496" style="zoom:67%;" />
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105215128428.png" alt="image-20210105215128428" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210105215128428.png" alt="image-20210105215128428" style="zoom:50%;" />
 
 下面是只看处理到sink部分
 
@@ -826,7 +826,7 @@ Flink 如何通估 2PC 保证端到端的状态一致性
 
 ## WaterMark的概念
 
-![image-20201231001746191](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201231001746191.png)
+![image-20201231001746191](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201231001746191.png)
 
 
 
@@ -840,7 +840,7 @@ Flink 如何通估 2PC 保证端到端的状态一致性
 >
 > 如果window函数看到  watermark 5 那么代表要触发 1~5 的窗口操作了 （后面假设 kafka数据4 来了，由于它迟到了，就算它作废了）
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201231012505666.png" alt="image-20201231012505666" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201231012505666.png" alt="image-20201231012505666" style="zoom:67%;" />
 
 > 流程
 >
@@ -860,7 +860,7 @@ Flink 如何通估 2PC 保证端到端的状态一致性
 
 不同Task之间 watermark的传递 通过广播来实现，假设Task A 依赖 Task B ,Task C 和 TaskD。 B,C,D 的最小 watermark 为 2，那么 TaskA 就讲 watermark2 广播给 TaskA 的下游。
 
-![image-20201231014349924](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201231014349924.png)
+![image-20201231014349924](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201231014349924.png)
 
 
 
@@ -1047,13 +1047,13 @@ DataStream<Tuple2<Boolean, Row>> resultRetractStream = tableEnv.toRetractStream(
 				 Table dataTable2 =tableEnv.fromDataStream(dataStream,"id,timestamp as ts,temperature");
 ```
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201229234730770.png" alt="image-20201229234730770" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201229234730770.png" alt="image-20201229234730770" style="zoom: 67%;" />
 
 
 
 ### 关系代数和流处理的区别
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230001339707.png" alt="image-20201230001339707"  />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201230001339707.png" alt="image-20201230001339707"  />
 
 
 
@@ -1071,16 +1071,16 @@ DataStream<Tuple2<Boolean, Row>> resultRetractStream = tableEnv.toRetractStream(
 
 动态表和持续查询的流程
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230002217327.png" alt="image-20201230002217327" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201230002217327.png" alt="image-20201230002217327" style="zoom: 67%;" />
 
 	1. 来一条数据，第一个dynamic table 动态表进行更新（以前的数据也会存在着）
 	2. 第一个dynamic table 动态表进行更新后，触发持续查询，更新后面的第二张 动态表
 	3. 第二张动态表更新后更新变化成的流
-	4. ![image-20201230002837357](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230002837357.png)
+	4. ![image-20201230002837357](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201230002837357.png)
 
 对于 restract 流，
 
-![image-20201230003239618](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201230003239618.png)
+![image-20201230003239618](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201230003239618.png)
 
 #### Flink Table 的 GroupWindow
 
@@ -1146,7 +1146,7 @@ Flink 内部的join有两种   window join   和  interval join
 
 ####  窗口连接（ window join ）
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210107162500661.png" alt="image-20210107162500661" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210107162500661.png" alt="image-20210107162500661" style="zoom:50%;" />
 
 window join 一般是将 两条流，在同一个窗口的数据 进行一个笛卡尔积
 
@@ -1156,7 +1156,7 @@ window join 一般是将 两条流，在同一个窗口的数据 进行一个笛
 
 ####  区间连接 （interval join）
 
-![image-20210107163337645](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210107163337645.png)
+![image-20210107163337645](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210107163337645.png)
 
 interval join ，假设  stream a  要 和 stream  b 进行join。
 
@@ -1180,7 +1180,7 @@ b.timestamp ∈ [a.timestamp + lowerBound; a.timestamp + upperBound]
 
 ## Flink 的 监控
 
-![image-20210423173719797](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210423173719797.png)
+![image-20210423173719797](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210423173719797.png)
 
 - gauge
 - histogram ： 给一段时间，这个一段时间做一个详细的指标
@@ -1225,15 +1225,15 @@ JVM的内存问题：
 
 #### Flink 的 jobmanager的内存模型
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210526182444355.png" alt="image-20210526182444355" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210526182444355.png" alt="image-20210526182444355" style="zoom:50%;" />
 
 
 
 #### Flink 的taskmanager 的内存模型
 
-![image-20210526182007925](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210526182007925.png)
+![image-20210526182007925](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210526182007925.png)
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210526182537748.png" alt="image-20210526182537748" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210526182537748.png" alt="image-20210526182537748" style="zoom:50%;" />
 
 
 
@@ -1243,7 +1243,7 @@ JVM的内存问题：
 
 #### 网络传输中的内存管理
 
-![image-20210527172537465](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210527172537465.png)
+![image-20210527172537465](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210527172537465.png)
 
 > 网络上传输的数据会写到 Task 的 InputGate（IG）中，经过 Task 的处理后，再由 Task 
 >
@@ -1311,7 +1311,7 @@ JVM的内存问题：
 >
 > - 反压的过程
 >
-> ![image-20210527173318394](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210527173318394.png)
+> ![image-20210527173318394](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210527173318394.png)
 >
 > 1）记录“A”进入了 Flink 并且被 Task 1 处理。（这里省略了 Netty 接收、反序列化
 >
@@ -1371,7 +1371,7 @@ JVM的内存问题：
 
 Flink  1.13的升级
 
-![image-20210623165438362](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210623165438362.png)
+![image-20210623165438362](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210623165438362.png)
 
 
 

@@ -16,7 +16,7 @@ Log Structured-Merge Tree  日志合并树
 
   
 
-![image-20211018014701605](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018014701605.png)
+![image-20211018014701605](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018014701605.png)
 
 
 
@@ -36,7 +36,7 @@ C0 比较小，全部存储于内存之中，  C1则存储于磁盘之上。
 
 
 
-![image-20201214224313607](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201214224313607.png)
+![image-20201214224313607](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201214224313607.png)
 
 
 

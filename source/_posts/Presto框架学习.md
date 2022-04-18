@@ -14,7 +14,7 @@ Presto  是一个开源的分布式SQL查询引擎，数据量支持GB 到 PB字
 
 #### Presto的概念图
 
-![image-20200713165501201](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200713165501201.png)
+![image-20200713165501201](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200713165501201.png)
 
 - Presto 本身是不存储数据的，它通过 Hive 的 Metastore来对接Hive。
 

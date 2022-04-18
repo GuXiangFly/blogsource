@@ -108,7 +108,7 @@ ls 是监听子节点
 
 
 
-![image-20201215155850788](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215155850788.png)
+![image-20201215155850788](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201215155850788.png)
 
  假设有1,2,3三个服务器
 ![zookeeper集群示意图](https://i.loli.net/2019/11/11/Yq57jkirITHSEtd.png)
@@ -126,11 +126,11 @@ leader节点进行write，要进行二阶段提交
 
 ### 集群启动时的leader节点
 
-![image-20201215160808488](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215160808488.png)
+![image-20201215160808488](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201215160808488.png)
 
 ### 服务器运行时的leader选举
 
-![image-20201215161355634](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201215161355634.png)
+![image-20201215161355634](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201215161355634.png)
 
 
 

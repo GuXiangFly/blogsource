@@ -124,7 +124,7 @@ OOP （面向对象编程）
 
 ## DDD的落地
 
-![image-20201123201613516](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201123201613516.png)
+![image-20201123201613516](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201123201613516.png)
 
 
 
@@ -156,6 +156,6 @@ OOP （面向对象编程）
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201123205429335.png" alt="image-20201123205429335" style="zoom: 50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201123205429335.png" alt="image-20201123205429335" style="zoom: 50%;" />
 
 - - 实体里不仅包含属性，还包括关系，  类似我们一个用户

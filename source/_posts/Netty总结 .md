@@ -171,7 +171,7 @@ NIO中,  Channel 主要有以下的几种
 
 Selector 开发
 
-![image-20201012143439322](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201012143439322.png)
+![image-20201012143439322](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201012143439322.png)
 
 ```
 1.当客户端连接时，会通过ServerSocketChannel 得到 SocketChannel
@@ -213,7 +213,7 @@ Selector 开发
 
   - 通过多路复用技术，我那么将 client和客户端的连接，存放在一个queue或者数组中，
 
-  ![image-20201210015748570](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201210015748570.png)
+  ![image-20201210015748570](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201210015748570.png)
 
 
 
@@ -236,7 +236,7 @@ Selector 开发
   > 当并发数很大，就会创建大量的线程，占用很大系统资源
   > 连接创建后，如果当前线程暂时没有数据可读，该线程会阻塞在read 操作，造成线程资源浪费
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201210011920654.png" alt="image-20201210011920654" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201210011920654.png" alt="image-20201210011920654" style="zoom:67%;" />
 
 #### Reactor 模式
 
@@ -246,7 +246,7 @@ Selector 开发
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20201210012206343.png" alt="image-20201210012206343" style="zoom: 50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201210012206343.png" alt="image-20201210012206343" style="zoom: 50%;" />
 
 
 

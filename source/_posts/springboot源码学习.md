@@ -10,13 +10,13 @@ tags: [SpringBoot,前端]
 
 1. 从 run方法进入
 
-![image-20200709110209295](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200709110209295.png)
+![image-20200709110209295](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200709110209295.png)
 
 
 
 2. 点进去后能发现 先是创建一个 SpringApplication 对象，然后再run
 
-![image-20200709111457847](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200709111457847.png)
+![image-20200709111457847](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200709111457847.png)
 
 ----
 
@@ -53,17 +53,17 @@ tags: [SpringBoot,前端]
 
 
 
-![image-20200709112237201](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200709112237201.png)
+![image-20200709112237201](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200709112237201.png)
 
 这个是被加载的 ApplicationContextInitializer
 
-![image-20200709113006534](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200709113006534.png)
+![image-20200709113006534](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200709113006534.png)
 
 
 
 这个是被加载的 ApplicationListener
 
-![image-20200709113423428](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200709113423428.png)
+![image-20200709113423428](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200709113423428.png)
 
 
 
@@ -142,9 +142,9 @@ Spring内部有非常多的beanpostconstruct，整个bean的生命周期都非�
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200925200833269.png" alt="image-20200925200833269" style="zoom:33%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200925200833269.png" alt="image-20200925200833269" style="zoom:33%;" />
 
-![image-20200925201436402](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200925201436402.png)
+![image-20200925201436402](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200925201436402.png)
 
 
 
@@ -294,7 +294,7 @@ public class PlusCalculator {
 }
 ```
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200925184532725.png" alt="image-20200925184532725" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200925184532725.png" alt="image-20200925184532725" style="zoom:50%;" />
 
 Spring AOP的代理对象，是在spring初始化的时候，就创建出来了，如果springBean的AOP代理对象被创建出来并且放到singletonObjects（单例对象池）里面，那么未被代理的对象，就不会放到 singletonobjects里面了。
 
@@ -304,9 +304,9 @@ Spring使用AOP的步骤
 
 1. spring 初始化的时候，调用了无参构造方法，无参构造方法会首先调用父类无参构造方法
 
-   ![image-20200925193304041](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200925193304041.png)
+   ![image-20200925193304041](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200925193304041.png)
 
-   ![image-20200925193418027](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200925193418027.png)
+   ![image-20200925193418027](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200925193418027.png)
 
 ```
 

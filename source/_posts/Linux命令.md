@@ -124,7 +124,7 @@ pidstat -u 1 -p 进程号 （这个一般配合 ps -ef|grep java  来查看进�
 
 >  一般vmstat工具的使用是通过两个数字参数来完成，第一个参数是采样的时间间隔，单位为秒， 第二个参数是采样的次数
 
-![image-20211215152621037](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211215152621037.png)
+![image-20211215152621037](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211215152621037.png)
 
 - Procs
 
@@ -135,7 +135,7 @@ pidstat -u 1 -p 进程号 （这个一般配合 ps -ef|grep java  来查看进�
 
   - us:用户进程消耗CPU时间的百分比
 
-  ![image-20211215153100937](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211215153100937.png)
+  ![image-20211215153100937](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211215153100937.png)
 
 如何查看整机性能：
 

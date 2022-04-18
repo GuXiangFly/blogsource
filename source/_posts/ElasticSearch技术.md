@@ -15,7 +15,7 @@ ES有两个端口 一个是 Transport 的端口 9300
 Relational DB -> DataBases -> Tables ->Rows -> Columns
 ElasticSearch -> Indices   -> Types  ->Documents -> Fields
 ```
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210318111049116.png" alt="image-20210318111049116" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210318111049116.png" alt="image-20210318111049116" style="zoom:67%;" />
 
 ES 中的 Indices(指数 index)  对应为  关系型数据库中的  DataBases
 Types  对应为  Tables
@@ -365,7 +365,7 @@ ik_max_word 为最细粒度切分
 
 
 
-![image-20200628235211995](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200628235211995.png)
+![image-20200628235211995](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200628235211995.png)
 
 
 
@@ -419,19 +419,19 @@ GET /lib2/_settings   ## 查看索引设置
 
 假设文档集中包含5个文档
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119180506932.png" alt="image-20210119180506932" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119180506932.png" alt="image-20210119180506932" style="zoom: 67%;" />
 
 
 
 将这5个文档进行倒排索引后
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119190756683.png" alt="image-20210119190756683" style="zoom: 67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119190756683.png" alt="image-20210119190756683" style="zoom: 67%;" />
 
 ##### 其他能支持的功能
 
 1. 倒排索引还能支持存储每个单词在某个文档中出现的频率
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119191010437.png" alt="image-20210119191010437" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119191010437.png" alt="image-20210119191010437" style="zoom:67%;" />
 
 2. 倒排索引还可以记录单词在某个文档出现的位置信息
 
@@ -444,7 +444,7 @@ GET /lib2/_settings   ## 查看索引设置
 
 如果我们**不建立标准化规则**，文档倒排索引后的结果如下
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119191529361.png" alt="image-20210119191529361" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119191529361.png" alt="image-20210119191529361" style="zoom:67%;" />
 
 
 
@@ -456,7 +456,7 @@ GET /lib2/_settings   ## 查看索引设置
 - 不区分单复数
 - 意思相近的也能能直接进行索引
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119192244699.png" alt="image-20210119192244699" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119192244699.png" alt="image-20210119192244699" style="zoom:67%;" />
 
 
 
@@ -464,13 +464,13 @@ GET /lib2/_settings   ## 查看索引设置
 
 对上面**不使用标准化规则**的倒排索引进行搜索：  quick  brown
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119191600042.png" alt="image-20210119191600042" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119191600042.png" alt="image-20210119191600042" style="zoom:67%;" />
 
 在搜索中有个相关度分数， doc_1 的搜索分数比 Doc_2 的分数高
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119203351419.png" alt="image-20210119203351419" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119203351419.png" alt="image-20210119203351419" style="zoom:67%;" />
 
 
 
@@ -557,7 +557,7 @@ PUT  /lib/user/1
 }
 ```
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119154423816.png" alt="image-20210119154423816" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119154423816.png" alt="image-20210119154423816" style="zoom:50%;" />
 
 ##### 2.通过POST 指定字段方式进行修改
 
@@ -570,7 +570,7 @@ POST  /lib/user/1/_update
 }
 ```
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119154948562.png" alt="image-20210119154948562" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119154948562.png" alt="image-20210119154948562" style="zoom:50%;" />
 
 
 
@@ -689,7 +689,7 @@ elasticsearch的版本控制是通过乐观锁实现的。
 
 通过put覆盖更新后，文档会产生一个version，当前的version是3
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119170434763.png" alt="image-20210119170434763" style="zoom: 33%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119170434763.png" alt="image-20210119170434763" style="zoom: 33%;" />
 
 
 
@@ -697,7 +697,7 @@ elasticsearch的版本控制是通过乐观锁实现的。
 
 改为`PUT  /lib/user/3?version=3` 就能修改成功
 
-![image-20210119170559505](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119170559505.png)
+![image-20210119170559505](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119170559505.png)
 
 
 
@@ -716,9 +716,9 @@ PUT  /lib/user/3?version=3&version_type=external
 }
 ```
 
-![image-20210119171357818](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119171357818.png)
+![image-20210119171357818](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119171357818.png)
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119171629914.png" alt="image-20210119171629914" style="zoom: 33%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119171629914.png" alt="image-20210119171629914" style="zoom: 33%;" />
 
 使用外部版本控制，需要将
 
@@ -1058,20 +1058,20 @@ POST my_movies/_search
 
 对于上面的演员，**其实没有 keanu hopper这个人**，但是我们也搜索到了相应的document 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210128174228387.png" alt="image-20210128174228387" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210128174228387.png" alt="image-20210128174228387" style="zoom:50%;" />
 
 - 为什么我们会搜到不需要的结果？
 
   - 存储时，对文档内部的对象数组，是没有设置查询边界的，对于list的json格式被设置为 key:[“value1”,“value2”] 的结构
   - 当对内部对象为list的多个字段查询时会导致问题
   - 使用 Nested Data  Type 能解决这个问题
-  - <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210128175549949.png" alt="image-20210128175549949" style="zoom:50%;" />
+  - <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210128175549949.png" alt="image-20210128175549949" style="zoom:50%;" />
 
   
 
   ###### 如何使用 Nested 来解决对象存储问题
 
-  ![image-20210128175738106](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210128175738106.png)
+  ![image-20210128175738106](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210128175738106.png)
 
 - nested 数据类型是允许对象数组中的对象被单独索引的。不用放在一起变成数组
 - 使用 properties 和  nested 关键字，将所有的 actors 索引到多个分隔的文档中
@@ -1331,7 +1331,7 @@ GET /lib3/user/_search
 
 将短语进行分词， 组成短语，然后来查询。
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210119223256152.png" alt="image-20210119223256152" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210119223256152.png" alt="image-20210119223256152" style="zoom:67%;" />
 
 
 
@@ -1562,14 +1562,14 @@ should
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210316111553121.png" alt="image-20210316111553121" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210316111553121.png" alt="image-20210316111553121" style="zoom:67%;" />
 
 - Discovery (发现)：用来发现，es集群中，用来发现集群中其他的节点。每个es节点都有discovery组件
 - 
 
 
 
-![image-20210316210817612](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210316210817612.png)
+![image-20210316210817612](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210316210817612.png)
 
 - es集群特点:
   - es集群有master节点，和slave节点（一个master，多个slave节点）
@@ -1577,7 +1577,7 @@ should
   - slave也每隔1秒给master节点发起心跳检测，检测master是否存活，（选主算法）
   - 发起一个文档写入，文档最终被写入index的主分片中，副本分片能读，但是不能进行写。
 
-![image-20210317152841932](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210317152841932.png)
+![image-20210317152841932](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210317152841932.png)
 
 节点有三种角色：1.master主节点(一般生产环境下不存数据，只放元数据)    2.slave节点(存储数据)     3.协调节点(默认每个节点都是一个协调节点)
 
@@ -1641,7 +1641,7 @@ should
 
 #### 索引添加的区别
 
-![image-20210323212602758](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210323212602758.png)
+![image-20210323212602758](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210323212602758.png)
 
 - **es的索引和文档一旦写入，就不能进行修改**
 - 优势
@@ -1654,7 +1654,7 @@ should
 
 
 
-![image-20210324221523295](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210324221523295.png)
+![image-20210324221523295](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210324221523295.png)
 
 
 
@@ -1662,15 +1662,15 @@ should
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210327163754776.png" alt="image-20210327163754776" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210327163754776.png" alt="image-20210327163754776" style="zoom:67%;" />
 
-![image-20210327163937384](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210327163937384.png)
+![image-20210327163937384](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210327163937384.png)
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210330144853833.png" alt="image-20210330144853833" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210330144853833.png" alt="image-20210330144853833" style="zoom:50%;" />
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210327150459957.png" alt="image-20210327150459957" style="zoom: 50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210327150459957.png" alt="image-20210327150459957" style="zoom: 50%;" />
 
 
 

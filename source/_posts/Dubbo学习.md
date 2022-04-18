@@ -9,11 +9,11 @@ tags: [Java]
 
 RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通信方式，他是一种技术的思想，而不是规范。它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，编写的调用代码基本相同。
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211122151456131.png" alt="image-20211122151456131" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211122151456131.png" alt="image-20211122151456131" style="zoom:50%;" />
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211122151535452.png" alt="image-20211122151535452" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211122151535452.png" alt="image-20211122151535452" style="zoom:50%;" />
 
 
 
@@ -21,7 +21,7 @@ RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通�
 
 ### Dubbo架构
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211122153532450.png" alt="image-20211122153532450" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211122153532450.png" alt="image-20211122153532450" style="zoom:50%;" />
 
 - 服务提供者（Provider）：暴露服务的服务提供方，服务提供者在启动时，向注册中心注册自己提供的服务。
 
@@ -49,7 +49,7 @@ dubbo在zookeeper挂了的情况下能不能
 
 ### zookeeper的负载均衡策略
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211222151226322.png" alt="image-20211222151226322" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211222151226322.png" alt="image-20211222151226322" style="zoom:50%;" />
 
 **Random LoadBalance**
 
@@ -161,7 +161,7 @@ Hystrix 旨在通过控制那些访问远程系统、服务和第三方库的节
 
 ## 1. RPC原理
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211222155132753.png" alt="image-20211222155132753" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211222155132753.png" alt="image-20211222155132753" style="zoom:50%;" />
 
 ```
 一次完整的RPC调用流程（同步调用，异步另说）如下： 
@@ -179,7 +179,7 @@ RPC框架的目标就是要2~8这些步骤都封装起来，这些细节对用�
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211222160852369.png" alt="image-20211222160852369" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211222160852369.png" alt="image-20211222160852369" />
 
 
 
@@ -189,7 +189,7 @@ RPC框架的目标就是要2~8这些步骤都封装起来，这些细节对用�
 
 ### Netty 的模型
 
-![image-20220112115234929](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20220112115234929.png)
+![image-20220112115234929](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220112115234929.png)
 
 
 

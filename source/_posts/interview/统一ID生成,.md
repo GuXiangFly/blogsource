@@ -1,6 +1,6 @@
 分布式ID 的生成系统
 
-![image-20211103131645150](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211103131645150.png)
+![image-20211103131645150](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211103131645150.png)
 
 
 
@@ -12,7 +12,7 @@
 
 SnowFlake是Twitter公司采用的一种算法，目的是在分布式系统中产生全局唯一且趋势递增的ID。
 
-![image-20211107011502852](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211107011502852.png)
+![image-20211107011502852](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211107011502852.png)
 
 1. 第一位  占用1bit，其值始终是0，没有实际作用。 
 2. 时间戳   占用41bit，精确到毫秒，总共可以容纳约69年的时间。 
@@ -189,7 +189,7 @@ https://www.bilibili.com/video/BV1Bh411h7FP?from=search&seid=343735268214494519&
 
 ### 使用数据库的自增ID
 
-![image-20211107005530085](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211107005530085.png)
+![image-20211107005530085](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211107005530085.png)
 
 
 

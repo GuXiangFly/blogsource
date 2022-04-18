@@ -38,7 +38,7 @@ java -jar arthas-boot.jar
 - reset  重置类的增强，但是在arthas服务器关闭的时候，会自动重置所有的类
 - session  查看单签的session
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200624162639157.png" alt="image-20200624162639157" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200624162639157.png" alt="image-20200624162639157" style="zoom:50%;" />
 
 - quit   退出当前的arthas的session
 - stop  将整个arthas服务关闭，退出全部session
@@ -47,7 +47,7 @@ java -jar arthas-boot.jar
 
 - keymap   查看arthas快捷键
 
-![image-20200624165223733](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200624165223733.png)
+![image-20200624165223733](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200624165223733.png)
 
 
 
@@ -55,7 +55,7 @@ java -jar arthas-boot.jar
 
 - dashboard使用
 
-![image-20200624193235914](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200624193235914.png)
+![image-20200624193235914](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200624193235914.png)
 
 ```
 

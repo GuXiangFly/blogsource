@@ -8,7 +8,7 @@ tags: [数据结构与算法]
 
 Thrift
 
-![image-20211202193109771](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202193109771.png)
+![image-20211202193109771](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202193109771.png)
 
 
 
@@ -18,7 +18,7 @@ thrift 支持的类型
 
 
 
-![image-20211202193955217](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202193955217.png)
+![image-20211202193955217](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202193955217.png)
 
 
 
@@ -40,7 +40,7 @@ namespace java   com.test.thrfit.demo
 
 代表如果生成java代码的话，这个java代码会在 com.test.thrfit.demo 这个包下
 
-![image-20211202200023451](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200023451.png)
+![image-20211202200023451](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200023451.png)
 
 
 
@@ -50,7 +50,7 @@ namespace java   com.test.thrfit.demo
 
 ### 枚举的定义
 
-![image-20211202200452829](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200452829.png)
+![image-20211202200452829](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200452829.png)
 
 
 
@@ -58,7 +58,7 @@ namespace java   com.test.thrfit.demo
 
 ### 异常定义
 
-![image-20211202200513182](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200513182.png)
+![image-20211202200513182](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200513182.png)
 
 
 
@@ -66,7 +66,7 @@ namespace java   com.test.thrfit.demo
 
 ### 类型定义
 
-![image-20211202200628290](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200628290.png)
+![image-20211202200628290](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200628290.png)
 
 
 
@@ -76,13 +76,13 @@ namespace java   com.test.thrfit.demo
 
 ### 常量(const)
 
-![image-20211202200705656](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200705656.png)
+![image-20211202200705656](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200705656.png)
 
 
 
 
 
-![image-20211202200759315](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200759315.png)
+![image-20211202200759315](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200759315.png)
 
 
 
@@ -90,7 +90,7 @@ namespace java   com.test.thrfit.demo
 
 代表生成的java代码会
 
-![image-20211202200823331](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200823331.png)
+![image-20211202200823331](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200823331.png)
 
 
 
@@ -100,4 +100,4 @@ namespace java   com.test.thrfit.demo
 
 ### 可选与必选
 
-![image-20211202200924137](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211202200924137.png)
+![image-20211202200924137](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200924137.png)

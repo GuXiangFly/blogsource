@@ -554,7 +554,7 @@ PROPAGATION_NESTED
 
 ### 实例化与初始化
 
-![image-20210304211521124](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210304211521124.png)
+![image-20210304211521124](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210304211521124.png)
 
 从刚开始准备实例化对象，到最终完成 bean的初始化分为3步
 
@@ -587,7 +587,7 @@ spring的生命周期流程
 
 
 
-![image-20210309215926865](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309215926865.png)
+![image-20210309215926865](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210309215926865.png)
 
 
 
@@ -700,7 +700,7 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
       defaultListableBeanFactory 里面有 beandefinitionmap
 
-      <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309224409378.png" alt="image-20210309224409378" style="zoom:67%;" />
+      <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210309224409378.png" alt="image-20210309224409378" style="zoom:67%;" />
 
 2. 通过BeanFactory读取配置文件 loadBeanDefinitions   (在上面源码处理完成)
 
@@ -762,7 +762,7 @@ public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
 首先我们明确， Bean A的生命周期 包括有 实例化A 和 初始化A
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210310132535166.png" alt="image-20210310132535166" style="zoom:67%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210310132535166.png" alt="image-20210310132535166" style="zoom:67%;" />
 
 解决办法：三级缓存
 
@@ -1035,7 +1035,7 @@ getEarlyBeanReference的代码
 
 springMVC流程
 
-![image-20211013144942499](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013144942499.png)
+![image-20211013144942499](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211013144942499.png)
 
 - 客户端通过url发送请求
 - 核心控制器Dispatcher Servlet接收到请求，通过系统或自定义的映射器配置找到对应的handler，并将url映射的控制器controller返回给核心控制器。
@@ -1052,25 +1052,25 @@ springMVC流程
 
 Spring AOP
 
-![image-20211028104845716](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028104845716.png)
+![image-20211028104845716](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211028104845716.png)
 
 
 
 
 
-![image-20211028105647448](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028105647448.png)
+![image-20211028105647448](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211028105647448.png)
 
-![image-20211028105826508](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028105826508.png)
+![image-20211028105826508](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211028105826508.png)
 
-![image-20211028141930959](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028141930959.png)
+![image-20211028141930959](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211028141930959.png)
 
-![image-20211028144615524](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028144615524.png)
-
-
+![image-20211028144615524](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211028144615524.png)
 
 
 
-![image-20211028145555900](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211028145555900.png)
+
+
+![image-20211028145555900](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211028145555900.png)
 
 
 
@@ -1078,7 +1078,7 @@ Spring AOP
 
 ### Spring AOP
 
-![image-20210309215926865](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210309215926865.png)
+![image-20210309215926865](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210309215926865.png)
 
 在填充属性之后， 使用  afterpropertiesset 进行初始化， 初始化后会进行 AOP
 

@@ -16,7 +16,7 @@ tags: [paper]
   　　如图，是阿里的不同业务中数据访问分布情况，大量的数据访问只集中在少部分的热点数据中。在平常的情况下，百分之五十的用户访问请求只是针对其中百分之一的数据，在一些极端的情况下，当新产品发售后，大量的粉丝疯狂进行抢购下单，业务的访问量基本都聚集在某一小部分数据上，会出现百分之九十的用户请求针对其中百分之一的数据。
   ```
 
-  ![image-20211018010808873](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018010808873.png)
+  ![image-20211018010808873](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018010808873.png)
 
 
 
@@ -44,7 +44,7 @@ tags: [paper]
 
 　　当更新的数据项是头指针指向的热数据项时，因为要修改前一个数据项的next指针，需要遍历整个环来获取头节点的前一项。如图，遍历得到热数据的前一项需要花费大量的内存访问开销。论文在这种情况下，更新的只是前一项的计数器，其他项的计数器不变，这样可以使得头指针可以在后面的策略调整中直接指向热数据的前一项，使得对热数据的更新需要的内存访问操作就会减少。
 
-![image-20211018011152018](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018011152018.png)
+![image-20211018011152018](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018011152018.png)
 
 ### Rehash过程
 
@@ -52,19 +52,19 @@ tags: [paper]
 
 　1. 初始化 ——首先创建线程来专门处理rehash操作，初始化一个2倍大小的散列表，复用tag的最高一位来进行索引，将原先的一个环拆分成了两个环。根据tag范围对数据项进行划分。假设tag最大值为T，tag范围为[0,T)，则两个新的头指针对应tag范围为[0,T/2)和[T/2,T)。然后该线程创建一个rehash node，里面包含2个rehash child item，作为2个新环的头，它的格式和data item一样，但是tag值分别是0和T/2。
 
-![image-20211018010955457](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018010955457.png)
+![image-20211018010955457](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018010955457.png)
 
 　2. 分割——接下来需要分割原有的环到2个新的环。如图，因为itemB和E是tag的范围边界，所以线程会将两个rehash item节点分别插入到itemB和E之前。到目前为止，已经在逻辑上将冲突环一分为二。
 
 3. 删除——最后一步，将每一个环中首尾两部分连接在一起。此外，还有一些收尾工作，包括旧哈希表的回收、以及rehash节点的删除回收等。需要注意的是，在完成删除操作之前，要确保所有对旧哈希表的访问已经结束。只有rehash线程会阻塞一段时间。
 
-![image-20211018011035073](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018011035073.png)
+![image-20211018011035073](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018011035073.png)
 
 ### 数据证明
 
 在一台内存容量为32GB的服务器上测试的，测试的时候使用YCSB提供5种工作负载，默认情况下，使用64个线程在两亿五千万个键值对测试负载B，在测试负载中，有百分之97.8的操作是针对其中百分只1的数据，百分之99.8的操作是针对10%的数据，
 
-![image-20211018011253219](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018011253219.png)
+![image-20211018011253219](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018011253219.png)
 
 Deployment
 

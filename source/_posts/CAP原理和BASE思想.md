@@ -15,7 +15,7 @@ tags: [redis,分布式技术]
 
 
 
-![image-20210520113718821](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210520113718821.png)
+![image-20210520113718821](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210520113718821.png)
 
 
 

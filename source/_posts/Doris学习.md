@@ -140,7 +140,7 @@ mysql> insert into site_visit values(1,1,'name1',20);
 
 结果
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210104172415851.png" alt="image-20210104172415851" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210104172415851.png" alt="image-20210104172415851" style="zoom:50%;" />
 
 #### 2.UNIQUE KEY
 
@@ -195,7 +195,7 @@ mysql> insert into session_data values(2,1,'shanghai','www.111.com');
 
 查询结果
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210105105715291.png" alt="image-20210105105715291" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210105105715291.png" alt="image-20210105105715291" style="zoom:50%;" />
 
 
 
@@ -215,7 +215,7 @@ mysql> alter table session_data add rollup rollup_city_ip(city,ip);
 
 （3）创建完毕后，再次查看表结构
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/wpsQrLRZT.jpg" alt="img" style="zoom:50%;" /> 
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/wpsQrLRZT.jpg" alt="img" style="zoom:50%;" /> 
 
 （4）然后可以通过explain查看执行计划，是否使用到了rollup
 
@@ -225,14 +225,14 @@ select ip from session_data where city = 'shanghai'
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/wpshdPMR1.jpg" alt="img" style="zoom: 33%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/wpshdPMR1.jpg" alt="img" style="zoom: 33%;" />
 
 
 
 
 
 # Doris存储文件格式优化
-![image-20211018015629126](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211018015629126.png)
+![image-20211018015629126](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211018015629126.png)
 
 文件包括：
 

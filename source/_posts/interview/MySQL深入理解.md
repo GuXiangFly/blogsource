@@ -309,7 +309,7 @@ B+ 树  高度为2的时候 可以存储  两万多条数据  高度为3  可以
 
 
 
-![image-20210120172350884](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210120172350884.png)
+![image-20210120172350884](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210120172350884.png)
 
 
 
@@ -319,17 +319,17 @@ B+ 树  高度为2的时候 可以存储  两万多条数据  高度为3  可以
 
 - 脏读（读取到了其他事务没有提交的数据）
 
-![image-20211013105242007](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013105242007.png)
+![image-20211013105242007](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211013105242007.png)
 
 
 
 - 不可重复读（一个当前事务前后两次读取到的数据不一致）
 
-  ![image-20211013110101575](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013110101575.png)
+  ![image-20211013110101575](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211013110101575.png)
 
 - 幻读（一个事务前后两次读取到的数据量不一致，新增了或者减少了）
 
-![image-20211013102946831](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211013102946831.png)
+![image-20211013102946831](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211013102946831.png)
 
 innodb的repeatable read 部分解决了幻读，但还是有可能出现幻读？当一个事务里面既出现了快照读，又出现当前读的时候就有可能会出现幻读。当然，只要把语句给改成都是当前读或者都是快照读就能解决幻读的问题了。
 
@@ -340,7 +340,7 @@ innodb的repeatable read 部分解决了幻读，但还是有可能出现幻读�
 
 ACID
 
-![image-20211015093852322](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015093852322.png)
+![image-20211015093852322](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211015093852322.png)
 
 ## mysql事务实现原理
 
@@ -360,9 +360,9 @@ ACID
     ```
 - 排它锁
     - select * from table for update
-    ![image-20211029000634223](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211029000634223.png)
+    ![image-20211029000634223](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211029000634223.png)
 
-![image-20211029002746558](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211029002746558.png)
+![image-20211029002746558](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211029002746558.png)
 
 - 意向锁
   - 意向共享锁---(in)
@@ -376,7 +376,7 @@ ACID
 
 
 
-![image-20211029002914413](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211029002914413.png)
+![image-20211029002914413](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211029002914413.png)
 - record lock（记录锁）
 
     - 常见于在主键索引 唯一索引里面做等值查询 
@@ -402,7 +402,7 @@ ACID
         事务2: insert into A value('6','6'); 会阻塞
         ```
 
-    - ![image-20211101015335226](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101015335226.png)
+    - ![image-20211101015335226](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211101015335226.png)
 
     - ```
         当查询命中某个范围的时候，会触发Gap lock
@@ -414,7 +414,7 @@ ACID
 - Next-key-locks (临界锁)（mysql rr隔离级别独有）
 
     - 当范围进行数据锁定的时候，命中了某一条record记录，会触发临界锁  
-    - ![image-20211101015947476](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101015947476.png)
+    - ![image-20211101015947476](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211101015947476.png)
 
     https://mp.weixin.qq.com/s?src=11&timestamp=1635704886&ver=3408&signature=3KK0wCn6XK6-Ug20TE-ix*Dtn7zH5OdVubtsahsS8i1ZR6fkSRdlUkkKNo7lWFmc5lak1FQm-DqHGM6gs7xCStExfO53GxqGyeVS2m3ngueOzQC7E2i4Faywp5UuzcHO&new=1
 
@@ -430,7 +430,7 @@ ACID
         （select ）
   - 快照读：我数据读取的是历史版本的数据  （undo log里面记录了历史版本数据）
 
-  ![image-20211015092109013](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015092109013.png)
+  ![image-20211015092109013](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211015092109013.png)
 
 - 当前读：select ... lock in share mode；  select ... for update ； 加锁的增删改语句 update；delete；insert
 - 快照读：不加锁的非阻塞读，select
@@ -441,7 +441,7 @@ Innodb行格式中，存在有
   - row_id                  行id
   - Transcation_id    每次对某条记录进行改动时，都会把对应的事务id赋值给trx_id隐藏列。
   - roll_pointer        每次对某条记录进行改动时，这个隐藏列会存一个指针，可以通过这个指针找到该记 录修改前的信息。
-  - ![image-20211015092529707](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015092529707.png)
+  - ![image-20211015092529707](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211015092529707.png)
   
 - 脏读、幻读、不可重复读的概念
 
@@ -454,7 +454,7 @@ Innodb行格式中，存在有
 
   - 只有在事务的第一次读的时候会生成readview
 
-  ​	![image-20211015093221107](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211015093221107.png)
+  ​	![image-20211015093221107](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211015093221107.png)
 
   ​	对于使用Read uncommitted隔离级别的事务来说，直接读取记录的最新版本就好了，对于使用 SERIALIZABLE隔离级别的事务来说，使用加锁的方式来访问记录。对于使用READ COMMITTED和 REPEATABLE READ隔离级别的事务来说，就需要用到我们上边所说的版本链了，核心问题就是:需要判断一下 版本链中的哪个版本是当前事务可见的。
 
@@ -505,7 +505,7 @@ Innodb行格式中，存在有
 
 
 
-![image-20211101134317868](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101134317868.png)
+![image-20211101134317868](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211101134317868.png)
 
 
 
@@ -557,7 +557,7 @@ commit;
 select * from test_innodb_lock
 ```
 
-![image-20200518115642259](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518115642259.png)
+![image-20200518115642259](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518115642259.png)
 
 
 
@@ -569,7 +569,7 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 
 结果如下：
 
-![image-20200518115406957](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200518115406957.png)
+![image-20200518115406957](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200518115406957.png)
 
 ######  什么是间隙锁
 
@@ -605,7 +605,7 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 
 
 
-![image-20200720143003260](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200720143003260.png)
+![image-20200720143003260](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200720143003260.png)
 
 
 
@@ -615,7 +615,7 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 
 ##### innodb架构图
 
-![image-20200720143138180](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200720143138180.png)
+![image-20200720143138180](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200720143138180.png)
 
 
 
@@ -674,7 +674,7 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
   - 每个文件大小相同
   - 作用：保证事务的持久化
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200722164429879.png" alt="image-20200722164429879" style="zoom: 25%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200722164429879.png" alt="image-20200722164429879" style="zoom: 25%;" />
 
 
 
@@ -694,7 +694,7 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 >
 >    当脏页落盘成功后，对应的redo log buffer 会进行进行清理，所以redo log buffer可以循环使用
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200914152313367.png" alt="image-20200914152313367" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200914152313367.png" alt="image-20200914152313367" style="zoom:50%;" />
 
 
 
@@ -704,7 +704,7 @@ session2:  insert into test_innodb_lock values(2,'2000')     #session2会被 ses
 
 
 
-![image-20200809213409775](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200809213409775.png)
+![image-20200809213409775](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200809213409775.png)
 
 
 
@@ -727,5 +727,5 @@ show engine innodb status
 
 
 
-![image-20211101164414531](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211101164414531.png)
+![image-20211101164414531](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211101164414531.png)
 

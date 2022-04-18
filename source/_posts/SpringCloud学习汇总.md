@@ -29,7 +29,7 @@ nacos：
 
 
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200921210204976.png" alt="image-20200921210204976" style="zoom: 33%; " />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200921210204976.png" alt="image-20200921210204976" style="zoom: 33%; " />
 
 
 
@@ -42,7 +42,7 @@ nacos：
 - sentinel流控规则
   1. 通过QPS控制
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200922105823011.png" alt="image-20200922105823011" style="zoom:33%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200922105823011.png" alt="image-20200922105823011" style="zoom:33%;" />
 
 2. 通过线程数流控
 
@@ -63,5 +63,5 @@ nacos：
 
   - 将整个 java服务当成一个整体，通过各个参数进行限流
 
-    <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20200923172558458.png" alt="image-20200923172558458" style="zoom:33%;" />
+    <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200923172558458.png" alt="image-20200923172558458" style="zoom:33%;" />
 
