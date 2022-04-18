@@ -1,6 +1,9 @@
-``` java
+---
+title: InfluxDB学习
+date: 2021-7-27 20:09:04
+tags: [数据库]
 
-```
+---
 
 
 
@@ -24,5 +27,5 @@ RP（Retention Policy）是数据库级别
 
 
 
-<img src="/Users/didi/Library/Application Support/typora-user-images/image-20220301122658764.png" alt="image-20220301122658764" style="zoom:50%;" />
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220301122658764.png" alt="image-20220301122658764" style="zoom:50%;" />
 

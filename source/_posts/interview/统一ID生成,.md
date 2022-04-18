@@ -1,10 +1,13 @@
+---
+title: 分布式ID的生成系统
+date: 2018-2-27 20:09:04
+tags: [系统设计]
+---
+
+
 分布式ID 的生成系统
 
 ![image-20211103131645150](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211103131645150.png)
-
-
-
-
 
 
 
