@@ -338,19 +338,80 @@ JIT 有的认为应该属于元数据区，有的认为应该单独拿出来
 可以回收
 
 ### 强引用和弱引用
-- 强引用
+- **强引用**   （垃圾回收，内存溢出也不回收）
 ```
 含义是 内存空间不足，宁愿抛出OOM 也不会回收强引用的对象
 Object obj = new Object()
 通过将对象设置为null 来弱化引用
 ```
-- 弱引用
+- **软引用**（垃圾回收，内存不够了，那么就回收）
+
+  - 强引用是宁肯溢出，也不回收，软引用是为了保证不溢出，会来回收。
+
+  - **软引用适合用来做缓存**，比方说缓存了一个1M大小的大Map在内存中，如果本身jvm的内存不够了，那么就将软引用的缓存回收掉，然后再分配内存给需要的对象。
+
+  - ```java
+       设置VMoption  -Xmx20m
+    public static void main(String[] args) {
+            //
+            SoftReference<byte[]> m = new SoftReference<>(new byte[1024*1024*10]);
+            System.out.println(m.get());
+            System.gc();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(m.get());
+            byte[] bytes = new byte[1024 * 1024 * 11];
+            System.out.println(m.get());
+        }
+    结果：
+    [B@60e53b93
+    [B@60e53b93
+    null     # 由于分配了10M（软） + 11M内存（强），于是直接将10M软引用内存回收了
+    ```
+
+    <img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20220321191708789.png" alt="image-20220321191708789" style="zoom:50%;" />
+
+- **弱引用**（垃圾回收，不管内存够不够，都回收，任意内存回收都会回收它）
 ```
 String str= new String("abc")
 SoftReference<String> softRef = new SoftReference<String>(str)
 ```
 
+- **虚引用** （这个回收的时候会将数据放入一个队列，一般用来管理直接内存）
+
+  ```java
+      private static final List<Object> LIST = new LinkedList<>();
+      private static final ReferenceQueue<M> QUEUE = new ReferenceQueue<>();
+  
+      public static void main(String[] args) {
+          PhantomReference<M> phantomReference = new PhantomReference<>(new M(),QUEUE);
+          System.out.println(phantomReference.get());
+      }
+  结果:
+  null
+  ```
+
+  虚引用：即使没有发生内存回收，结果也为null  new出来的对象根本没法拿到
+
+  作用：用于直接内存的管理，在NIO 和 netty中会经常使用直接内存。
+
+  > 正常模式中，操作系统接受到网络数据，是放在内核态中， JVM如果需要使用，需要将数据拷贝一份到JVM的用户态中。 但是JVM提供这种功能，能直接访问操作系统内核态的数据，既 direct buffer， 虚引用正好用来管理这个内存。
+
+  > 怎么使用：
+  >
+  > 凡是PhantomReference指向的对象，在回收的时候，都会将要回收的对象放到一个 ReferenceQueue 里面，
+
+
+
+
+
+
+
 有哪些可以作为 GC root  （GCroot）
+
 - **GC root**（一般来说，不在heap 区的能作为 GC root）
   - 虚拟机栈中引用的对象（主要放在虚拟机栈的局部变量表里面）
     - 比如各个线程被调用的方法中使用的参数，局部变量
@@ -628,6 +689,16 @@ JMM用处是定义程序中变量的返回规则
 
 
 
+## 四种引用类型
+
+- 强引用
+- 弱引用 
+- 虚引用  phantomReference 
+  - 这个虚引用-其实就是把数据在回收的时候起一个通知作用，因为虚引用会将内存放到一个队列中，等由这个队列来回收它。
+    - 在使用直接内存(direct memory)的时候，可以使用虚引用，对内存进行回收。
+
+
+
 
 ## ZGC 
 
@@ -666,8 +737,11 @@ JMM用处是定义程序中变量的返回规则
 
   使用上述的命令后 会拿到一个   .hprof 的文件
 
+​    sftp -oPort=8000 guxiang@fswap.sys.xiaojukeji.com
 
-​    
+jmap -dump:live,format=b,file=my_container_battery.hprof  1288
+
+<string>-vm</string><string>/Library/Java/JavaVirtualMachines/jdk1.8.0_311.jdk/Contents/Home/bin/java</string>
 
 - 使用工具分析 hprof
 
@@ -818,4 +892,18 @@ JMM用处是定义程序中变量的返回规则
 
 
 分析下GC log，看不出问题可以jmap -histo pid 看下对象的占用排行，实在不行就摘除流量，dump一份heap文件到mat分析下
+
+
+
+![image-20211215155422860](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211215155422860.png)
+
+
+
+
+
+jstat  -<option> 
+
+
+
+
 

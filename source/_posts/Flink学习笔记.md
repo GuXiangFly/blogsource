@@ -1373,3 +1373,26 @@ Flink  1.13的升级
 
 ![image-20210623165438362](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20210623165438362.png)
 
+
+
+
+
+## Flink的被压策略
+
+反压的解决办法:
+
+1. 静态限速
+
+   <img src="/Users/didi/Library/Application Support/typora-user-images/image-20220228162305923.png" alt="image-20220228162305923" style="zoom:50%;" />
+
+   - 策略
+
+2. 动态反馈/自动反压
+
+   <img src="/Users/didi/Library/Application Support/typora-user-images/image-20220228162412681.png" alt="image-20220228162412681" style="zoom:50%;" />
+
+
+
+#### Flink在1.5之前为什么没有反压?
+
+1. Flink1.5之前由于使用的TCP协议进行 network transfer， TCP自带有流量控制，所以没有这个反压。

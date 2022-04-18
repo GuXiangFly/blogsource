@@ -205,7 +205,7 @@ Rollup可以理解为表的一个物化索引结构。Rollup可以调整列的�
 
 （1）以session_data为例添加Rollup
 
-<img src="https://gitee.com/guxiangfly/blogimage/raw/master/img/wpsk5bdC7.jpg" alt="img" style="zoom: 50%;" /> 
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/wpsk5bdC7.jpg" alt="img" style="zoom: 50%;" /> 
 
 （2）比如我经常需要看某个城市的ip数，那么可以建立一个只有ip和city的rollup
 

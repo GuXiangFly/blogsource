@@ -32,7 +32,7 @@ tags: [java]
 
 
 
-
+jstack 36565 | grep '0x8ed5'  -C5 --color 
 
 
 

@@ -6,6 +6,86 @@ tags: [编程思想]
 
 
 
+## DDD的用处是什么的
+
+ddd是什么的缩写(Domain Driven Design)
+
+- DDD是为了解决快速变化、复杂系统的设计问题的
+
+
+
+
+
+
+
+# 模型
+
+### 贫血模型
+
+一般来说我们写一个student类，只有变量属性，和get set。没有具体的方法。
+
+```java
+public class Student{
+	int id;
+	int age;
+	String name;
+	get...
+	set...
+}
+```
+
+假设学生需要选课，需要写一个
+
+```java
+studentService.takeCourse(studentID,courseId)
+```
+
+这种包的组件方式是
+
+```
+cn.guxiangfly.controller
+cn.guxiangfly.service
+cn.guxiangfly.dao
+```
+
+
+
+### 充血模型
+
+```java
+class XXController{
+	Repository repository;
+  CheckService checkService;
+  XKService  XKService;
+  XKMsg  XKMsg;
+  Result xk(String StudentId,String courseId){
+    
+    //加载数据
+    Student s = repository.find(studentId);
+    Result r = checkService.check();
+    if (r != Success){
+      reject();
+    }
+    xkService.xk(sId,course);
+    xkMsg = new XKMsg(student,course);
+    msgSender.send(xkMsg);
+    return Success;
+  }
+}
+```
+
+
+
+抽象了CheckService，对应业务变化（防腐层）
+
+抽象MQ基础设施层，防止第三方组件的变化（rocketMQ->Kafka）
+
+
+
+
+
+
+
 编程思想
 
 - POP
