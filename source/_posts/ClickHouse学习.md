@@ -2,12 +2,12 @@
 
 title: ClickHouse学习
 date: 2017-10-27 20:09:04
-tags: [ElasticSearch]
+tags: [ClickHouse]
 
 ---
 
+### clickhouse环境设置
 
-clickhouse环境设置
 ```
 在 hadoop102 的 /etc/security/limits.conf 与  vim /etc/security/limits.d/20-nproc.conf
 文件的末尾加入以下内容
@@ -32,3 +32,10 @@ conf/    -----> /etc/clickhouse-server/
 lib/    -----> /var/lib/clickhouse
 log/    -----> /var/log/clickhouse
 ```
+
+
+
+
+
+### 添加工单表详情接口
+
