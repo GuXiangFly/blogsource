@@ -33,6 +33,52 @@ RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通�
 
 
 
+### Dubbo服务提供者
+
+代码 provider.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd
+		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!-- 1、指定当前服务/应用的名字（同样的服务名字相同，不要和别的服务同名） -->
+    <dubbo:application name="user-service-provider"></dubbo:application>
+
+    <!-- 2、指定注册中心的位置 -->
+    <!-- <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry> -->
+    <dubbo:registry protocol="zookeeper" address="127.0.0.1:2181"></dubbo:registry>
+
+    <!-- 3、指定通信规则（通信协议？通信端口） -->
+    <dubbo:protocol name="dubbo" port="20882"></dubbo:protocol>
+
+    <!-- 4、暴露服务   ref：指向服务的真正的实现对象 -->
+    <dubbo:service interface="cn.guxiangfly.service.UserService" ref="userServiceImp">
+    </dubbo:service>
+
+    <!--统一设置服务提供方的规则  -->
+    <dubbo:provider timeout="1000"></dubbo:provider>
+
+    <!-- 服务的实现 -->
+    <bean id="userServiceImp" class="cn.guxiangfly.service.impl.UserServiceImpl"></bean>
+
+    <!-- 连接监控中心 -->
+    <dubbo:monitor protocol="registry"></dubbo:monitor>
+
+</beans>
+```
+
+
+
+dubbo服务暴露的原理
+
+![image-20220105234714005](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20220105234714005.png)
+
+
 
 
 

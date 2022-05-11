@@ -101,3 +101,95 @@ namespace java   com.test.thrfit.demo
 ### 可选与必选
 
 ![image-20211202200924137](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211202200924137.png)
+
+
+
+
+
+### 注意
+thrift不支持日期
+
+
+
+### 一个DEMO
+编写thrift代码
+```thrift 
+namespace java thrift.generated
+
+/*这个define 定义*/
+typedef i16 short
+typedef i32 int
+typedef i64 long
+typedef bool boolean
+typedef string String
+
+struct Person{
+    1: optional String username,
+    2: optional int age,
+    3: optional boolean married
+}
+
+
+exception DataException{
+    1:optional String message,
+    2: optional String callStack,
+    3: optional String date
+}
+
+service PersonService{
+    Person getPersonByUserName(1:required String username) throws (1:DataException dataException),
+
+    void savePerson(1:required Person person) throws (1:DataException dataException)
+}
+```
+使用命令
+```
+thrift --gen java src/main/resources/thrift/data.thrift 
+```
+
+使用这个命令后，会在项目的根目录下生成一个gen-java的文件夹 里面有  thrift/generated包下 放置
+
+```
+Person.java 
+DataException.java
+PersonService.java
+```
+
+
+
+在pom.xml中加入依赖
+
+```XML
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.13.0</version>
+        </dependency>
+```
+
+![image-20211205004601785](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211205004601785.png)
+
+- TTransport： 传输层
+
+  
+
+  
+
+  ### Thrift的传输格式
+
+  ![image-20211205005109549](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211205005109549.png)
+
+
+
+
+
+### Thrfit传输方式
+
+![image-20211205005350116](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211205005350116.png)
+
+
+
+### Thrfit的服务模型
+
+![image-20211205005331005](https://gitee.com/guxiangfly/blogimage/raw/master/img/image-20211205005331005.png)
+
