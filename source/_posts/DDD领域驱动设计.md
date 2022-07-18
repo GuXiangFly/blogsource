@@ -44,7 +44,7 @@ studentService.takeCourse(studentID,courseId)
 
 ```
 cn.guxiangfly.controller
-cn.guxiangfly.service
+cn.guxiangfly.service   #如果service需要改变，但是被很多的地方有引用到，
 cn.guxiangfly.dao
 ```
 
@@ -81,6 +81,38 @@ class XXController{
 抽象MQ基础设施层，防止第三方组件的变化（rocketMQ->Kafka）
 
 
+
+包的组织：
+
+
+```
+ cn.guxiangfly.domain
+ cn.guxiangfly.service
+```
+
+
+
+- 实体
+- 聚合
+- 领域服务
+- 防腐层
+  - 比方说我们的checkservice 逻辑会有变化，那么我们将checkservice单独封装为一个service。
+  - 如果我们需要变化这个checkservice，那么直接变化这个checkservice的代码就好，不需要变domain本身的逻辑
+
+- 工厂
+- 仓库
+
+
+
+## 封装变化（DDD的核心）
+
+
+
+对比：
+
+- 业务逻辑清晰度
+- 贫血模型VS充血模型
+  - Student是贫血模型，会被各种Service调用。选课，借书，体育.. 分布在不同的业务中，
 
 
 
@@ -159,3 +191,7 @@ OOP （面向对象编程）
 <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20201123205429335.png" alt="image-20201123205429335" style="zoom: 50%;" />
 
 - - 实体里不仅包含属性，还包括关系，  类似我们一个用户
+
+
+
+- 
