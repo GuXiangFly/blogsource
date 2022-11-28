@@ -601,3 +601,58 @@ redis的 zset如何实现排序，增删改的速度
 
 
 
+
+
+
+
+
+
+# Redis 事务
+
+## 正常Redis的事务（非lua）
+
+```
+  redis		                       mysql
+开启事务：multi            |     begin / start transaction
+回滚事务：discard          |     rollback
+提交事务：exec             |     commit
+```
+
+
+
+redis的每个命令是并发执行的。
+
+##### redis如何实现回滚：
+
+```
+redis有一个事务队列, 一旦开启了事务，会将事务里面的命令依次都放到事务队列里面， 如果执行了exec，那么就将所有命令全部同时执行。如果调用了discard，那么就回滚这个队列。   
+```
+
+
+
+
+
+![image-20220831185046203](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220831185046203.png)
+
+watch 命令的作用：
+
+```
+在事务的执行过程中，其他命令修改了watch的这个key，会让事务取消。
+```
+
+
+
+正常的redis事务实现加倍的操作：
+
+```
+WATCH  score:10001
+val = GET sorce:10001
+MULTI
+SET  score:10001  val*2
+EXEC 
+```
+
+
+
+## 使用lua脚本来实现事务
+

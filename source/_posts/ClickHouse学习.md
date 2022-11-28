@@ -301,7 +301,7 @@ MergeTree 其实还有很多参数（绝大多数用默认值即可），但是�
 
 - 如果不慎
 
-  - 只会使用一个分区
+  - 只会使用一个分区 叫做All
 
 - 分区目录
 
@@ -325,9 +325,7 @@ MergeTree 其实还有很多参数（绝大多数用默认值即可），但是�
 
 
 
-![image-20210823172831617](images/image-20210823172831617.png)
-
-
+![image-20210823172831617](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20210823172831617.png)
 
 20200601_1_1_0 的解释：
 
@@ -2196,3 +2194,31 @@ GROUP BY UserID,EventDate;;
 # 查询物化视图
 SELECT * FROM hits_mv;
 ```
+
+
+
+
+
+## 向量化执行
+
+![image-20220928141325775](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220928141325775.png)
+
+
+
+在寄存器里面 可以并行的执行一些命令。
+
+![image-20220928141450489](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220928141450489.png)
+
+
+
+
+
+
+
+
+
+explore函数
+
+
+
+![image-20220930165234253](/Users/didi/Library/Application Support/typora-user-images/image-20220930165234253.png)
