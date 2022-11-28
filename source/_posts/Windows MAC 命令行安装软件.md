@@ -174,3 +174,73 @@ npm install -g yarn
 ```
 yarn global add yo
 ```
+
+
+
+
+
+# window安全
+
+## 关闭windows安全中心
+
+https://www.bilibili.com/video/BV1aE411o73Z/?spm_id_from=333.337.search-card.all.click&vd_source=73f183da11409d178c0db0c2e3501dd9
+
+1. win+R  输入 regedit
+
+2. 进入路径
+
+   1. ```
+      计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender
+      ```
+
+3. 新建一个32位值  value改为1  并且重命名为`DisableAntiSpyware`  
+
+![image-20221030012639660](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20221030012639660.png)
+
+
+
+
+
+
+
+## IDM 下载地址
+
+bilibili教程：
+
+https://www.bilibili.com/video/BV1CK411n7GP/?spm_id_from=333.337.search-card.all.click&vd_source=73f183da11409d178c0db0c2e3501dd9
+
+
+
+插件
+
+https://chrome.google.com/webstore/detail/idm-integration-module/ngpampappnmepgilojfohadhhmbhlaek/related
+
+- 建议使用下载包内的软件  百度网盘内搜 IDM破解版
+
+
+
+IDM 下载 外网数据，配合 v2ray 需要打开次设置
+
+![image-20221030015609600](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20221030015609600.png)
+
+
+
+
+
+## 关闭window自动更新
+
+1. win+R   regedit
+
+2. 进入这个目录
+
+   ```
+   计算机\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\UsoSvc
+   ```
+
+3. 将start的值改为4
+
+![image-20221101021439305](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20221101021439305.png)
+
+5. 将FailureActions的 10 和 18 两行的第五列由01改为 00
+
+![image-20221101021543650](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20221101021543650.png)
