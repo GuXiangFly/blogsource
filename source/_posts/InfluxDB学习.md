@@ -9,6 +9,16 @@ tags: [数据库]
 
 ![image-20220301114605288](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220301114605288.png)
 
+LSM tree 
+
+
+
+batteryReplaceService
+
+
+
+show TAG VALUES from batteryReplaceService WITH KEY = "city"
+
 
 
 ## RP （数据保留策略）
@@ -29,3 +39,10 @@ RP（Retention Policy）是数据库级别
 
 <img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220301122658764.png" alt="image-20220301122658764" style="zoom:50%;" />
 
+
+
+
+
+Table    tag     field 
+
+​       dispatchConsumerServiceHandleMsg

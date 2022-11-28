@@ -759,7 +759,7 @@ GET /myindex/article/_mapping
             "type" : "date"
           },
           "title" : {
-            "type" : "text",
+            "type" : "t ext",
             "fields" : {
               "keyword" : {
                 "type" : "keyword",
