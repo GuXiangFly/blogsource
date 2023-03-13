@@ -744,7 +744,7 @@ JMM用处是定义程序中变量的返回规则
 
 ​    sftp -oPort=8000 guxiang@fswap.sys.xiaojukeji.com
 
-jmap -dump:live,format=b,file=my_container_battery.hprof  1288
+jmap -dump:live,format=b,file=my_container_battery.hprof  1356
 
 <string>-vm</string><string>/Library/Java/JavaVirtualMachines/jdk1.8.0_311.jdk/Contents/Home/bin/java</string>
 
