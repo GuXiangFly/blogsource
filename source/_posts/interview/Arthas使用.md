@@ -10,11 +10,23 @@ https://alibaba.github.io/arthas/quick-start.html
 
 
 
+arthas 会影响系统性能 [10% 到 15%]
+
+
+
 #### 启动方式
 
 ```bash
 wget https://alibaba.github.io/arthas/arthas-boot.jar
 java -jar arthas-boot.jar
+
+
+
+使用 arthas-bin.zip
+
+unzip arthas-bin.zip
+
+java -jar arthas-boot.jar  可以启动arthas
 ```
 
 
@@ -53,7 +65,7 @@ java -jar arthas-boot.jar
 
 
 
-- dashboard使用
+- dashboard使用 [只需要进入 arthas的shell 后  命令 dashboard]
 
 ![image-20200624193235914](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20200624193235914.png)
 
@@ -61,7 +73,7 @@ java -jar arthas-boot.jar
 
 ```
 
-
+![image-20220823120830269](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220823120830269.png)
 
 参数说明
 
@@ -89,4 +101,52 @@ java -jar arthas-boot.jar
 
 
 
+
+
+
+
+
+
+
+### 常用命令 dashboard
+
+进入arthas 的 shell后， 执行
+
+![image-20230131113749072](/Users/didi/Library/Application Support/typora-user-images/image-20230131113749072.png)
+
+
+
+
+
+### 寻找死锁
+
+thread -b
+
+
+
+
+
+
+
+### trace功能使用
+
+![image-20230131125542477](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20230131125542477.png)
+
+
+
+
+
+
+
+上线场景：骑行卡
+
+上线原因：骑行卡添加部分逻辑监控
+
+策略负责人：@顾翔 Shawn Gu 
+
+ 审批人：@顾翔 Shawn Gu 
+
+上线时间：2023/02/02 16:00 
+
+涉及模块：nsky-pandora-strategy
 

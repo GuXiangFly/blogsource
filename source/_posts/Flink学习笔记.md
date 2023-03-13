@@ -38,9 +38,13 @@ Flink 分层
 
 问题： 这种无法保证数据的顺序。
 
+```
 
+```
 
+```
 
+```
 
 ## 有状态的流式处理
 
@@ -1169,6 +1173,8 @@ b.timestamp ∈ [a.timestamp + lowerBound; a.timestamp + upperBound]
 
 
 #### 普通连接 regular join
+
+
 
 
 

@@ -73,11 +73,11 @@ touch README
 git add README 添加文件
 git commit -m 'first commit'
 git remote add origin git@github.com:daixu/WebApp.git
- -----------------------------------------------------------
+-----------------------------------------------------------
 
 增加一个远程服务器端
 上面的命令会增加URL地址为'git@github.com:daixu/WebApp.git'，名称为origin的远程服务器库，以后提交代码的时候只需要使用 origin别名即可
- -----------------------------------------------------------
+-----------------------------------------------------------
 
 ## Git命令参考手册(文本版)
 Git init            # 初始化本地git仓库（创建新仓库） 
@@ -164,11 +164,12 @@ git stash apply stash@{0}       # 应用第一次暂存
 git grep "delete from"       # 文件中搜索文本“delete from” 
 git grep -e '#define' --and -e SORT_DIRENT 
 git gc 
+
 git fsck
 ---------------------------------------------------------
- 
+
 图片版:
- 
+
 ##	常用的Git命令
 
 命令	简要说明
@@ -353,3 +354,31 @@ git-parse-remote	包含于其他脚本中，提供操作远程版本库的函数
 git-sh-setup	包含于其他脚本中，提供 shell 编程的函数库
 
 ---------------------------------------------------------
+
+
+
+
+
+
+
+# 解决每次git pull、git push都需要输入账号和密码的问题
+
+- 首先进入你的git 工作目录下。
+  在终端执行一下命令：
+
+- ```
+  git config --global credential.helper store
+  ```
+
+- 
+
+- 然后再重新执行一次git pull,这次它还是提示你输入账号和密码：
+  示例：
+
+- ```
+  git pull
+  Username for 'https://isource-sh.dajiahao.com': s00558157
+  Password for 'https://stxgs123@isource-sh.dajiahao.com':*******
+  ```
+
+  

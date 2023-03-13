@@ -477,7 +477,7 @@ full GC 和 major GC
     - 低延迟（只有在  初始标记和重新标记的时候 会进行stop the world，这两个阶段stop the word时间非常短）
     - 并发清除
   - **CMS缺点**
-    - 会产生内存碎片， 并发清理后用户先的可用大段空间不足，无法分配大对虾的情况下，会产生Full GC。 Full GC 又会导致CMS进行垃圾回收，而且很有可能会在用户线程内存不够的时候临时采用到Serial Old 收集器来重新进行老年代的垃圾手机，时间就很长了。
+    - 会产生内存碎片， 并发清理后用户先的可用大段空间不足，无法分配大对象的情况下，会产生Full GC。 Full GC 又会导致CMS进行垃圾回收，而且很有可能会在用户线程内存不够的时候临时采用到Serial Old 收集器来重新进行老年代的垃圾手机，时间就很长了。
     - CMS收集器会产生cpu资源
     - 会产生一些浮动垃圾
 
@@ -721,6 +721,11 @@ JMM用处是定义程序中变量的返回规则
 
 ###  OutOfMemoryError排查与解决实战
 
+
+
+- jmap -heap <pid>
+- jmap -histo <pid>
+
 - 第一步想办法拿到Heap dump
 
   - ```BASH
@@ -739,7 +744,7 @@ JMM用处是定义程序中变量的返回规则
 
 ​    sftp -oPort=8000 guxiang@fswap.sys.xiaojukeji.com
 
-jmap -dump:live,format=b,file=my_container_battery.hprof  1288
+jmap -dump:live,format=b,file=my_container_battery.hprof  1356
 
 <string>-vm</string><string>/Library/Java/JavaVirtualMachines/jdk1.8.0_311.jdk/Contents/Home/bin/java</string>
 
@@ -907,3 +912,238 @@ jstat  -<option>
 
 
 
+
+
+
+
+## GC 日志分析
+
+
+
+通过阅读 Gc 日志，我们可以了解 Java 虚拟机内存分配与回收策略。 内存分配与垃圾回收的参数列表
+
+- `-XX:+PrintGC` 输出 GC 日志。类似：`-verbose:gc`
+- `-XX:+PrintGCDetails` 输出 GC 的详细日志
+- `-XX:+PrintGCTimestamps` 输出 GC 的时间戳（以基准时间的形式）
+- `-XX:+PrintGCDatestamps` 输出 GcC 的时间戳（以日期的形式，如 2013-05-04T21：53：59.234+0800）
+- `-XX:+PrintHeapAtGC` 在进行 GC 的前后打印出堆的信息
+- `-Xloggc:../logs/gc.log` 日志文件的输出路径
+
+
+
+打开 GC 日志
+
+```
+-verbose:gc
+```
+
+这个只会显示总的 GC 堆的变化，如下：
+
+```
+[GC (Allocation Failure) 80832K->19298K(227840K),0.0084018 secs]
+[GC (Metadata GC Threshold) 109499K->21465K(228352K),0.0184066 secs]
+[Full GC (Metadata GC Threshold) 21465K->16716K(201728K),0.0619261 secs]
+```
+
+参数解析
+
+```
+GC、Full GC：GC的类型，GC只在新生代上进行，Full GC包括永生代，新生代，老年代。
+Allocation Failure：GC发生的原因。
+80832K->19298K：堆在GC前的大小和GC后的大小。
+228840k：现在的堆大小。
+0.0084018 secs：GC持续的时间。
+```
+
+
+
+
+
+打开 GC 日志
+
+```
+-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimestamps -XX:+PrintGCDatestamps
+```
+
+输入信息如下
+
+```
+2019-09-24T22:15:24.518+0800: 3.287: [GC (Allocation Failure) [PSYoungGen:136162K->5113K(136192K)] 141425K->17632K(222208K),0.0248249 secs] [Times:user=0.05 sys=0.00,real=0.03 secs]
+
+2019-09-24T22:15:25.559+0800: 4.329: [GC (Metadata GC Threshold) [PSYoungGen:97578K->10068K(274944K)] 110096K->22658K(360960K),0.0094071 secs] [Times: user=0.00 sys=0.00,real=0.01 secs]
+
+2019-09-24T22:15:25.569+0800: 4.338: [Full GC (Metadata GC Threshold) [PSYoungGen:10068K->0K(274944K)][ParoldGen:12590K->13564K(56320K)] 22658K->13564K(331264K),[Metaspace:20590K->20590K(1067008K)],0.0494875 secs] [Times: user=0.17 sys=0.02,real=0.05 secs]
+```
+
+说明：带上了日期和实践
+
+如果想把 GC 日志存到文件的话，是下面的参数：
+
+```
+-Xloggc:/path/to/gc.log
+```
+
+**日志补充说明**
+
+- "`[GC`"和"`[Full GC`"说明了这次垃圾收集的停顿类型，如果有"Full"则说明 GC 发生了"Stop The World"
+
+- 使用 Serial 收集器在新生代的名字是 Default New Generation，因此显示的是"`[DefNew`"
+
+- 使用 ParNew 收集器在新生代的名字会变成"`[ParNew`"，意思是"Parallel New Generation"
+
+- 使用 Parallel scavenge 收集器在新生代的名字是”`[PSYoungGen`"
+
+- 老年代的收集和新生代道理一样，名字也是收集器决定的
+
+- 使用 G1 收集器的话，会显示为"garbage-first heap"
+
+- Allocation Failure
+
+  表明本次引起 GC 的原因是因为在年轻代中没有足够的空间能够存储新的数据了。
+
+- [PSYoungGen：5986K->696K(8704K) ] 5986K->704K(9216K)
+
+  中括号内：GC 回收前年轻代大小，回收后大小，（年轻代总大小）
+
+  括号外：GC 回收前年轻代和老年代大小，回收后大小，（年轻代和老年代总大小）
+
+  - user 代表用户态回收耗时，
+  - sys 内核态回收耗时，
+  - real 实际耗时。由于多核的原因，user+sys时间总和可能会超过 real 时间
+
+```
+Heap（堆）
+PSYoungGen（Parallel Scavenge收集器新生代）total 9216K，used 6234K [0x00000000ff600000,0x0000000100000000,0x0000000100000000)
+eden space（堆中的Eden区默认占比是8）8192K，768 used [0x00000000ff600000,0x00000000ffc16b08,0x00000000ffe00000)
+from space（堆中的Survivor，这里是From Survivor区默认占比是1）1024K， 0% used [0x00000000fff00000,0x00000000fff00000,0x0000000100000000)
+to space（堆中的Survivor，这里是to Survivor区默认占比是1，需要先了解一下堆的分配策略）1024K, 0% used [0x00000000ffe00000,0x00000000ffe00000,0x00000000fff00000)
+
+ParOldGen（老年代总大小和使用大小）total 10240K， used 7001K ［0x00000000fec00000,0x00000000ff600000,0x00000000ff600000)
+object space（显示个使用百分比）10240K，688 used [0x00000000fec00000,0x00000000ff2d6630,0x00000000ff600000)
+
+PSPermGen（永久代总大小和使用大小）total 21504K， used 4949K [0x00000000f9a00000,0x00000000faf00000,0x00000000fec00000)
+object space（显示个使用百分比，自己能算出来）21504K， 238 used [0x00000000f9a00000,0x00000000f9ed55e0,0x00000000faf00000)
+```
+
+
+
+解释一下含义
+
+```
+ par new generation   total 1674880K, used 1286571K [0x000000066b200000, 0x00000006dcb50000, 0x00000006dcb50000)
+  eden space 1488832K,  86% used [0x000000066b200000, 0x00000006b9a6aec0, 0x00000006c5ff0000)
+  from space 186048K,   0% used [0x00000006d15a0000, 0x00000006d15a0000, 0x00000006dcb50000)
+  to   space 186048K,   0% used [0x00000006c5ff0000, 0x00000006c5ff0000, 0x00000006d15a0000)
+ concurrent mark-sweep generation total 3723968K, used 1597524K [0x00000006dcb50000, 0x00000007c0000000, 0x00000007c0000000)
+ Metaspace       used 103385K, capacity 106805K, committed 107392K, reserved 1144832K
+  class space    used 12140K, capacity 12802K, committed 12940K, reserved 1048576K
+```
+
+```
+eden 0x000000066b200000  eden的内存块起始地址
+eden 0x00000006b9a6aec0  eden使用到的地址
+eden 0x00000006dcb50000  eden内存块的结束地址
+
+from 0x00000006d15a0000  from的内存块起始地址 应该与 eden内存块的结束地址 相同
+
+```
+
+
+
+
+
+#### MinorGC 日志
+
+![image-20220922160843676](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220922160843676.png)
+
+
+
+#### Full GC 日志
+
+![image-20220922160930874](http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20220922160930874.png)
+
+
+
+
+
+
+
+
+
+
+
+### 记录一次GC的过程
+
+```java
+2022-09-22T11:18:34.652+0800: 493052.537: [GC (Allocation Failure) 2022-09-22T11:18:34.652+0800: 493052.537: [ParNew: 1674880K->186048K(1674880K), 0.3138198 secs] 3864508K->2450468K(5398848K), 0.3141355 secs] [Times: user=1.02 sys=0.69, real=0.32 secs] 
+2022-09-22T11:18:36.603+0800: 493054.488: [GC (Allocation Failure) 2022-09-22T11:18:36.603+0800: 493054.488: [ParNew: 1674880K->186048K(1674880K), 0.3307932 secs] 3939300K->2529751K(5398848K), 0.3310608 secs] [Times: user=0.96 sys=0.14, real=0.34 secs] 
+2022-09-22T11:18:46.790+0800: 493064.675: [GC (Allocation Failure) 2022-09-22T11:18:46.790+0800: 493064.675: [ParNew: 1674880K->186048K(1674880K), 2.6116474 secs] 4018583K->2914579K(5398848K), 2.6119540 secs] [Times: user=7.59 sys=0.97, real=2.61 secs] 
+2022-09-22T11:19:04.651+0800: 493082.536: [GC (Allocation Failure) 2022-09-22T11:19:04.652+0800: 493082.537: [ParNew: 1674880K->186048K(1674880K), 2.9687655 secs] 4403411K->3314010K(5398848K), 2.9691933 secs] [Times: user=8.00 sys=0.90, real=2.97 secs] 
+2022-09-22T11:19:07.622+0800: 493085.507: [GC (CMS Initial Mark) [1 CMS-initial-mark: 3127962K(3723968K)] 3319668K(5398848K), 0.0703343 secs] [Times: user=0.23 sys=0.01, real=0.07 secs] 
+2022-09-22T11:19:07.693+0800: 493085.578: [CMS-concurrent-mark-start]
+2022-09-22T11:19:11.931+0800: 493089.816: [CMS-concurrent-mark: 4.223/4.238 secs] [Times: user=12.05 sys=0.83, real=4.24 secs] 
+2022-09-22T11:19:11.931+0800: 493089.816: [CMS-concurrent-preclean-start]
+2022-09-22T11:19:11.953+0800: 493089.838: [CMS-concurrent-preclean: 0.021/0.022 secs] [Times: user=0.07 sys=0.01, real=0.02 secs] 
+2022-09-22T11:19:11.953+0800: 493089.838: [CMS-concurrent-abortable-preclean-start]
+2022-09-22T11:19:12.983+0800: 493090.868: [GC (Allocation Failure) 2022-09-22T11:19:12.983+0800: 493090.868: [ParNew: 1674880K->186048K(1674880K), 1.6535069 secs] 4802842K->3505529K(5398848K), 1.6538739 secs] [Times: user=5.62 sys=0.12, real=1.66 secs] 
+2022-09-22T11:19:15.469+0800: 493093.354: [CMS-concurrent-abortable-preclean: 1.849/3.516 secs] [Times: user=9.93 sys=0.51, real=3.52 secs] 
+2022-09-22T11:19:15.470+0800: 493093.355: [GC (CMS Final Remark) [YG occupancy: 563240 K (1674880 K)]2022-09-22T11:19:15.470+0800: 493093.355: [Rescan (parallel) , 0.1217527 secs]2022-09-22T11:19:15.592+0800: 493093.477: [weak refs processing, 0.0002445 secs]2022-09-22T11:19:15.592+0800: 493093.477: [class unloading, 0.0953141 secs]2022-09-22T11:19:15.688+0800: 493093.573: [scrub symbol table, 0.0281930 secs]2022-09-22T11:19:15.716+0800: 493093.601: [scrub string table, 0.0017695 secs][1 CMS-remark: 3319481K(3723968K)] 3882722K(5398848K), 0.2698333 secs] [Times: user=1.08 sys=0.04, real=0.27 secs] 
+2022-09-22T11:19:15.740+0800: 493093.625: [CMS-concurrent-sweep-start]
+2022-09-22T11:19:17.480+0800: 493095.365: [GC (Allocation Failure) 2022-09-22T11:19:17.480+0800: 493095.365: [ParNew: 1674880K->166135K(1674880K), 0.4873480 secs] 4187754K->2790799K(5398848K), 0.4876144 secs] [Times: user=1.82 sys=0.06, real=0.49 secs] 
+2022-09-22T11:19:19.837+0800: 493097.722: [GC (Allocation Failure) 2022-09-22T11:19:19.837+0800: 493097.722: [ParNew: 1654967K->177526K(1674880K), 0.7758492 secs] 3651648K->2283028K(5398848K), 0.7760780 secs] [Times: user=2.36 sys=0.04, real=0.77 secs] 
+2022-09-22T11:19:21.152+0800: 493099.037: [CMS-concurrent-sweep: 4.138/5.412 secs] [Times: user=14.40 sys=1.51, real=5.41 secs] 
+2022-09-22T11:19:21.152+0800: 493099.037: [CMS-concurrent-reset-start]
+2022-09-22T11:19:21.161+0800: 493099.046: [CMS-concurrent-reset: 0.008/0.008 secs] [Times: user=0.03 sys=0.00, real=0.01 secs] 
+2022-09-22T11:19:22.258+0800: 493100.143: [GC (Allocation Failure) 2022-09-22T11:19:22.258+0800: 493100.143: [ParNew: 1666358K->169797K(1674880K), 0.6865801 secs] 3592736K->2220461K(5398848K), 0.6868040 secs] [Times: user=2.21 sys=0.02, real=0.69 secs] 
+2022-09-22T11:19:24.802+0800: 493102.687: [GC (Allocation Failure) 2022-09-22T11:19:24.802+0800: 493102.687: [ParNew: 1658629K->161835K(1674880K), 0.8145777 secs] 3709293K->2322250K(5398848K), 0.8148535 secs] [Times: user=2.76 sys=0.48, real=0.82 secs] 
+2022-09-22T11:19:27.636+0800: 493105.521: [GC (Allocation Failure) 2022-09-22T11:19:27.636+0800: 493105.521: [ParNew: 1650667K->186048K(1674880K), 0.9996242 secs] 3811082K->2456200K(5398848K), 0.9998814 secs] [Times: user=3.74 sys=0.12, real=1.00 secs] 
+2022-09-22T11:19:30.634+0800: 493108.519: [GC (Allocation Failure) 2022-09-22T11:19:30.634+0800: 493108.519: [ParNew: 1674880K->162174K(1674880K), 1.6438588 secs] 3945032K->2571892K(5398848K), 1.6442090 secs] [Times: user=5.05 sys=0.09, real=1.64 secs] 
+2022-09-22T11:19:34.313+0800: 493112.198: [GC (Allocation Failure) 2022-09-22T11:19:34.313+0800: 493112.198: [ParNew: 1651006K->161561K(1674880K), 0.9968208 secs] 4060724K->2681296K(5398848K), 0.9970511 secs] [Times: user=2.83 sys=0.18, real=1.00 secs] 
+2022-09-22T11:19:36.956+0800: 493114.841: [GC (Allocation Failure) 2022-09-22T11:19:36.956+0800: 493114.841: [ParNew: 1650393K->169116K(1674880K), 1.0076500 secs] 4170128K->2798767K(5398848K), 1.0079196 secs] [Times: user=2.97 sys=0.04, real=1.01 secs] 
+2022-09-22T11:19:42.421+0800: 493120.306: [GC (Allocation Failure) 2022-09-22T11:19:42.421+0800: 493120.306: [ParNew: 1657948K->186048K(1674880K), 1.2147030 secs] 4287599K->2943185K(5398848K), 1.2149973 secs] [Times: user=3.66 sys=0.34, real=1.22 secs] 
+2022-09-22T11:19:46.782+0800: 493124.667: [GC (Allocation Failure) 2022-09-22T11:19:46.783+0800: 493124.668: [ParNew (promotion failed): 1637490K->1637490K(1674880K), 120.7397112 secs]2022-09-22T11:21:47.522+0800: 493245.407: [CMS: 2757137K->1597524K(3723968K), 10.8727894 secs] 4394627K->1597524K(5398848K), [Metaspace: 103076K->103076K(1144832K)], 131.6130365 secs] [Times: user=368.07 sys=4.60, real=131.62 secs] 
+Heap
+ par new generation   total 1674880K, used 1286571K [0x000000066b200000, 0x00000006dcb50000, 0x00000006dcb50000)
+  eden space 1488832K,  86% used [0x000000066b200000, 0x00000006b9a6aec0, 0x00000006c5ff0000)
+  from space 186048K,   0% used [0x00000006d15a0000, 0x00000006d15a0000, 0x00000006dcb50000)
+  to   space 186048K,   0% used [0x00000006c5ff0000, 0x00000006c5ff0000, 0x00000006d15a0000)
+ concurrent mark-sweep generation total 3723968K, used 1597524K [0x00000006dcb50000, 0x00000007c0000000, 0x00000007c0000000)
+ Metaspace       used 103385K, capacity 106805K, committed 107392K, reserved 1144832K
+  class space    used 12140K, capacity 12802K, committed 12940K, reserved 1048576K
+```
+
+
+
+重点看这个
+
+```java
+2022-09-22T11:19:46.782+0800: 493124.667: [GC (Allocation Failure) 2022-09-22T11:19:46.783+0800: 493124.668: [ParNew (promotion failed): 1637490K->1637490K(1674880K), 120.7397112 secs]2022-09-22T11:21:47.522+0800: 493245.407: [CMS: 2757137K->1597524K(3723968K), 10.8727894 secs] 4394627K->1597524K(5398848K), [Metaspace: 103076K->103076K(1144832K)], 131.6130365 secs] [Times: user=368.07 sys=4.60, real=131.62 secs] 
+Heap
+```
+
+
+
+#### 整体GC逻辑分析
+
+首先 我们设置一个参数
+
+```
+-XX:PretenureSizeThreshold=0   
+```
+
+这个代表不会存在大对象直接进入老年代的情况， 一般来说是对象会分配到eden 或者 from 区。 如果发现没足够区域进行分配，会进行一次 Youny GC。如果说GC后空间
+
+
+
+Youny GC  
+
+
+
+
+
+问个问题，在CMS收集器的环境下。
+eden 区域满了， 我现在需要new 一个对象， 但是没有区域放了，这时候一般会进行 Youny GC， 但是假设 Youny GC 后发现没有能被清理的无引用对象，JVM会进行反复Youny GC， 直到对象晋升进入老年代么？
+
+
+
+这个ParNew use 120 secs 有点奇怪

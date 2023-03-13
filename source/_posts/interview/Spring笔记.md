@@ -1135,3 +1135,277 @@ class UserServiceProxy extend UserService{
 }
 ```
 
+
+
+
+
+
+
+
+
+
+
+# 如何自定义一个SpringBoot的 Starter
+
+
+
+#### 观察-data-redis-starter 是怎么实现的
+
+```java
+
+package org.springframework.boot.autoconfigure.data.redis;
+
+import java.net.UnknownHostException;
+
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+/**
+ * {@link EnableAutoConfiguration Auto-configuration} for Spring Data's Redis support.
+ *
+ * @author Dave Syer
+ * @author Andy Wilkinson
+ * @author Christian Dupuis
+ * @author Christoph Strobl
+ * @author Phillip Webb
+ * @author Eddú Meléndez
+ * @author Stephane Nicoll
+ * @author Marco Aust
+ * @author Mark Paluch
+ */
+@Configuration
+@ConditionalOnClass(RedisOperations.class)// 当应用中存在RedisOperations的时候 可以进行初始化
+@EnableConfigurationProperties(RedisProperties.class)  // 配置的属性（application.yml）
+@Import({ LettuceConnectionConfiguration.class, JedisConnectionConfiguration.class })
+//RedisAutoConfiguration如果需要进行有效的实例化  我需要一个LettuceConnectionConfiguration 或者 JedisConnectionConfiguration
+public class RedisAutoConfiguration {
+ 
+	@Bean //自动进行容器的注册
+	@ConditionalOnMissingBean(name = "redisTemplate")
+	public RedisTemplate<Object, Object> redisTemplate(
+			RedisConnectionFactory redisConnectionFactory) throws UnknownHostException {
+		RedisTemplate<Object, Object> template = new RedisTemplate<>();
+		template.setConnectionFactory(redisConnectionFactory);
+		return template;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	public StringRedisTemplate stringRedisTemplate(
+			RedisConnectionFactory redisConnectionFactory) throws UnknownHostException {
+		StringRedisTemplate template = new StringRedisTemplate();
+		template.setConnectionFactory(redisConnectionFactory);
+		return template;
+	}
+
+}
+
+```
+
+注解大集合
+
+```
+org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+org.springframework.boot.context.properties.EnableConfigurationProperties;
+org.springframework.context.annotation.Import;
+org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+```
+
+
+
+不同的模块定义一些自动的启动类，而这些启动类需要结合 application.yml 配置生效，实现最终的Bean注册。
+
+在流程里面就可以结束了
+
+
+
+
+
+测试类
+
+```java
+@SpringBootApplication
+public class MicroBootWebApplication  implements CommandLineRunner {
+    @Autowired
+    private Dept dept;
+
+    public static void main(String[] args) {
+        SpringApplication.run(MicroBootWebApplication.class, args);
+    }
+
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("debug");
+        System.out.println(dept);
+    }
+}
+
+```
+
+
+
+### 分析@EnableConfigurationProperties注解
+
+```java
+@Configuration
+@EnableConfigurationProperties(Dept.class)
+public class GuxiangflyConfiguration {
+}
+```
+
+源码
+
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import(EnableConfigurationPropertiesImportSelector.class) // 这里使用了 import
+// import 主要是将bean加入到spring的管理之中
+public @interface EnableConfigurationProperties {
+	Class<?>[] value() default {};
+}
+```
+
+
+
+###  分析 @import注解
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Import {
+    Class<?>[] value();
+}
+```
+
+此时在使用 "@import" 注解的时候，主要是将bean加入到 Spring实例管理中。
+
+使用import注解有三种不同的处理形式
+
+- 类导入
+
+  - ```java
+    @Configuration
+    //@EnableConfigurationProperties(Dept.class)
+    @Import(Dept.class)
+    public class GuxiangflyConfiguration {
+    }
+    ```
+
+  - 这样也能将bean自动注入
+
+    
+
+- importSelector导入
+
+  - ```java
+    @Configuration
+    //@EnableConfigurationProperties(Dept.class)
+    //@Import(Dept.class)
+    @Import({DefaultImportSelector.class})
+    public class GuxiangflyConfiguration {
+    }
+    ```
+
+  - ```java
+    import org.springframework.context.annotation.ImportSelector;
+    import org.springframework.core.type.AnnotationMetadata;
+    
+    public class DefaultImportSelector implements ImportSelector {
+        @Override
+        public String[] selectImports(AnnotationMetadata annotationMetadata) {
+            return new String[]{"cn.guxiangfly.study.starter.Dept"};
+        }
+    }
+    ```
+
+  - 
+
+- importBeanDefinitionRegister导入
+
+  - ```java
+    @Configuration
+    //@EnableConfigurationProperties(Dept.class)
+    //@Import(Dept.class)
+    @Import({DefaultImportBeanDefinitionRegistrar.class})
+    public class GuxiangflyConfiguration {
+    }
+    ```
+
+  - ```java
+    import cn.guxiangfly.study.starter.Dept;
+    import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+    import org.springframework.beans.factory.support.RootBeanDefinition;
+    import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+    import org.springframework.core.type.AnnotationMetadata;
+    
+    public class DefaultImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegistrar {
+        @Override
+        public void registerBeanDefinitions(AnnotationMetadata annotationMetadata, BeanDefinitionRegistry beanDefinitionRegistry) {
+            RootBeanDefinition deptDefinition = new RootBeanDefinition(Dept.class);
+            beanDefinitionRegistry.registerBeanDefinition("deptInstance",deptDefinition);
+        }
+    }
+    ```
+
+- 
+
+
+
+### 如何实现application.propreties的自动提示
+
+在starter模块里面 引入此pom
+
+```xml
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${springBoot.version}</version>
+        </dependency>
+```
+
+经过rebuild后， 项目里面会出现此文件 `spring-configuration-metadata.json`，这个就是提示性文件 
+
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20221019155006559.png" alt="image-20221019155006559" style="zoom:50%;" />
+
+```json
+{
+  "groups": [
+    {
+      "name": "cn.guxiangfly.study.starter.dept",
+      "type": "cn.guxiangfly.study.starter.Dept",
+      "sourceType": "cn.guxiangfly.study.starter.Dept"
+    }
+  ],
+  "properties": [
+    {
+      "name": "cn.guxiangfly.study.starter.dept.deptno",
+      "type": "java.lang.String",
+      "sourceType": "cn.guxiangfly.study.starter.Dept"
+    },
+    {
+      "name": "cn.guxiangfly.study.starter.dept.dname",
+      "type": "java.lang.String",
+      "sourceType": "cn.guxiangfly.study.starter.Dept"
+    },
+    {
+      "name": "cn.guxiangfly.study.starter.dept.loc",
+      "type": "java.lang.String",
+      "sourceType": "cn.guxiangfly.study.starter.Dept"
+    }
+  ],
+  "hints": []
+}
+```
+
