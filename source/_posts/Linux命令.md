@@ -381,3 +381,23 @@ wc的命令比较简单使用，每个参数使用如下：
 
       http://www.cnblogs.com/stephen-liu74/archive/2011/11/10/2240461.html
  ```
+
+
+
+
+
+
+
+
+
+上线场景：pandora-monitor-center
+
+上线原因： monitor center部分日志满载导致服务不可用问题
+
+ CR：@顾翔 Shawn Gu
+
+ 审批人：@顾翔 Shawn Gu 
+
+上线时间：2023/03/16 15:30
+
+涉及模块：pandora-monitor-center     
