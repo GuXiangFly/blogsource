@@ -31,7 +31,7 @@ oh-my-zsh 提供了许多内置主题，可查看 [themes](https://github.com/oh
 
 我们可直接通过 ~/.zshrc 配置更新主题配置，将内容修改如下：
 
-```
+```sh
 ZSH_THEME="agnoster"   # 默认为 robbyrussell
 ```
 

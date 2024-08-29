@@ -134,6 +134,21 @@ thread -b
 
 
 
+```
+trace  com.didichuxing.pandora.strategy.bike.battery.impl.BatteryReplaceService  doQuery '#cost > 200'
+
+trace  com.didichuxing.pandora.strategy.bike.battery.impl.generate.processor.HotSpotProcessor process '#cost > 200'
+
+trace  com.didichuxing.pandora.strategy.bike.growth.impl.ridecard.PayBeforeRankStrategyServiceImpl  getBuyBeforeRankService
+
+trace com.didichuxing.pandora.strategy.bike.growth.impl.ridecard.processor.PayBeforeRankProcessor process '#cost > 70'
+
+trace com.didichuxing.pandora.strategy.bike.growth.impl.ridecard.strategy.SolvePayBeforeRankStrategy solve '#cost > 70'
+
+
+trace com.didichuxing.pandora.strategy.bike.growth.impl.ridecard.strategy.SolvePayBeforeRankStrategy getPayBeforeCardRankByPredCostEx '#cost > 70'
+```
+
 
 
 

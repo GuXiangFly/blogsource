@@ -241,3 +241,29 @@ RPC框架的目标就是要2~8这些步骤都封装起来，这些细节对用�
 
 
 
+
+
+
+
+## 能说下dubbo的工作流程吗？
+
+<img src="http://guxiangflyimagebucket.oss-cn-beijing.aliyuncs.com/img/image-20211122153532450.png" alt="image-20211122153532450" style="zoom:50%;" />
+
+1. 第一步Start:  启动spring容器的时候，自动启动dubbo的provider
+
+2. 第二步register：dubbo的provider在启动后会去注册中心注册内容，注册的内容包括有IP，端口，接口列表，版本，provider协议
+
+3. subscribe：订阅当consumer启动的时候，自动去registry获取所注册的服务信息。
+
+4. notify：通知，当provider的信息发生变化的时候，自动由registry向consumer推送通知。
+
+   
+
+
+
+
+
+```
+
+```
+
